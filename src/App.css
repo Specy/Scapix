@@ -9,6 +9,8 @@
 }
 .content{
   display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
   box-sizing: border-box;
   padding: 1rem;
@@ -32,4 +34,68 @@
   flex-direction: row;
   width: 100vw;
   height: 100vh;
+}
+.filePicker{
+  font-size: 1.8rem;
+  color: #7e7e7e;
+  margin-top: 2rem;
+  width: 50vw;
+  border-radius: 1rem;
+  border: #7e7e7e dashed 4px;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  transition: all 0.5s;
+  background-color: rgb(42, 41, 51)
+}
+.filePicker *{
+  pointer-events: none;
+}
+.formats{
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  font-size: 1rem;
+}
+.formatsHovered{
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+.bottomMainPage{
+  margin-top: 1.5rem;
+  display: flex;
+  flex: 1;
+  width: 100%;
+}
+.filesHolder{
+  display: flex;
+  flex: 1;
+  overflow-y: auto;
+  flex-direction: column;
+  padding-left: 1rem;
+  height: 60vh;
+}
+.sideSettings{
+  width: 15vw;
+  background-color: rgb(42, 41, 51);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+.MuiSvgIcon-root{
+  cursor: pointer;
+}
+.fileRow{
+  display: flex;
+  width: 100%;
+  min-height: 10vh;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgb(42, 41, 51);
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  box-sizing: border-box;
 }

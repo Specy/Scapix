@@ -10,8 +10,13 @@ class ContentWrapper extends Component {
 	//=======================================================//
 	render() {
 		return (
-            <div className="contentWrapper dm-L2">
-                {this.props.children[this.props.selectedPage]}
+            <div className="dm-L2" style={{display:"flex"}}>
+                {this.props.children.map((page,i) => {
+					let isHidden = !(i === this.props.selectedPage)
+					return <div style={isHidden ? {display:"none"}: {}} className="contentWrapper dm-L2">
+						{page}
+					</div>
+				})}
             </div>
 		)
 	}
