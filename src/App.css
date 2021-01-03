@@ -1,0 +1,35 @@
+
+.sideMenu{
+  display: flex;
+  width: 5vw;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+
+}
+.content{
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1rem;
+  flex: 1;
+  border-radius: 0.5rem;
+  color:white
+}
+.contentWrapper{
+  width: 95vw;
+  display: flex;
+  flex-direction: row;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+.appWrapper{
+  display: flex;
+  flex-direction: row;
+}
+.body{
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  height: 100vh;
+}
