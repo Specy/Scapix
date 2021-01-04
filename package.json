@@ -12,6 +12,7 @@
     "electron": "^11.1.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
+    "react-dropzone": "^11.2.4",
     "react-scripts": "4.0.1",
     "wait-on": "^5.2.1",
     "web-vitals": "^0.2.4"

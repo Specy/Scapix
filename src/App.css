@@ -1,11 +1,21 @@
-
+.box-shadow {
+  box-shadow: 0pt 3pt 12pt -2pt grey;
+}
+.input{
+  margin: 0.3rem 0;
+  width: 100%;
+  max-width: 100%;
+}
+input[type=number]{
+  width: calc(100% - 16px);
+  background-color: red;
+}
 .sideMenu{
   display: flex;
-  width: 5vw;
+  width: 75px;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-
 }
 .content{
   display: flex;
@@ -16,10 +26,10 @@
   padding: 1rem;
   flex: 1;
   border-radius: 0.5rem;
-  color:white
+  color:black
 }
 .contentWrapper{
-  width: 95vw;
+  width: calc(100vw - 75px);
   display: flex;
   flex-direction: row;
   padding: 1rem;
@@ -35,20 +45,31 @@
   width: 100vw;
   height: 100vh;
 }
+.previewImage{
+  height: 75px;
+}
+.fileName{
+  position: absolute;
+  bottom: -0.6rem;
+  left: -0.2rem;
+  font-size: 0.7rem;
+  width: 200px;
+  text-overflow: ellipsis;
+  overflow:hidden; 
+  white-space:nowrap
+}
 .filePicker{
   font-size: 1.8rem;
-  color: #7e7e7e;
-  margin-top: 2rem;
+  color:   #363636;
   width: 50vw;
+  cursor: pointer;
   border-radius: 1rem;
-  border: #7e7e7e dashed 4px;
-  flex: 1;
+  border:   #363636 dashed 4px;
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
   transition: all 0.5s;
-  background-color: rgb(42, 41, 51)
 }
 .filePicker *{
   pointer-events: none;
@@ -64,38 +85,90 @@
   filter: brightness(1.1);
 }
 .bottomMainPage{
-  margin-top: 1.5rem;
+  margin-top: 0.8rem;
   display: flex;
-  flex: 1;
   width: 100%;
+  height: 60vh;
 }
 .filesHolder{
   display: flex;
+  border-radius: 0.8rem;
   flex: 1;
   overflow-y: auto;
   flex-direction: column;
-  padding-left: 1rem;
-  height: 60vh;
+  padding: 0.8rem 0;
+  margin-left: 0.8rem;
 }
+.overflowFileHolder{
+  display: flex;
+  flex: 1;
+  overflow-y: scroll;
+  flex-direction: column;
+  margin-right: 0.3rem;
+}
+.upperMainPage{
+  width: 100%;
+  border-radius: 0.5rem;
+  display: flex;
+  flex: 1;
+  box-sizing: border-box;
+  padding: 0.8rem;
+  justify-content: center;
+}
+
 .sideSettings{
-  width: 15vw;
-  background-color: rgb(42, 41, 51);
+  width: 13vw;
   border-radius: 0.5rem;
   padding: 1rem;
   box-sizing: border-box;
+  display: flex;
+  color:  rgb(42, 41, 51);
+}
+.innerSideSettings{
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 .MuiSvgIcon-root{
   cursor: pointer;
 }
+.redHover:hover{
+  fill: #f54242;
+}
+.highlightHover:hover{
+  fill:  rgb(107 107 107)
+}
 .fileRow{
   display: flex;
-  width: 100%;
-  min-height: 10vh;
+  height: 110px;
   justify-content: space-between;
   align-items: center;
-  background-color: rgb(42, 41, 51);
+  margin: 0 0.8rem;
   border-radius: 0.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
   padding: 1rem;
+  padding-bottom: 1.5rem;
+  margin-right: 0.3rem;
   box-sizing: border-box;
+}
+.l0{
+  background-color:	#bdbdbe;
+}
+.l1{
+  background-color: white;
+}
+.scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.scroll::-webkit-scrollbar-track {
+  background: #dddddd;
+  overflow: hidden;
+}
+.scroll::-webkit-scrollbar-thumb {
+  background: rgb(99, 99, 99);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.scroll::-webkit-scrollbar-thumb:hover {
+  opacity: 0.6;
 }

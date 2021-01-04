@@ -1,22 +1,31 @@
 import React, { Component } from 'react'
 import "../App.css"
-import { DeleteForever } from "@material-ui/icons"
-class ComponentEx extends Component {
+import { DeleteForever, Visibility } from "@material-ui/icons"
+class FileContainer extends Component {
 	constructor(props) {
 		super(props)
     }
     
 	//=======================================================//
 	render() {
+        let data = this.props.data
 		return (
-            <div className="fileRow">
-                <div>
-                    {this.props.children}
+            <div className="fileRow wm-L2 text-dark">
+                <div style={{position:"relative"}}>
+                    <img src={`data:image/jpeg;base64,${data.data}`} className="previewImage"/>
+                        <div className="fileName">
+                            {data.name}
+                        </div>
                 </div>
-                <div>
+                <div className="centerX centerY">
+                    <Visibility
+                        className="text-dark highlightHover"
+                        style={{fontSize:25}}
+                    />
                     <DeleteForever 
-                        onClick={() => this.props.action(this.props.children)}
-                        className="text-red"
+                        onClick={() => this.props.action(data.id)}
+                        className="text-dark redHover"
+                        style={{fontSize:25}}
                     />
                 </div>
             </div>
@@ -24,4 +33,4 @@ class ComponentEx extends Component {
 	}
 }
 
-export default ComponentEx
+export default FileContainer

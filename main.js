@@ -1,18 +1,54 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow} = require('electron')
+const {app, BrowserWindow , ipcMain, Menu } = require('electron')
+const fs = require('fs').promises
+
+
+
+
+
+
+
+ipcMain.on('send-images',async (event, arg) => {
+    let promises = []
+    let files = arg
+    files.forEach((file,i) => {
+        promises.push(fs.readFile(file.path,{encoding: 'base64'}))
+    })
+    let data = await Promise.all(promises)
+    data = data.map((file,i) =>{
+        return {
+            data: file,
+            id: files[i].id
+        }
+    })
+    event.reply('receive-images', data)
+  })
+
+
+
+
+
+
+
+
+//---------------------------------------------------//
+
 
 function createWindow () {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1200,
+    height: 1000,
+    webPreferences: {
+        nodeIntegration: false,
+        preload: __dirname + '/preload.js'
+      }
   })
   // and load the index.html of the app.
   mainWindow.loadURL('http://localhost:3000')
   mainWindow.maximize()
   //mainWindow.webContents.openDevTools()
 }
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
