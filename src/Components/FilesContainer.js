@@ -9,14 +9,32 @@ class FileContainer extends Component {
 	//=======================================================//
 	render() {
         let data = this.props.data
+        let color = "rgb(238, 238, 238)"
+        if(data.status === "done"){
+            if(data.success){
+                color = "rgb(200, 239, 200)"
+            }else{
+                color = "#e3b0b0"
+            }
+        }else if(data.status === "pending"){
+            color = "#f7f1cb"
+        }
+        console.log(data,color)
 		return (
-            <div className="fileRow wm-L2 text-dark">
-                <div style={{position:"relative"}}>
-                    <img src={`data:image/jpeg;base64,${data.data}`} className="previewImage"/>
-                        <div className="fileName">
-                            {data.name}
-                        </div>
+            <div className="fileRow text-dark" style={{backgroundColor:color}}>
+                <div className="row">
+                    <div style={{position:"relative"}}>
+                        <img src={data.src} className="previewImage"/>
+                            <div className="fileName">
+                                {data.name}
+                            </div>
+                    </div>
+                    <div className="dataCol">
+                        <div>{data.prettySize}</div>
+                        <div>{data.width}x{data.height}</div>
+                    </div>
                 </div>
+
                 <div className="centerX centerY">
                     <Visibility
                         className="text-dark highlightHover"

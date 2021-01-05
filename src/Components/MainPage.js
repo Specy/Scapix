@@ -1,6 +1,8 @@
 import React, {Component, useCallback} from 'react'
 import FileContainer from "./FilesContainer"
 import {useDropzone} from 'react-dropzone'
+import prettyBytes from "pretty-bytes"
+import ImagesSettings from "./ImagesSettings"
 import "../App.css"
 import "../specy.css"
 function DropZone(callBack) {
@@ -27,13 +29,25 @@ class MainPage extends Component {
 		super(props)
 		this.state = {
 			isFileHover: false,
-			files:{}
+			files:{},
+			globalImgSettings:{
+				magnification: 2,
+				denoiseLevel: "None"
+			}
 		}
-		window.ipcRenderer.on('receive-images', (event, arg) => {
-			let files = this.state.files
-			arg.forEach(file =>{
-				files[file.id].data = file.data
+		window.ipcRenderer.on('done-execution', (event, arg) => {
+			let file = this.state.files[arg.id]
+			file.status = arg.status
+			file.success = arg.success
+			console.log("Done")
+			this.setState({
+				files: this.state.files
 			})
+		})
+		window.ipcRenderer.on('update-execution', (event, arg) => {
+			let file = this.state.files[arg.id]
+			file.status = arg.status
+			console.log("Update")
 			this.setState({
 				files: this.state.files
 			})
@@ -45,6 +59,40 @@ class MainPage extends Component {
 			files: this.state.files
 		})
 	}
+	executeWaifu = () =>{
+		console.log("pressed")
+		let dataToSend = Object.keys(this.state.files).map((el)=>{
+			el = this.state.files[el]
+			return {
+				name:el.name,
+				path:el.path,
+				width: el.width,
+				height: el.height,
+				noise: el.noise,
+				scale: el.scale,
+				id: el.id,
+				size: el.size,
+			}
+		})
+		window.ipcRenderer.send('execute-waifu',dataToSend)
+	}
+
+	handleImgSettingsChange = (value,type) =>{
+		let toChange = this.state.globalImgSettings[type]
+		toChange = isNaN(value) ? value : parseFloat(value)
+		if(value < 0 && type==="magnification" && value !== ""){
+			this.state.globalImgSettings["magnification"] = 0
+		}
+		let newImgData = this.state.files.map(img =>{
+			img.noise = this.state.globalImgSettings.denoiseLevel
+			img.scale = this.state.globalImgSettings.magnification
+			return img
+		})
+		this.setState({
+			globalImgSettings: this.state.globalImgSettings,
+			files: newImgData
+		})
+	}
 	getRandomId = () => {
 		let str1 = Math.random().toString(36).substring(7)
 		let str2 = Math.random().toString(36).substring(7)
@@ -52,55 +100,56 @@ class MainPage extends Component {
 	}
     handleDrop = (e) => {
 		let files = this.state.files
-		let newFiles = {}
 		for (const file of e) { 
 			let obj = {
 				name:file.name,
 				path:file.path,
-				data: "",
-				id: this.getRandomId()
+				src: null,
+				width: 0,
+				height: 0,
+				scale: 2,
+				status: "idle",
+				noise: 0,
+				id: this.getRandomId(),
+				size: file.size,
+				prettySize: prettyBytes(file.size)
 			}
 			let exists = Object.keys(files).findIndex(e =>{
 				return files[e].path === obj.path
 			})
 			if(exists < 0){
-				newFiles[obj.id] = obj
 				files[obj.id] = obj
+				const reader = new FileReader();
+				reader.onload = (data) => {
+					var image = new Image();
+					image.src = data.target.result
+					image.onload = () => {
+						obj.src = data.target.result
+						obj.width = image.width
+						obj.height = image.height
+						this.setState({
+							files: files
+						})
+					}
+
+				}
+				reader.readAsDataURL(file);
 			}
 		}
-		this.setState({
-			files: files
-		},() => {
-			let dataToSend = Object.keys(newFiles).map(key => files[key])
-			window.ipcRenderer.send('send-images',dataToSend)
-		})
 	}
 	//=======================================================//
 	render() {
 		return (
             <div className="content l1" style={{perspective:"100px"}}>
 				<div className="upperMainPage box-shadow">
-					<DropZone drop={this.handleDrop}/>
+					<DropZone drop={this.handleDrop} />
 				</div>
 				<div className="bottomMainPage">
-					<div className="sideSettings l1 box-shadow">
-						<div className="innerSideSettings">
-							<div className="column">
-								<div>Magnification</div>
-									<input type="number" value="1.5" className="input wm-L2"/>
-							</div>
-							<div className="column">
-								<div>Denoise level</div>
-									<select className="input wm-L2" value="Low">
-										<option>None</option>
-										<option>Low</option>
-										<option>Medium</option>
-										<option>High</option>
-									</select>
-							</div>
-						</div>
-
-					</div>
+					<ImagesSettings 
+						data={this.state.globalImgSettings} 
+						action={this.handleImgSettingsChange}
+						executeWaifu={this.executeWaifu}
+					/>
 					<div className="filesHolder l1 box-shadow">
 						<div className="overflowFileHolder scroll">
 							{Object.keys(this.state.files).map((key) =>{

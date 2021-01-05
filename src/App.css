@@ -58,6 +58,13 @@ input[type=number]{
   overflow:hidden; 
   white-space:nowrap
 }
+.dataCol{
+  flex-direction: column;
+  display: flex;
+  height: 75px;
+  justify-content: space-around;
+  margin-left: 0.5rem;
+}
 .filePicker{
   font-size: 1.8rem;
   color:   #363636;
@@ -119,7 +126,7 @@ input[type=number]{
 .sideSettings{
   width: 13vw;
   border-radius: 0.5rem;
-  padding: 1rem;
+  padding: 0.8rem;
   box-sizing: border-box;
   display: flex;
   color:  rgb(42, 41, 51);
@@ -150,6 +157,7 @@ input[type=number]{
   padding-bottom: 1.5rem;
   margin-right: 0.3rem;
   box-sizing: border-box;
+  background-color: rgb(238, 238, 238);
 }
 .l0{
   background-color:	#bdbdbe;
