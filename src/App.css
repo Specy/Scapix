@@ -180,3 +180,56 @@ input[type=number]{
 .scroll::-webkit-scrollbar-thumb:hover {
   opacity: 0.6;
 }
+.floatingImages{
+  top: 0;
+  left: 0;
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.4);
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.imagesContainer{
+  border-radius: 1rem;
+  width: 70vw;
+  height: 90vh;
+  background-color:#363636;
+  padding: 1rem;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+}
+.imagesContainer img{
+  width: calc(35vw - 1.5rem);
+  border:0;
+  border-radius: 0.8rem;
+  background-color: #555555;
+}
+.textAndImage{
+  position: relative;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+}
+.floatingImgText{
+  position: absolute;
+  top: 0.5rem;
+  background-color:rgba(22, 22, 22, 0.9);
+  color: white;
+  font-weight: bold;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.3rem;
+  align-self: center;
+}
+.closeBtn{
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: rgb(27, 25, 35);
+  border-radius: 0.8rem;
+  color: white;
+  padding: 0.5rem;
+}

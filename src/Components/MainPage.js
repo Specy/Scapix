@@ -39,15 +39,16 @@ class MainPage extends Component {
 			let file = this.state.files[arg.id]
 			file.status = arg.status
 			file.success = arg.success
+			file.updatedImg = arg.upscaledImg
 			console.log("Done")
 			this.setState({
 				files: this.state.files
 			})
 		})
 		window.ipcRenderer.on('update-execution', (event, arg) => {
+			console.log("Update")
 			let file = this.state.files[arg.id]
 			file.status = arg.status
-			console.log("Update")
 			this.setState({
 				files: this.state.files
 			})
@@ -60,7 +61,6 @@ class MainPage extends Component {
 		})
 	}
 	executeWaifu = () =>{
-		console.log("pressed")
 		let dataToSend = Object.keys(this.state.files).map((el)=>{
 			el = this.state.files[el]
 			return {
@@ -83,14 +83,17 @@ class MainPage extends Component {
 		if(value < 0 && type==="magnification" && value !== ""){
 			this.state.globalImgSettings["magnification"] = 0
 		}
-		let newImgData = this.state.files.map(img =>{
-			img.noise = this.state.globalImgSettings.denoiseLevel
-			img.scale = this.state.globalImgSettings.magnification
+		let newState = this.state.globalImgSettings
+		newState[type] = toChange
+		Object.keys(this.state.files).map(img =>{
+			img = this.state.files[img]
+			img.noise = newState.denoiseLevel
+			img.scale = newState.magnification
 			return img
 		})
 		this.setState({
-			globalImgSettings: this.state.globalImgSettings,
-			files: newImgData
+			globalImgSettings: newState,
+			files: this.state.files
 		})
 	}
 	getRandomId = () => {
@@ -109,6 +112,7 @@ class MainPage extends Component {
 				height: 0,
 				scale: 2,
 				status: "idle",
+				updatedImg: null,
 				noise: 0,
 				id: this.getRandomId(),
 				size: file.size,
@@ -154,7 +158,12 @@ class MainPage extends Component {
 						<div className="overflowFileHolder scroll">
 							{Object.keys(this.state.files).map((key) =>{
 								let file = this.state.files[key]
-								return <FileContainer key={file.id} action={this.removeImage} data={file}/>
+								return <FileContainer 
+											key={file.id} 
+											action={this.removeImage} 
+											data={file}
+											toggleFloatingImages={this.props.toggleFloatingImages}
+										/>
 							})}
 						</div>
 					</div>

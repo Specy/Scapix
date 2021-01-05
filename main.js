@@ -31,17 +31,25 @@ ipcMain.on('execute-waifu', async (event, arg) => {
             id:el.id,
             message: output.output,
             success: output.success,
-            status: "done"
+            status: "done",
+            upscaledImg: null
+        }
+        if(output.success){
+            let upscaledImg = await fs.readFile("./results/"+safePath, {encoding: "base64"})
+            reply.upscaledImg = "data:image/"+getFormat(safePath,true)+";base64,"+upscaledImg
         }
         event.reply('done-execution', reply)
     })
 })
 
-
-
-
 //---------------------------------------------------//
 
+function getFormat(path,noExtension  = false){
+    let regex = new RegExp('\.[^.\\\/:*?"<>|\r\n]+$')
+    let result = path.match(regex)[0] || ".png"
+    if(noExtension) result = result.replace(".","")
+    return result
+}
 function createWindow() {
     // Create the browser window.
     const mainWindow = new BrowserWindow({

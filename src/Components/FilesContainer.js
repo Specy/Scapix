@@ -5,7 +5,14 @@ class FileContainer extends Component {
 	constructor(props) {
 		super(props)
     }
-    
+    sendImagesData = () =>{
+        let data = {
+            original:this.props.data.src,
+            modified: this.props.data.updatedImg,
+            hasImages: true
+        }
+        this.props.toggleFloatingImages(data)
+    }
 	//=======================================================//
 	render() {
         let data = this.props.data
@@ -19,7 +26,6 @@ class FileContainer extends Component {
         }else if(data.status === "pending"){
             color = "#f7f1cb"
         }
-        console.log(data,color)
 		return (
             <div className="fileRow text-dark" style={{backgroundColor:color}}>
                 <div className="row">
@@ -39,6 +45,7 @@ class FileContainer extends Component {
                     <Visibility
                         className="text-dark highlightHover"
                         style={{fontSize:25}}
+                        onClick={this.sendImagesData}
                     />
                     <DeleteForever 
                         onClick={() => this.props.action(data.id)}
