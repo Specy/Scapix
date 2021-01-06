@@ -6,6 +6,12 @@
   width: 100%;
   max-width: 100%;
 }
+*{
+  outline: none;
+}
+button:active{
+  filter: brightness(0.9);
+}
 input[type=number]{
   width: calc(100% - 16px);
   background-color: red;
@@ -76,7 +82,7 @@ input[type=number]{
   justify-content: center;
   align-items: center;
   position: relative;
-  transition: all 0.5s;
+  transition: transform linear 0.5s;
 }
 .filePicker *{
   pointer-events: none;
@@ -158,6 +164,10 @@ input[type=number]{
   margin-right: 0.3rem;
   box-sizing: border-box;
   background-color: rgb(238, 238, 238);
+  transition: 0.2s all;
+}
+select{
+  cursor: pointer;
 }
 .l0{
   background-color:	#bdbdbe;

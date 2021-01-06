@@ -16,7 +16,7 @@ class ImagesSettings extends Component {
             <div className="sideSettings l1 box-shadow">
                 <div className="innerSideSettings">
                     <div className="column">
-                        <div>Magnification</div>
+                        <div>Scale</div>
                         <input 
                             type="number"
                             step="0.1"
@@ -38,6 +38,20 @@ class ImagesSettings extends Component {
                             <option>Low</option>
                             <option>Medium</option>
                             <option>High</option>
+                        </select>
+                    </div>
+                    <div className="column">
+                        <div>Output format</div>
+                        <select 
+                            className="input wm-L2" 
+                            value={data.outputFormat}
+                            name="outputFormat"
+                            onChange={this.handleChange}
+                        >   
+                            <option>Original</option>
+                            <option>.png</option>
+                            <option>.jpg</option>
+                            <option>.webp</option>
                         </select>
                     </div>
                     <button 

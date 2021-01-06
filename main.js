@@ -21,12 +21,21 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         }
         let safePath = sanitize(el.name)
         safePath = safePath.replace(/ /g,"")
-        await fs.copyFile(el.path,"./results/"+safePath)
+        let outputPath = replaceFormat(safePath,el.format)
+        console.log(safePath,outputPath)
         event.reply('update-execution', {
             id:el.id,
             status: "pending"
         })
-        let output = await AsyncWaifu2x.upscaleImg("../results/"+safePath,"../results/"+safePath,options)
+        let output
+        if(getFormat(el.name) === ".gif"){
+            options.width = el.width * el.scale
+            options.height = el.height * el.scale
+            output = await AsyncWaifu2x.upscaleGif(el.path,"./temp/","./results/"+outputPath,options)
+        }else{
+            output = await AsyncWaifu2x.upscaleImg(el.path,"./results/"+outputPath,options)
+        }
+        
         let reply = {
             id:el.id,
             message: output.output,
@@ -34,15 +43,27 @@ ipcMain.on('execute-waifu', async (event, arg) => {
             status: "done",
             upscaledImg: null
         }
-        if(output.success){
-            let upscaledImg = await fs.readFile("./results/"+safePath, {encoding: "base64"})
-            reply.upscaledImg = "data:image/"+getFormat(safePath,true)+";base64,"+upscaledImg
+        if(!output.success) console.log(output.output)
+        try{
+            if(output.success){
+                let upscaledImg = await fs.readFile("./results/"+outputPath, {encoding: "base64"})
+                reply.upscaledImg = "data:image/"+getFormat(outputPath,true)+";base64,"+upscaledImg
+            }
+        }catch(e){
+            console.log("Error finding file")
+            output.success = false
         }
+
         event.reply('done-execution', reply)
     })
 })
 
 //---------------------------------------------------//
+function replaceFormat(path,newFormat){
+    if(newFormat === "Original") return path
+    let regex = new RegExp('\.[^.\\\/:*?"<>|\r\n]+$')
+    return path.replace(regex,newFormat)
+}
 
 function getFormat(path,noExtension  = false){
     let regex = new RegExp('\.[^.\\\/:*?"<>|\r\n]+$')
@@ -71,7 +92,7 @@ function createWindow() {
         mainWindow.show();
         setTimeout(()=>{
             mainWindow.setAlwaysOnTop(false)
-        },500)
+        },200)
       });
 
     //mainWindow.webContents.openDevTools()

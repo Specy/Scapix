@@ -3,8 +3,8 @@ import "../App.css"
 let s = {
     wrapper:{
         borderRadius: "0.5rem",
-        width:"3.5vw",
-        height:"3.5vw",
+        width:"55px",
+        height:"55px",
         display:"flex",
         justifyContent:"center",
         alignItems:"center",

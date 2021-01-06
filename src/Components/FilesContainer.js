@@ -17,9 +17,11 @@ class FileContainer extends Component {
 	render() {
         let data = this.props.data
         let color = "rgb(238, 238, 238)"
+        let visible = {visibility:"hidden"}
         if(data.status === "done"){
             if(data.success){
                 color = "rgb(200, 239, 200)"
+                visible.visibility = "visible"
             }else{
                 color = "#e3b0b0"
             }
@@ -41,10 +43,10 @@ class FileContainer extends Component {
                     </div>
                 </div>
 
-                <div className="centerX centerY">
+                <div className="flex centerX centerY">
                     <Visibility
                         className="text-dark highlightHover"
-                        style={{fontSize:25}}
+                        style={{fontSize:25,...visible}}
                         onClick={this.sendImagesData}
                     />
                     <DeleteForever 

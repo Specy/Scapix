@@ -32,7 +32,8 @@ class MainPage extends Component {
 			files:{},
 			globalImgSettings:{
 				magnification: 2,
-				denoiseLevel: "None"
+				denoiseLevel: "None",
+				outputFormat: "Original"
 			}
 		}
 		window.ipcRenderer.on('done-execution', (event, arg) => {
@@ -70,6 +71,7 @@ class MainPage extends Component {
 				height: el.height,
 				noise: el.noise,
 				scale: el.scale,
+				format: el.format,
 				id: el.id,
 				size: el.size,
 			}
@@ -80,8 +82,8 @@ class MainPage extends Component {
 	handleImgSettingsChange = (value,type) =>{
 		let toChange = this.state.globalImgSettings[type]
 		toChange = isNaN(value) ? value : parseFloat(value)
-		if(value < 0 && type==="magnification" && value !== ""){
-			this.state.globalImgSettings["magnification"] = 0
+		if(value < 0.6 && type==="magnification" && value !== ""){
+			toChange = 0.6
 		}
 		let newState = this.state.globalImgSettings
 		newState[type] = toChange
@@ -89,6 +91,7 @@ class MainPage extends Component {
 			img = this.state.files[img]
 			img.noise = newState.denoiseLevel
 			img.scale = newState.magnification
+			img.format = newState.outputFormat
 			return img
 		})
 		this.setState({
@@ -110,10 +113,11 @@ class MainPage extends Component {
 				src: null,
 				width: 0,
 				height: 0,
-				scale: 2,
+				scale: this.state.globalImgSettings.magnification,
 				status: "idle",
 				updatedImg: null,
-				noise: 0,
+				format:this.state.globalImgSettings.outputFormat,
+				noise: this.state.globalImgSettings.denoiseLevel,
 				id: this.getRandomId(),
 				size: file.size,
 				prettySize: prettyBytes(file.size)
