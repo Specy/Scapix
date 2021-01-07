@@ -21,9 +21,9 @@ class ImagesSettings extends Component {
                         <input 
                             type="number"
                             step="0.1"
-                            value={data.magnification} 
+                            value={data.scale} 
                             className="input wm-L2" 
-                            name="magnification"
+                            name="scale"
                             onChange={this.handleChange}
                         />
                     </div>
@@ -56,7 +56,7 @@ class ImagesSettings extends Component {
                         </select>
                     </div>
                     <button 
-                        className="button fillY green" 
+                        className="button fillY darkTeal" 
                         style={{margin:0,marginTop:"auto"}}
                         onClick={this.props.executeWaifu}
                     >

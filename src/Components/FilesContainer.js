@@ -13,6 +13,10 @@ class FileContainer extends Component {
         }
         this.props.toggleFloatingImages(data)
     }
+    handleChange = (e) =>{
+        let el = e.target
+        this.props.individualChange(el.value,el.name,this.props.data.id)
+    }
 	//=======================================================//
 	render() {
         let data = this.props.data
@@ -27,7 +31,7 @@ class FileContainer extends Component {
                 color = s.darkMode === "on" ? "rgb(144 74 74)" : "#e3b0b0"
             }
         }else if(data.status === "pending"){
-            color = s.darkMode === "on" ? "rgb(27, 25, 35)" : "rgb(238, 238, 238)"
+            color = s.darkMode === "on" ? "#d6c869" : "#f7f1cb"
         }
 		return (
             <div 
@@ -42,11 +46,28 @@ class FileContainer extends Component {
                     </div>
                     <div className="dataCol">
                         <div>{data.prettySize}</div>
-                        <div>{data.width}x{data.height}</div>
+                        <div>
+                            {data.width}x{data.height} 
+                            {" ➤ "}
+                            {Math.floor(data.width * data.scale) }x
+                            {Math.floor(data.height * data.scale )}
+                        </div>
                     </div>
                 </div>
 
                 <div className="flex centerX centerY">
+                    <div className="column centerY" style={{marginRight:"0.5rem"}}>
+                        <div style={{marginTop:"-1.2rem"}}>Scale</div>
+                        <input 
+                            type="number"
+                            className={"individualInput"} 
+                            step={0.1}
+                            name="scale"
+                            onChange={this.handleChange}
+                            value={data.scale}
+                        />
+                    </div>
+                    
                     <Visibility
                         className={s.darkMode === "on" ? "text-white highlightHover" : "text-dark highlightHover"}
                         style={{fontSize:25,...visible}}

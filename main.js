@@ -2,8 +2,14 @@ const AsyncWaifu2x =require("./AsyncWaifu2x")
 const { app, BrowserWindow, ipcMain, Menu } = require('electron')
 const fs = require('fs').promises
 const sanitize = require("sanitize-filename")
+const openExplorer = require('open-file-explorer');
 
-
+let outputPath = "./results/"
+ipcMain.on('open-folder', async (event, arg) => {
+    let endPath = __dirname+"\\results"
+    console.log(endPath)
+    openExplorer(endPath)
+})
 
 ipcMain.on('execute-waifu', async (event, arg) => {
     arg.forEach(async el =>{
@@ -21,7 +27,6 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         }
         let safePath = sanitize(el.name)
         let outputPath = replaceFormat(safePath,el.format)
-        console.log(safePath,outputPath)
         event.reply('update-execution', {
             id:el.id,
             status: "pending"
@@ -30,9 +35,9 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         if(getFormat(el.name) === ".gif"){
             options.width = el.width * el.scale
             options.height = el.height * el.scale
-            output = await AsyncWaifu2x.upscaleGif(el.path,"./temp/","./results/"+outputPath,options)
+            output = await AsyncWaifu2x.upscaleGif(el.path,"../temp/","../results/"+outputPath,options)
         }else{
-            output = await AsyncWaifu2x.upscaleImg(el.path,"./results/"+outputPath,options)
+            output = await AsyncWaifu2x.upscaleImg(el.path,"../results/"+outputPath,options)
         }
         
         let reply = {

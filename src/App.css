@@ -23,7 +23,6 @@ button:active{
 }
 input[type=number]{
   width: calc(100% - 16px);
-  background-color: red;
 }
 .sideMenu{
   display: flex;
@@ -40,14 +39,12 @@ input[type=number]{
   box-sizing: border-box;
   padding: 1rem;
   flex: 1;
-  border-radius: 0.5rem;
   color:black
 }
 .contentWrapper{
   width: calc(100vw - 75px);
   display: flex;
   flex-direction: row;
-  padding: 1rem;
   box-sizing: border-box;
 }
 .appWrapper{
@@ -111,19 +108,19 @@ input[type=number]{
   filter: brightness(1.1);
 }
 .bottomMainPage{
-  margin-top: 0.8rem;
+  margin-top: 1rem;
   display: flex;
   width: 100%;
   height: 60vh;
 }
 .filesHolder{
   display: flex;
-  border-radius: 0.8rem;
+  border-radius: 0.6rem;
   flex: 1;
   overflow-y: auto;
   flex-direction: column;
   padding: 0.8rem 0;
-  margin-left: 0.8rem;
+  margin-left: 1rem;
 }
 .overflowFileHolder{
   display: flex;
@@ -134,17 +131,18 @@ input[type=number]{
 }
 .upperMainPage{
   width: 100%;
-  border-radius: 0.5rem;
+  border-radius: 0.6rem;
   display: flex;
   flex: 1;
   box-sizing: border-box;
   padding: 0.8rem;
   justify-content: center;
+  position: relative;
 }
 
 .sideSettings{
   width: 13vw;
-  border-radius: 0.5rem;
+  border-radius: 0.6rem;
   padding: 0.8rem;
   box-sizing: border-box;
   display: flex;
@@ -156,6 +154,9 @@ input[type=number]{
 }
 .MuiSvgIcon-root{
   cursor: pointer;
+}
+.redHover , .highlightHover{
+  margin-left: 0.4rem;
 }
 .redHover:hover{
   fill: #f54242;
@@ -227,7 +228,7 @@ select{
 .imagesContainer{
   border-radius: 1rem;
   width: 70vw;
-  height: 90vh;
+  height: 91vh;
   background-color:#363636;
   padding: 1rem;
   box-sizing: border-box;
@@ -264,4 +265,21 @@ select{
   border-radius: 0.8rem;
   color: white;
   padding: 0.5rem;
+}
+.button{
+  border-radius: 0.4rem;
+}
+.individualInput{
+  margin-top: 0.2rem;
+  border-radius: 0.2rem;
+  padding: 0.5rem;
+  border: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  width: 3rem !important;
+}
+.outputFolder{
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
 }

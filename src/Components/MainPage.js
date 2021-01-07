@@ -33,7 +33,7 @@ class MainPage extends Component {
 			isFileHover: false,
 			files:{},
 			globalImgSettings:{
-				magnification: 2,
+				scale: 2,
 				denoiseLevel: "None",
 				outputFormat: "Original"
 			}
@@ -80,11 +80,21 @@ class MainPage extends Component {
 		})
 		window.ipcRenderer.send('execute-waifu',dataToSend)
 	}
-
+	handleIndividualSettingsChange = (value,type,id) => {
+		if(value < 0.6 && type==="scale" && value !== ""){
+			value = 0.6
+		}
+		let oldState = this.state.files[id]
+		console.log(oldState[type])
+		oldState[type] = value
+		this.setState({
+			files: this.state.files
+		})
+	}
 	handleImgSettingsChange = (value,type) =>{
 		let toChange = this.state.globalImgSettings[type]
 		toChange = isNaN(value) ? value : parseFloat(value)
-		if(value < 0.6 && type==="magnification" && value !== ""){
+		if(value < 0.6 && type==="scale" && value !== ""){
 			toChange = 0.6
 		}
 		let newState = this.state.globalImgSettings
@@ -92,7 +102,7 @@ class MainPage extends Component {
 		Object.keys(this.state.files).map(img =>{
 			img = this.state.files[img]
 			img.noise = newState.denoiseLevel
-			img.scale = newState.magnification
+			img.scale = newState.scale
 			img.format = newState.outputFormat
 			return img
 		})
@@ -115,7 +125,7 @@ class MainPage extends Component {
 				src: null,
 				width: 0,
 				height: 0,
-				scale: this.state.globalImgSettings.magnification,
+				scale: this.state.globalImgSettings.scale,
 				status: "idle",
 				updatedImg: null,
 				format:this.state.globalImgSettings.outputFormat,
@@ -147,6 +157,9 @@ class MainPage extends Component {
 			}
 		}
 	}
+	openFolder = () => {
+		window.ipcRenderer.send("open-folder")
+	}
 	//=======================================================//
 	render() {
 		let s = this.props.settings
@@ -156,7 +169,11 @@ class MainPage extends Component {
 				style={{perspective:"100px"}}>
 				<div 
 					className={s.darkMode === "on" ? "upperMainPage dm-L2" : "upperMainPage box-shadow"}
-					>
+				>
+					<button 
+						className="button outputFolder"
+						onClick={this.openFolder}
+					>Open output folder</button>
 					<DropZone drop={this.handleDrop} settings={s}/>
 				</div>
 				<div className="bottomMainPage">
@@ -173,7 +190,8 @@ class MainPage extends Component {
 								return <FileContainer 
 								settings={s}
 											key={file.id} 
-											action={this.removeImage} 
+											action={this.removeImage}
+											individualChange={this.handleIndividualSettingsChange}
 											data={file}
 											toggleFloatingImages={this.props.toggleFloatingImages}
 										/>
