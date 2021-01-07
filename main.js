@@ -20,7 +20,6 @@ ipcMain.on('execute-waifu', async (event, arg) => {
             scale: el.scale
         }
         let safePath = sanitize(el.name)
-        safePath = safePath.replace(/ /g,"")
         let outputPath = replaceFormat(safePath,el.format)
         console.log(safePath,outputPath)
         event.reply('update-execution', {

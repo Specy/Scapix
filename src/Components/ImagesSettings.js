@@ -11,9 +11,10 @@ class ImagesSettings extends Component {
     //=======================================================//
     render() {
         let data = this.props.data
+        let s = this.props.settings
         return (
 
-            <div className="sideSettings l1 box-shadow">
+            <div className={s.darkMode === "on" ? "sideSettings dm-L2" : "sideSettings l1 box-shadow"}>
                 <div className="innerSideSettings">
                     <div className="column">
                         <div>Scale</div>

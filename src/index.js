@@ -13,7 +13,10 @@ class App extends Component {
       this.state = {
         selectedPage: 0,
         floatingImagesToggled: false,
-        floatingImages: {}
+        floatingImages: {},
+        settings:{
+          darkMode:"off"
+        }
       }
     }
     toggleFloatingImages = (data) =>{
@@ -26,6 +29,13 @@ class App extends Component {
       this.setState({
         floatingImagesToggled : !this.state.floatingImagesToggled,
         floatingImages: data
+      })
+    }
+    toggleSettings = (data) =>{
+      let newState = this.state.settings
+      newState[data.type] = data.value
+      this.setState({
+        settings: newState
       })
     }
     changePage = (index) => {
@@ -42,10 +52,10 @@ class App extends Component {
             toggle={this.toggleFloatingImages}
             data={this.state.floatingImages}
           />
-          <SideMenu action={this.changePage} selectedIndex={this.state.selectedPage}/>
-          <ContentWrapper selectedPage = {this.state.selectedPage}>
-              <MainPage toggleFloatingImages={this.toggleFloatingImages}/>
-              <Settings/>
+          <SideMenu action={this.changePage} selectedIndex={this.state.selectedPage} settings={this.state.settings}/>
+          <ContentWrapper selectedPage = {this.state.selectedPage} settings={this.state.settings}>
+              <MainPage toggleFloatingImages={this.toggleFloatingImages} settings={this.state.settings}/>
+              <Settings toggleSettings={this.toggleSettings} settings={this.state.settings}/>
           </ContentWrapper>
         </div>
       </div>

@@ -5,13 +5,15 @@ import prettyBytes from "pretty-bytes"
 import ImagesSettings from "./ImagesSettings"
 import "../App.css"
 import "../specy.css"
-function DropZone(callBack) {
+function DropZone(props) {
 	const onDrop = useCallback(acceptedFiles => {
-		callBack.drop(acceptedFiles)
+		props.drop(acceptedFiles)
 	}, [])
 	const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
+	let classes = isDragActive ? "filePicker formatsHovered" : "filePicker"
+	classes += props.settings.darkMode === "on" ? " filePickerWhite" : ""
 	return (
-	  <div {...getRootProps()} className={isDragActive ? "filePicker formatsHovered" : "filePicker"}>
+	  <div {...getRootProps()} className={classes}>
 		<input {...getInputProps()} />
 		{
 		  isDragActive ?
@@ -19,7 +21,7 @@ function DropZone(callBack) {
 			<p>Drop files here or click to select.</p>
 		}
 		<div className="formats">
-			.gif .png .jpg
+			.webp .png .jpg
 		</div>
 	  </div>
 	)
@@ -147,22 +149,29 @@ class MainPage extends Component {
 	}
 	//=======================================================//
 	render() {
+		let s = this.props.settings
 		return (
-            <div className="content l1" style={{perspective:"100px"}}>
-				<div className="upperMainPage box-shadow">
-					<DropZone drop={this.handleDrop} />
+			<div 
+				className={s.darkMode === "on" ? "content dm-L1" : "content l1"} 
+				style={{perspective:"100px"}}>
+				<div 
+					className={s.darkMode === "on" ? "upperMainPage dm-L2" : "upperMainPage box-shadow"}
+					>
+					<DropZone drop={this.handleDrop} settings={s}/>
 				</div>
 				<div className="bottomMainPage">
 					<ImagesSettings 
+						settings={s}
 						data={this.state.globalImgSettings} 
 						action={this.handleImgSettingsChange}
 						executeWaifu={this.executeWaifu}
 					/>
-					<div className="filesHolder l1 box-shadow">
+					<div className={s.darkMode === "on" ? "filesHolder dm-L2" : "filesHolder l1 box-shadow"}>
 						<div className="overflowFileHolder scroll">
 							{Object.keys(this.state.files).map((key) =>{
 								let file = this.state.files[key]
 								return <FileContainer 
+								settings={s}
 											key={file.id} 
 											action={this.removeImage} 
 											data={file}

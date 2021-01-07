@@ -1,7 +1,5 @@
 const exec = require("child_process").exec
 const gifExtractor = require("gif-frames")
-const waifu2x = require("./waifu2x").default
-const GIFEncoder = require('gifencoder');
 const fs = require('fs')
 class  AsyncWaifu2x{
 
@@ -14,7 +12,7 @@ class  AsyncWaifu2x{
                 console.log("File not existent")
             }
 
-            let command = `cd ./waifu2x && waifu2x-converter-cpp.exe -i ${path} -o .${endPath}`
+            let command = `cd ./waifu2x && waifu2x-converter-cpp.exe -i "${path}" -o ".${endPath}"`
             if (options.noise) command += " --noise-level " + options.noise
             if (options.scale) command += " --scale-ratio " + options.scale
             console.log(command)
@@ -39,14 +37,12 @@ class  AsyncWaifu2x{
         return new Promise(async (resolve,reject)=>{
             let gifArr = await this.extractGifs(path,tempPath)
             let hadErr = false
-            //TODO the upscaleImg function deletes the temp images because they are in the
-            //same folder as the output files, i need to create a temp2 folder inside the temp
-            //folder to save the upscaled images
+            //TODO FINISH GIF UPSCALING, REMEMBER THAT I NEED TO CHANGE THE PATH OF THE TEMP FILES TO BE IN TEMP/TEMP
+            //OR 
             gifArr.forEach(async path =>{
                 let result = await this.upscaleImg("."+path,path,options)
                 if(!result.success) hadErr = true
             })
-            await waifu2x.encodeGif(gifArr,endPath)
             let message = {
                 output: "",
                 success: true

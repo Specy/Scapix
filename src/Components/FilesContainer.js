@@ -16,20 +16,23 @@ class FileContainer extends Component {
 	//=======================================================//
 	render() {
         let data = this.props.data
-        let color = "rgb(238, 238, 238)"
+        let s = this.props.settings
+        let color = s.darkMode === "on" ? "rgb(27, 25, 35)" : "rgb(238, 238, 238)"
         let visible = {visibility:"hidden"}
         if(data.status === "done"){
-            if(data.success){
-                color = "rgb(200, 239, 200)"
+            if(data.success){ 
+                color = s.darkMode === "on" ? "rgb(75 153 75)" : "rgb(200, 239, 200)"
                 visible.visibility = "visible"
             }else{
-                color = "#e3b0b0"
+                color = s.darkMode === "on" ? "rgb(144 74 74)" : "#e3b0b0"
             }
         }else if(data.status === "pending"){
-            color = "#f7f1cb"
+            color = s.darkMode === "on" ? "rgb(27, 25, 35)" : "rgb(238, 238, 238)"
         }
 		return (
-            <div className="fileRow text-dark" style={{backgroundColor:color}}>
+            <div 
+                className={s.darkMode === "on" ? "fileRow" : "fileRow text-dark"}
+                style={{backgroundColor:color}}>
                 <div className="row">
                     <div style={{position:"relative"}}>
                         <img src={data.src} className="previewImage"/>
@@ -45,13 +48,13 @@ class FileContainer extends Component {
 
                 <div className="flex centerX centerY">
                     <Visibility
-                        className="text-dark highlightHover"
+                        className={s.darkMode === "on" ? "text-white highlightHover" : "text-dark highlightHover"}
                         style={{fontSize:25,...visible}}
                         onClick={this.sendImagesData}
                     />
                     <DeleteForever 
                         onClick={() => this.props.action(data.id)}
-                        className="text-dark redHover"
+                        className={s.darkMode === "on" ? "text-white redHover" : "text-dark redHover"}
                         style={{fontSize:25}}
                     />
                 </div>

@@ -1,6 +1,15 @@
 .box-shadow {
   box-shadow: 0pt 3pt 12pt -2pt grey;
 }
+.dm-L1{
+  color: white;
+}
+.dm-L2{
+  color: white;
+}
+.dm-L3{
+  color: white;
+}
 .input{
   margin: 0.3rem 0;
   width: 100%;
@@ -84,6 +93,10 @@ input[type=number]{
   position: relative;
   transition: transform linear 0.5s;
 }
+.filePickerWhite{
+  color:   #c5c5c5;
+  border-color: #c5c5c5;
+}
 .filePicker *{
   pointer-events: none;
 }
@@ -135,7 +148,6 @@ input[type=number]{
   padding: 0.8rem;
   box-sizing: border-box;
   display: flex;
-  color:  rgb(42, 41, 51);
 }
 .innerSideSettings{
   display: flex;
@@ -163,7 +175,6 @@ input[type=number]{
   padding-bottom: 1.5rem;
   margin-right: 0.3rem;
   box-sizing: border-box;
-  background-color: rgb(238, 238, 238);
   transition: 0.2s all;
 }
 select{
@@ -189,6 +200,17 @@ select{
 }
 .scroll::-webkit-scrollbar-thumb:hover {
   opacity: 0.6;
+}
+.settingsContainer{
+  width: 50vw;
+  flex: 1;
+  border-radius: 0.8rem;
+  padding: 3rem;
+  box-sizing: border-box;
+
+}
+.settingsOption{
+  margin-right: 2rem;
 }
 .floatingImages{
   top: 0;

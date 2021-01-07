@@ -9,8 +9,9 @@ class ContentWrapper extends Component {
     
 	//=======================================================//
 	render() {
+		let s = this.props.settings
 		return (
-            <div className="l0" style={{display:"flex"}}>
+            <div className={s.darkMode === "on" ? "dm-L2" : "l0"} style={{display:"flex"}}>
                 {this.props.children.map((page,i) => {
 					let isHidden = !(i === this.props.selectedPage)
 					return <div style={isHidden ? {display:"none"}: {}} className="contentWrapper" key={i}>
