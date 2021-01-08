@@ -8,6 +8,9 @@ class ImagesSettings extends Component {
     handleChange = (event) =>{
         this.props.action(event.target.value,event.target.name)
     }
+    openFolder = () => {
+		window.ipcRenderer.send("open-folder")
+	}
     //=======================================================//
     render() {
         let data = this.props.data
@@ -20,7 +23,7 @@ class ImagesSettings extends Component {
                         <div>Scale</div>
                         <input 
                             type="number"
-                            step="0.1"
+                            step="0.05"
                             value={data.scale} 
                             className="input wm-L2" 
                             name="scale"
@@ -56,11 +59,18 @@ class ImagesSettings extends Component {
                         </select>
                     </div>
                     <button 
-                        className="button fillY darkTeal" 
                         style={{margin:0,marginTop:"auto"}}
+						className="button fillY outputFolder"
+						onClick={this.openFolder}
+					>
+                        Open output folder
+                    </button>
+                    <button 
+                        className="button fillY darkTeal" 
+                        style={{marginTop:"0.5rem"}}
                         onClick={this.props.executeWaifu}
                     >
-                        Execute All
+                        Run all
                     </button>
                 </div>
 

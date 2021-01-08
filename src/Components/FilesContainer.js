@@ -9,6 +9,7 @@ class FileContainer extends Component {
         let data = {
             original:this.props.data.src,
             modified: this.props.data.updatedImg,
+            format: this.props.data.height / this.props.data.width,
             hasImages: true
         }
         this.props.toggleFloatingImages(data)
@@ -61,7 +62,7 @@ class FileContainer extends Component {
                         <input 
                             type="number"
                             className={"individualInput"} 
-                            step={0.1}
+                            step="0.05"
                             name="scale"
                             onChange={this.handleChange}
                             value={data.scale}

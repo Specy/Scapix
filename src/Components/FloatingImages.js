@@ -12,6 +12,13 @@ class FloatingImages extends Component {
 	//=======================================================//
 	render() {
         let shown = this.props.toggled ? "flex" : "none"
+
+        let isHorizontal =  this.props.data.format < 1.5
+
+        let orientation = {
+            width: isHorizontal ? "calc(35vw - 1.5rem)" : "unset",
+            height: isHorizontal ? "unset" : "calc(91vh - 2rem)"
+        }
 		return (
             <div 
                 className="floatingImages" 
@@ -29,11 +36,11 @@ class FloatingImages extends Component {
                 >
                     <div className="textAndImage">
                         <div className="floatingImgText">Original</div>
-                        <img src={this.props.data.original}/>
+                        <img src={this.props.data.original} style={orientation}/>
                     </div>
                     <div className="textAndImage">
                         <div className="floatingImgText">Modified</div>
-                        <img src={this.props.data.modified}/>
+                        <img src={this.props.data.modified} style={orientation}/>
                     </div>
                     
                 </div>

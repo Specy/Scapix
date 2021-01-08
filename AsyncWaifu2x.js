@@ -1,7 +1,5 @@
 const exec = require("child_process").exec
 const gifExtractor = require("gif-frames")
-const GifEncoder = require('gif-encoder');
-const PNG = require("pngjs").PNG;
 const fs = require('fs')
 class  AsyncWaifu2x{
 

@@ -157,9 +157,7 @@ class MainPage extends Component {
 			}
 		}
 	}
-	openFolder = () => {
-		window.ipcRenderer.send("open-folder")
-	}
+
 	//=======================================================//
 	render() {
 		let s = this.props.settings
@@ -170,10 +168,7 @@ class MainPage extends Component {
 				<div 
 					className={s.darkMode === "on" ? "upperMainPage dm-L2" : "upperMainPage box-shadow"}
 				>
-					<button 
-						className="button outputFolder"
-						onClick={this.openFolder}
-					>Open output folder</button>
+
 					<DropZone drop={this.handleDrop} settings={s}/>
 				</div>
 				<div className="bottomMainPage">

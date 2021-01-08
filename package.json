@@ -1,7 +1,14 @@
 {
   "name": "scapix",
+  "description": "",
+  "author": "Specy",
+  "build":{
+    "appId": "com.specy.scapix"
+  },
+  "homepage": "./",
   "version": "0.1.0",
   "private": true,
+  "main": "main.js",
   "dependencies": {
     "@material-ui/core": "^4.11.2",
     "@material-ui/icons": "^4.11.2",
@@ -10,12 +17,8 @@
     "@testing-library/user-event": "^12.1.10",
     "concurrently": "^5.3.0",
     "electron": "^11.1.1",
-    "gif-encoder": "^0.7.2",
     "gif-frames": "^1.0.1",
-    "gifencoder": "^2.0.1",
     "open-file-explorer": "^1.0.2",
-    "png-file-stream": "^1.2.1",
-    "pngjs": "^6.0.0",
     "pretty-bytes": "^5.5.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
@@ -25,12 +28,13 @@
     "wait-on": "^5.2.1",
     "web-vitals": "^0.2.4"
   },
-  "main": "main.js",
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "react-build":"react-scripts build",
+    "react-test": "react-scripts test",
+    "react-eject": "react-scripts eject",
+    "electron-react-release": "npm react-bulid && electron-builder --publish=always",
+    "electron-react-build": "npm react-bulid && electron-builder",
     "electron-react": "concurrently \"npm start\" \"wait-on http://localhost:3000 && electron .\""
   },
   "eslintConfig": {

@@ -7,59 +7,64 @@ import ContentWrapper from "./Components/ContentWrapper"
 import MainPage from "./Components/MainPage"
 import Settings from "./Components/Settings"
 import FloatingImages from "./Components/FloatingImages"
+import TopMenu from "./Components/TopMenu"
+
 class App extends Component {
-    constructor() {
-      super()
-      this.state = {
-        selectedPage: 0,
-        floatingImagesToggled: false,
-        floatingImages: {},
-        settings:{
-          darkMode:"off"
-        }
+  constructor() {
+    super()
+    this.state = {
+      selectedPage: 0,
+      floatingImagesToggled: false,
+      floatingImages: {},
+      settings: {
+        darkMode: "off"
       }
     }
-    toggleFloatingImages = (data) =>{
-      if(!data.hasImages){
-        data = {
-          original: "",
-          updated: ""
-        }
+  }
+  toggleFloatingImages = (data) => {
+    if (!data.hasImages) {
+      data = {
+        original: "",
+        format: 0,
+        updated: ""
       }
-      this.setState({
-        floatingImagesToggled : !this.state.floatingImagesToggled,
-        floatingImages: data
-      })
     }
-    toggleSettings = (data) =>{
-      let newState = this.state.settings
-      newState[data.type] = data.value
-      this.setState({
-        settings: newState
-      })
-    }
-    changePage = (index) => {
-      this.setState({
-        selectedPage: index
-      })
-    }
-    render() {
-      return (
+    this.setState({
+      floatingImagesToggled: !this.state.floatingImagesToggled,
+      floatingImages: data
+    })
+  }
+  toggleSettings = (data) => {
+    let newState = this.state.settings
+    newState[data.type] = data.value
+    this.setState({
+      settings: newState
+    })
+  }
+  changePage = (index) => {
+    this.setState({
+      selectedPage: index
+    })
+  }
+  render() {
+    return (
       <div className="body">
+        <TopMenu/>
         <div className="appWrapper">
-          <FloatingImages 
-            toggled={this.state.floatingImagesToggled} 
+          <FloatingImages
+            toggled={this.state.floatingImagesToggled}
             toggle={this.toggleFloatingImages}
             data={this.state.floatingImages}
           />
-          <SideMenu action={this.changePage} selectedIndex={this.state.selectedPage} settings={this.state.settings}/>
-          <ContentWrapper selectedPage = {this.state.selectedPage} settings={this.state.settings}>
-              <MainPage toggleFloatingImages={this.toggleFloatingImages} settings={this.state.settings}/>
-              <Settings toggleSettings={this.toggleSettings} settings={this.state.settings}/>
+          <SideMenu action={this.changePage} selectedIndex={this.state.selectedPage} settings={this.state.settings} />
+          <ContentWrapper selectedPage={this.state.selectedPage} settings={this.state.settings}>
+            <MainPage toggleFloatingImages={this.toggleFloatingImages} settings={this.state.settings} />
+            <Settings toggleSettings={this.toggleSettings} settings={this.state.settings} />
           </ContentWrapper>
         </div>
       </div>
-    )}
+    )
+  }
 }
 
 // ========================================

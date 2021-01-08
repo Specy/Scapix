@@ -1,16 +1,45 @@
 const AsyncWaifu2x =require("./AsyncWaifu2x")
-const { app, BrowserWindow, ipcMain, Menu } = require('electron')
+const { app, BrowserWindow, ipcMain,screen } = require('electron')
 const fs = require('fs').promises
+const fsSync = require('fs')
 const sanitize = require("sanitize-filename")
 const openExplorer = require('open-file-explorer');
+const { shell } = require('electron')
 
-let outputPath = "./results/"
+let globalOutput = "./results/"
 ipcMain.on('open-folder', async (event, arg) => {
     let endPath = __dirname+"\\results"
     console.log(endPath)
     openExplorer(endPath)
 })
 
+ipcMain.on("exec-function",(event, data) =>{
+    console.log(data.name)
+    switch(data.name){
+        case "close":{
+            process.exit(1)
+            break
+        }
+        case "minimize":{
+            mainWindow.minimize()
+            break
+        }
+        case "github":{
+            shell.openExternal('https://github.com/Specy-wot/Scapix')
+            break
+        }
+        case "reload":{
+            mainWindow.reload()
+            break
+        }
+        case "resize":{
+            console.log("resized")
+            mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
+            break
+        }
+    }
+
+})
 ipcMain.on('execute-waifu', async (event, arg) => {
     arg.forEach(async el =>{
         let noise = 0
@@ -27,6 +56,11 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         }
         let safePath = sanitize(el.name)
         let outputPath = replaceFormat(safePath,el.format)
+        let date = new Date()
+        let dailyFolder = + date.getDate() +"-"+ date.getMonth()
+        if (!fsSync.existsSync(globalOutput+dailyFolder)){
+            fsSync.mkdirSync(globalOutput+dailyFolder);
+        }
         event.reply('update-execution', {
             id:el.id,
             status: "pending"
@@ -35,9 +69,9 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         if(getFormat(el.name) === ".gif"){
             options.width = el.width * el.scale
             options.height = el.height * el.scale
-            output = await AsyncWaifu2x.upscaleGif(el.path,"../temp/","../results/"+outputPath,options)
+            output = await AsyncWaifu2x.upscaleGif(el.path,"../temp/","../results/"+dailyFolder+"/"+outputPath,options)
         }else{
-            output = await AsyncWaifu2x.upscaleImg(el.path,"../results/"+outputPath,options)
+            output = await AsyncWaifu2x.upscaleImg(el.path,"../results/"+dailyFolder+"/"+outputPath,options)
         }
         
         let reply = {
@@ -50,7 +84,7 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         if(!output.success) console.log(output.output)
         try{
             if(output.success){
-                let upscaledImg = await fs.readFile("./results/"+outputPath, {encoding: "base64"})
+                let upscaledImg = await fs.readFile("./results/"+dailyFolder+"/"+outputPath, {encoding: "base64"})
                 reply.upscaledImg = "data:image/"+getFormat(outputPath,true)+";base64,"+upscaledImg
             }
         }catch(e){
@@ -75,12 +109,18 @@ function getFormat(path,noExtension  = false){
     if(noExtension) result = result.replace(".","")
     return result
 }
+let mainWindow
 function createWindow() {
     // Create the browser window.
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width: 1200,
         height: 1000,
         alwaysOnTop:true,
+        minHeight: screen.height,
+        backgroundColor: "#7f7ba6",
+        minWidth: 720,
+        icon: "./public/icons/icon.png",
+        frame:false,
         webPreferences: {
             nodeIntegration: false,
             preload: __dirname + '/preload.js'
@@ -107,19 +147,21 @@ function createWindow() {
 let splash
 function loadSplash(){
     splash = new BrowserWindow({
-        width: 1200, 
-        height: 1000, 
-        frame: false, 
+        width: screen.width, 
+        height: screen.height, 
+        minWidth: screen.width, 
+        minHeight: screen.height, 
+        icon: "./public/icons/icon.png",
+        frame: false,
         alwaysOnTop: true
     })
-    splash.setResizable(false);
     splash.loadURL(
       'file://' + __dirname + '/splash.html'
     )
-    splash.maximize()
     splash.on('closed', () => (loadingScreen = null));
     splash.webContents.on('did-finish-load', () => {
-        splash.show();
+        splash.show()
+        splash.maximize()
     });
 }
 app.whenReady().then(() => {
