@@ -2,11 +2,11 @@
   "name": "scapix",
   "description": "",
   "author": "Specy",
-  "build":{
+  "build": {
     "appId": "com.specy.scapix"
   },
   "homepage": "./",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "main": "main.js",
   "dependencies": {
@@ -30,10 +30,10 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "react-build":"react-scripts build",
+    "react-build": "react-scripts build",
     "react-test": "react-scripts test",
     "react-eject": "react-scripts eject",
-    "electron-react-release": "npm react-bulid && electron-builder --publish=always",
+    "electron-react-release": "npm run react-bulid && electron-builder --publish=always",
     "electron-react-build": "npm react-bulid && electron-builder",
     "electron-react": "concurrently \"npm start\" \"wait-on http://localhost:3000 && electron .\""
   },

@@ -5,11 +5,12 @@ import "../App.css"
 class TopMenu extends Component {
     constructor(props) {
         super(props)
-        this.execFunction = (name) =>{
-            let data = {
-                name: name
+        this.execFunction = (name, data) => {
+            let toSend = {
+                name: name,
+                data: data
             }
-            window.ipcRenderer.send("exec-function",data)
+            window.ipcRenderer.send("exec-function", toSend)
         }
     }
 
@@ -24,9 +25,9 @@ class TopMenu extends Component {
                         onClick={() => this.execFunction("reload")}
                     />
                     <GitHub
-                        style={{ margin: "0 0.8rem", marginTop: "0.1rem", fontSize: 17 }}
+                        style={{ margin: "0 1.3rem", marginTop: "0.1rem", fontSize: 17 }}
                         titleAccess="Open on github"
-                        onClick={() => this.execFunction("github")}
+                        onClick={() => this.execFunction("open", "https://github.com/Specy-wot/Scapix")}
                     />
                 </div>
 

@@ -5,12 +5,12 @@ class ImagesSettings extends Component {
 
     }
 
-    handleChange = (event) =>{
-        this.props.action(event.target.value,event.target.name)
+    handleChange = (event) => {
+        this.props.action(event.target.value, event.target.name)
     }
     openFolder = () => {
-		window.ipcRenderer.send("open-folder")
-	}
+        window.ipcRenderer.send("open-folder")
+    }
     //=======================================================//
     render() {
         let data = this.props.data
@@ -21,19 +21,19 @@ class ImagesSettings extends Component {
                 <div className="innerSideSettings">
                     <div className="column">
                         <div>Scale</div>
-                        <input 
+                        <input
                             type="number"
                             step="0.05"
-                            value={data.scale} 
-                            className="input wm-L2" 
+                            value={data.scale}
+                            className="input wm-L2"
                             name="scale"
                             onChange={this.handleChange}
                         />
                     </div>
                     <div className="column">
                         <div>Denoise level</div>
-                        <select 
-                            className="input wm-L2" 
+                        <select
+                            className="input wm-L2"
                             value={data.denoiseLevel}
                             name="denoiseLevel"
                             onChange={this.handleChange}
@@ -46,28 +46,28 @@ class ImagesSettings extends Component {
                     </div>
                     <div className="column">
                         <div>Output format</div>
-                        <select 
-                            className="input wm-L2" 
+                        <select
+                            className="input wm-L2"
                             value={data.outputFormat}
                             name="outputFormat"
                             onChange={this.handleChange}
-                        >   
+                        >
                             <option>Original</option>
                             <option>.png</option>
                             <option>.jpg</option>
                             <option>.webp</option>
                         </select>
                     </div>
-                    <button 
-                        style={{margin:0,marginTop:"auto"}}
-						className="button fillY outputFolder"
-						onClick={this.openFolder}
-					>
+                    <button
+                        style={{ margin: 0, marginTop: "auto" }}
+                        className="button fillY outputFolder"
+                        onClick={this.openFolder}
+                    >
                         Open output folder
                     </button>
-                    <button 
-                        className="button fillY darkTeal" 
-                        style={{marginTop:"0.5rem"}}
+                    <button
+                        className="button fillY darkTeal"
+                        style={{ marginTop: "0.5rem" }}
                         onClick={this.props.executeWaifu}
                     >
                         Run all

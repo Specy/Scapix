@@ -7,8 +7,9 @@ import ContentWrapper from "./Components/ContentWrapper"
 import MainPage from "./Components/MainPage"
 import Settings from "./Components/Settings"
 import FloatingImages from "./Components/FloatingImages"
+import FloatingMessage from "./Components/FloatingMessage"
 import TopMenu from "./Components/TopMenu"
-
+const Storage = new window.Storage()
 class App extends Component {
   constructor() {
     super()
@@ -18,8 +19,15 @@ class App extends Component {
       floatingImages: {},
       settings: {
         darkMode: "off"
+      },
+      floatingMessage:{
+        message: "",
+        isShown: false,
+        type: ""
       }
     }
+    this.checkUpdate()
+    this.populateStorage()
   }
   toggleFloatingImages = (data) => {
     if (!data.hasImages) {
@@ -33,13 +41,59 @@ class App extends Component {
       floatingImagesToggled: !this.state.floatingImagesToggled,
       floatingImages: data
     })
+
   }
-  toggleSettings = (data) => {
+  showMessage = (text,type,timeout = 4000,action) =>{
+    let newState = {
+      message: text,
+      isShown: true,
+      type: type,
+      action: action
+    }
+    this.setState({
+      floatingMessage : newState
+    })
+    setTimeout(()=>{
+      let newState = this.state.floatingMessage
+      newState.isShown = false
+      this.setState({
+        floatingMessage : newState
+      })
+    },timeout)
+  }
+  
+  checkUpdate = async () => {
+		let data = await fetch("https://raw.githubusercontent.com/Specy-wot/Scapix/main/package.json").then(data => data.json())
+		if (data.version !== window.package.version) {
+      let action = () => {
+        let toExec = {
+          data:"https://github.com/Specy-wot/Scapix",
+          name: "open"
+        }
+        window.ipcRenderer.send("exec-function",toExec)
+      }
+      this.showMessage("There is an update available! Click to View",1,10000,action)
+		} else {
+			console.log("No update")
+		}
+  }
+
+  populateStorage = async () =>{
+    let data = await Storage.get("settings")
+    if(data){
+      this.setState({
+        settings: data
+      })
+    }
+  }
+
+  toggleSettings = async (data) => {
     let newState = this.state.settings
     newState[data.type] = data.value
     this.setState({
       settings: newState
     })
+    await Storage.set("settings",newState)
   }
   changePage = (index) => {
     this.setState({
@@ -50,6 +104,7 @@ class App extends Component {
     return (
       <div className="body">
         <TopMenu/>
+        <FloatingMessage data={this.state.floatingMessage}/>
         <div className="appWrapper">
           <FloatingImages
             toggled={this.state.floatingImagesToggled}

@@ -1,6 +1,9 @@
 *{
   -webkit-app-region: no-drag
 }
+html{
+  overflow: hidden;
+}
 .box-shadow {
   box-shadow: 0pt 3pt 12pt -2pt grey;
 }
@@ -210,7 +213,7 @@ select{
   opacity: 0.6;
 }
 .settingsContainer{
-  width: 50vw;
+  width: 100%;
   flex: 1;
   border-radius: 0.8rem;
   padding: 3rem;
@@ -234,6 +237,7 @@ select{
 }
 .imagesContainer{
   border-radius: 1rem;
+  margin-top: 25px;
   width: 70vw;
   height: 91vh;
   background-color:#363636;
@@ -265,7 +269,7 @@ select{
 }
 .closeBtn{
   position: absolute;
-  top: 0.5rem;
+  top: 2rem;
   right: 0.5rem;
   background-color: rgb(27, 25, 35);
   border-radius: 0.8rem;
@@ -294,8 +298,40 @@ select{
   justify-content: space-between;
   align-items: center;
   box-sizing: border-box;
-  background-color: rgb(42, 41, 51);
+  background-color: rgb(52, 51, 62);
   color: white;
   width: 100%;
   -webkit-app-region: drag;
+  z-index: 999;
+}
+.settingRow{
+  display: flex;
+  padding: 0.5rem;
+  border-radius: 0.4rem;
+  flex-direction: row;
+  align-items: center;
+  background-color: rgba(144,144,144,0.2);
+  margin-bottom: 1rem;
+}
+.floatingMessage{
+  background-color: rgba(70, 70, 70, 0.85);
+  box-shadow: 0 0 10px #333333;
+  color: white;
+  min-height: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 12rem;
+  border-radius: 0.4rem;
+  position: absolute;
+  top: 3.3rem;
+  right: 1.6rem;
+  z-index: 11;
+  transition: all cubic-bezier(0.075, 0.82, 0.165, 1) 1s;
+  padding: 0.4rem;
+  cursor: pointer;
+}
+.hiddenRight{
+  right: -13rem;
 }
