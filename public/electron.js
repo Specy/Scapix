@@ -60,6 +60,14 @@ ipcMain.on('execute-waifu', async (event, arg) => {
                 break;
             case "High": noise = 3
         }
+        if(el.endPath !== "default"){
+            globalOutput = {
+                usesDefault: false,
+                path: el.endPath
+            }
+        }else{
+            globalOutput.usesDefault = true
+        }
         let options = {
             noise: noise,
             scale: el.scale,
@@ -83,6 +91,7 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         endPath += outputFile
         endPath = endPath.replace(/\//g,"\\")
         if (getFormat(el.name) === ".gif") {
+            options.constraint = el.fps
             output = await waifu2x.upscaleGIF(el.path, endPath ,options)
         } else {
             output = await waifu2x.upscaleImage(el.path, endPath,options)

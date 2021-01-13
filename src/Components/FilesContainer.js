@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import "../App.css"
-import { DeleteForever, Visibility } from "@material-ui/icons"
+import { DeleteForever, Visibility, Info } from "@material-ui/icons"
 class FileContainer extends Component {
     constructor(props) {
         super(props)
@@ -18,13 +18,20 @@ class FileContainer extends Component {
         let el = e.target
         this.props.individualChange(el.value, el.name, this.props.data.id)
     }
+    showInfo = (e) => {
+        window.showMessage(this.props.data.message,1,10000,() =>{
+            console.log("clicked")
+        })
+    }
     //=======================================================//
     render() {
         let data = this.props.data
         let s = this.props.settings
         let color = s.darkMode === "on" ? "rgb(27, 25, 35)" : "rgb(238, 238, 238)"
         let visible = { visibility: "hidden" }
+        let visible2 = {visibility: "hidden"}
         if (data.status === "done") {
+            visible2.visibility = "visible"
             if (data.success) {
                 color = s.darkMode === "on" ? "rgb(75 153 75)" : "rgb(200, 239, 200)"
                 visible.visibility = "visible"
@@ -57,6 +64,20 @@ class FileContainer extends Component {
                 </div>
 
                 <div className="flex centerX centerY">
+                    {data.name.includes(".gif") ? 
+                        <div className="column centerY" style={{ marginRight: "0.5rem" }}>
+                            <div style={{ marginTop: "-1.2rem" }}>Frames</div>
+                            <input
+                                type="number"
+                                className={"individualInput"}
+                                step="1"
+                                name="fps"
+                                onChange={this.handleChange}
+                                value={data.fps}
+                            />
+                        </div> 
+                        : ""
+                    }
                     <div className="column centerY" style={{ marginRight: "0.5rem" }}>
                         <div style={{ marginTop: "-1.2rem" }}>Scale</div>
                         <input
@@ -68,7 +89,11 @@ class FileContainer extends Component {
                             value={data.scale}
                         />
                     </div>
-
+                    <Info
+                        className={s.darkMode === "on" ? "text-white highlightHover" : "text-dark highlightHover"}
+                        style={{ fontSize: 25, ...visible2 }}
+                        onClick={this.showInfo}
+                    />
                     <Visibility
                         className={s.darkMode === "on" ? "text-white highlightHover" : "text-dark highlightHover"}
                         style={{ fontSize: 25, ...visible }}

@@ -34,7 +34,6 @@ class Settings extends Component {
     //=======================================================//
     render() {
         let s = this.props.settings
-        console.log(s)
         return (
             <div className={s.darkMode === "on" ? "content dm-L1" : "content l1"}>
                 <div className={s.darkMode === "on" ? "settingsContainer dm-L2" : "settingsContainer box-shadow"}>

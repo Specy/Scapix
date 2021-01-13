@@ -40,6 +40,7 @@ class MainPage extends Component {
 		}
 		window.ipcRenderer.on('done-execution', (event, arg) => {
 			let file = this.state.files[arg.id]
+			file.message = arg.message
 			file.status = arg.status
 			file.success = arg.success
 			file.updatedImg = arg.upscaledImg
@@ -74,6 +75,8 @@ class MainPage extends Component {
 				height: el.height,
 				noise: el.noise,
 				scale: el.scale,
+				fps: el.fps,
+				endPath: this.props.settings.outputPath,
 				format: el.format,
 				id: el.id,
 				size: el.size,
@@ -81,6 +84,7 @@ class MainPage extends Component {
 		})
 		window.ipcRenderer.send('execute-waifu', dataToSend)
 	}
+
 	handleIndividualSettingsChange = (value, type, id) => {
 		if (value < 0.6 && type === "scale" && value !== "") {
 			value = 0.6
@@ -91,6 +95,7 @@ class MainPage extends Component {
 			files: this.state.files
 		})
 	}
+
 	handleImgSettingsChange = (value, type) => {
 		let toChange = this.state.globalImgSettings[type]
 		toChange = isNaN(value) ? value : parseFloat(value)
@@ -111,11 +116,13 @@ class MainPage extends Component {
 			files: this.state.files
 		})
 	}
+
 	getRandomId = () => {
 		let str1 = Math.random().toString(36).substring(7)
 		let str2 = Math.random().toString(36).substring(7)
 		return str1 + str2
 	}
+
 	handleDrop = (e) => {
 		let files = this.state.files
 		for (const file of e) {
@@ -125,6 +132,8 @@ class MainPage extends Component {
 				src: null,
 				width: 0,
 				height: 0,
+				fps: 999,
+				endPath : "default",
 				scale: this.state.globalImgSettings.scale,
 				status: "idle",
 				updatedImg: null,

@@ -9,7 +9,6 @@ import Settings from "./Components/Settings"
 import FloatingImages from "./Components/FloatingImages"
 import FloatingMessage from "./Components/FloatingMessage"
 import TopMenu from "./Components/TopMenu"
-console.log(window.ipcRenderer)
 const Storage = new window.Storage()
 class App extends Component {
   constructor() {
@@ -28,6 +27,7 @@ class App extends Component {
         type: ""
       }
     }
+    window.showMessage = this.showMessage
     this.checkUpdate()
     this.populateStorage()
   }
@@ -52,16 +52,16 @@ class App extends Component {
       type: type,
       action: action
     }
-    this.setState({
-      floatingMessage : newState
-    })
-    setTimeout(()=>{
+    let tmout = setTimeout(()=>{
       let newState = this.state.floatingMessage
       newState.isShown = false
       this.setState({
         floatingMessage : newState
       })
     },timeout)
+    this.setState({
+      floatingMessage : newState,
+    })
   }
   
   checkUpdate = async () => {
