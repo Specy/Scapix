@@ -8,7 +8,7 @@
   "homepage": "./",
   "version": "1.0.0",
   "private": true,
-  "main": "main.js",
+  "main": "public/electron.js",
   "dependencies": {
     "@material-ui/core": "^4.11.2",
     "@material-ui/icons": "^4.11.2",
@@ -25,6 +25,7 @@
     "react-dropzone": "^11.2.4",
     "react-scripts": "4.0.1",
     "sanitize-filename": "^1.6.3",
+    "waifu2x": "^0.1.9",
     "wait-on": "^5.2.1",
     "web-vitals": "^0.2.4"
   },

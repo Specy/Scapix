@@ -1,6 +1,7 @@
 window.ipcRenderer = require('electron').ipcRenderer
 const fs = require("fs").promises
-window.package = require("./package.json")
+console.log("INIT PRELOAD")
+window.package = require("../package.json")
 window.Storage = class {
     constructor(){
         this.storage = null
@@ -13,7 +14,7 @@ window.Storage = class {
         if(this.storage === null) await this.populate()
         this.storage[key] = value
         try{
-            await fs.writeFile("./Storage.json",JSON.stringify(this.storage)) 
+            await fs.writeFile(__dirname + "/Storage.json",JSON.stringify(this.storage)) 
         }catch(e){
             console.log(e)
             return false
@@ -23,7 +24,7 @@ window.Storage = class {
     populate = async () => {
             let data = {}
             try{
-                data = await fs.readFile("./Storage.json").then(data => JSON.parse(data))
+                data = await fs.readFile(__dirname + "/Storage.json").then(data => JSON.parse(data))
             }catch(e){ console.log("NeverSaved")}
             this.storage = data
     }

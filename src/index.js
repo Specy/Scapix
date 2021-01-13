@@ -9,6 +9,7 @@ import Settings from "./Components/Settings"
 import FloatingImages from "./Components/FloatingImages"
 import FloatingMessage from "./Components/FloatingMessage"
 import TopMenu from "./Components/TopMenu"
+console.log(window.ipcRenderer)
 const Storage = new window.Storage()
 class App extends Component {
   constructor() {
@@ -18,7 +19,8 @@ class App extends Component {
       floatingImagesToggled: false,
       floatingImages: {},
       settings: {
-        darkMode: "off"
+        darkMode: "off",
+        outputPath: "default"
       },
       floatingMessage:{
         message: "",

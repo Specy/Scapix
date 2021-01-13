@@ -1,17 +1,30 @@
-const AsyncWaifu2x = require("./AsyncWaifu2x")
+const waifu2x = require("waifu2x").default
 const { app, BrowserWindow, ipcMain, screen } = require('electron')
 const fs = require('fs').promises
 const fsSync = require('fs')
 const sanitize = require("sanitize-filename")
 const openExplorer = require('open-file-explorer');
 const { shell } = require('electron')
-let globalOutput = "./results/"
-
+const { dialog } = require('electron')
+let globalOutput = {
+    usesDefault: true,
+    path: ""
+}
 ipcMain.on('open-folder', async (event, arg) => {
     let endPath = __dirname + "\\results"
     openExplorer(endPath)
 })
 
+ipcMain.on('change-dest', async (event,arg) =>{
+    let path = await dialog.showOpenDialog({properties: ['openDirectory']})
+    if(!path.canceled){
+        globalOutput = {
+            usesDefault: false,
+            path: path.filePaths[0]
+        }
+    }
+    event.reply('change-dest-answer',[true,globalOutput.path])
+})
 
 ipcMain.on("exec-function", (event, data) => {
     switch (data.name) {
@@ -49,58 +62,45 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         }
         let options = {
             noise: noise,
-            scale: el.scale
+            scale: el.scale,
+            absolutePath: true,
         }
-        let safePath = sanitize(el.name)
-        let outputPath = replaceFormat(safePath, el.format)
+        let safeName = sanitize(el.name)
+        let outputFile = replaceFormat(safeName, el.format)
         let date = new Date()
         let dailyFolder = + date.getDate() + "-" + date.getMonth()
-        if (!fsSync.existsSync(globalOutput + dailyFolder)) {
-            fsSync.mkdirSync(globalOutput + dailyFolder);
-        }
         event.reply('update-execution', {
             id: el.id,
             status: "pending"
         })
         let output
-        if (getFormat(el.name) === ".gif") {
-            options.width = el.width * el.scale
-            options.height = el.height * el.scale
-            options.folderName = "gif-" + getRandomId() + "/"
-            options.dailyFolder = dailyFolder
-            output = await AsyncWaifu2x.upscaleGif(
-                el.path,
-                "./temp/",
-                "../results/" + dailyFolder + "/",
-                options
-            )
-            output.isGif = true
-        } else {
-            output = await AsyncWaifu2x.upscaleImg(el.path, "../results/" + dailyFolder + "/" + outputPath, options)
+        let endPath = __dirname + "/results/" + dailyFolder
+            if(!globalOutput.usesDefault) endPath = globalOutput.path + "/" + dailyFolder
+            endPath+= "/"
+        if (!fsSync.existsSync(endPath)) {
+            fsSync.mkdirSync(endPath,{recursive:true});
         }
-
+        endPath += outputFile
+        endPath = endPath.replace(/\//g,"\\")
+        if (getFormat(el.name) === ".gif") {
+            output = await waifu2x.upscaleGIF(el.path, endPath ,options)
+        } else {
+            output = await waifu2x.upscaleImage(el.path, endPath,options)
+        }
         let reply = {
             id: el.id,
-            message: output.output,
-            success: output.success,
+            message: output,
+            success: true,
             status: "done",
             upscaledImg: null
         }
         try {
-            if (output.success) {
-                let upscaledImg
-                if (!output.isGif) {
-                    upscaledImg = await fs.readFile("./results/" + dailyFolder + "/" + outputPath, { encoding: "base64" })
-                } else {
-                    upscaledImg = await fs.readFile(
-                        "./results/" + dailyFolder + "/" + options.folderName + "img-0.png",
-                        { encoding: "base64" }
-                    )
-                }
-                reply.upscaledImg = "data:image/" + getFormat(outputPath, true) + ";base64," + upscaledImg
-            }
+            if(getFormat(safeName) === ".gif") endPath += "/" + outputFile
+            let upscaledImg = await fs.readFile( endPath, { encoding: "base64" })
+            reply.upscaledImg = "data:image/" + getFormat(el.format, true) + ";base64," + upscaledImg
+
         } catch (e) {
-            console.log("Error finding file ")
+            console.log("Error finding file ",e)
             reply.success = false
         }
 
@@ -134,11 +134,11 @@ function createWindow() {
         minHeight: screen.height,
         backgroundColor: "#7f7ba6",
         minWidth: 720,
-        icon: "./public/icons/icon.png",
+        icon: __dirname + "/icons/icon.png",
         frame: false,
         webPreferences: {
-            nodeIntegration: false,
-            preload: __dirname + '/preload.js'
+            nodeIntegration: true,
+            preload: __dirname+'/preload.js'
         }
     })
     mainWindow.loadURL('http://localhost:3000')
@@ -161,7 +161,7 @@ function loadSplash() {
         height: screen.height,
         minWidth: screen.width,
         minHeight: screen.height,
-        icon: "./public/icons/icon.png",
+        icon: __dirname + "/icons/icon.png",
         frame: false,
         alwaysOnTop: true
     })
