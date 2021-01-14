@@ -10,6 +10,7 @@ let globalOutput = {
     usesDefault: true,
     path: ""
 }
+let isDev = false
 ipcMain.on('open-folder', async (event, arg) => {
     let endPath = __dirname + "\\results"
     openExplorer(endPath)
@@ -117,9 +118,6 @@ ipcMain.on('execute-waifu', async (event, arg) => {
     })
 })
 
-function getRandomId() {
-    return Math.random().toString(36).substring(7)
-}
 //---------------------------------------------------//
 function replaceFormat(path, newFormat) {
     if (newFormat === "Original") return path
@@ -150,7 +148,12 @@ function createWindow() {
             preload: __dirname+'/preload.js'
         }
     })
-    mainWindow.loadURL('http://localhost:3000')
+
+    if(isDev){
+        mainWindow.loadURL("http://localhost:3000")
+    }else{
+        mainWindow.loadFile(__dirname + '/../build/index.html')
+    }
     mainWindow.maximize()
     mainWindow.on('closed', () => (mainWindow = null));
     mainWindow.webContents.on('did-finish-load', () => {
