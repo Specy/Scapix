@@ -1,5 +1,6 @@
 const waifu2x = require("waifu2x").default
 const { app, BrowserWindow, ipcMain, screen } = require('electron')
+const path = require("path");
 const fs = require('fs').promises
 const fsSync = require('fs')
 const sanitize = require("sanitize-filename")
@@ -152,7 +153,7 @@ function createWindow() {
     if(isDev){
         mainWindow.loadURL("http://localhost:3000")
     }else{
-        mainWindow.loadFile(__dirname + '/../build/index.html')
+        mainWindow.loadFile(path.join(__dirname,"../build/index.html"))
     }
     mainWindow.maximize()
     mainWindow.on('closed', () => (mainWindow = null));

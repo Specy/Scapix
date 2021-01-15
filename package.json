@@ -3,7 +3,13 @@
   "description": "An image upscaling and denoiser app",
   "author": "Specy",
   "build": {
-    "appId": "com.specy.scapix"
+    "appId": "com.specy.scapix",
+    "icon": "./icon.png",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*",
+      "**/*"
+    ]
   },
   "homepage": "./",
   "version": "1.0.0",
