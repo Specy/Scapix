@@ -1,5 +1,9 @@
 const waifu2x = require("waifu2x").default
 const { app, BrowserWindow, ipcMain, screen } = require('electron')
+if(require('electron-squirrel-startup')) app.quit();
+if (handleSquirrelEvent()) {
+     app.quit()
+}
 const path = require("path");
 const fs = require('fs').promises
 const fsSync = require('fs')
@@ -13,7 +17,8 @@ let globalOutput = {
 }
 let isDev = false
 ipcMain.on('open-folder', async (event, arg) => {
-    let endPath = __dirname + "\\results"
+    let endPath = path.join(__dirname,"/results")
+    if(!globalOutput.usesDefault) endPath = globalOutput.path
     openExplorer(endPath)
 })
 
@@ -29,9 +34,11 @@ ipcMain.on('change-dest', async (event,arg) =>{
 })
 
 ipcMain.on("exec-function", (event, data) => {
+    if(mainWindow === null ) return
     switch (data.name) {
         case "close": {
-            process.exit(1)
+            app.quit()
+            break
         }
         case "minimize": {
             mainWindow.minimize()
@@ -153,7 +160,7 @@ function createWindow() {
     if(isDev){
         mainWindow.loadURL("http://localhost:3000")
     }else{
-        mainWindow.loadFile(path.join(__dirname,"../build/index.html"))
+        mainWindow.loadURL('file://' +path.join(__dirname,"..\\build\\index.html"))
     }
     mainWindow.maximize()
     mainWindow.on('closed', () => (mainWindow = null));
@@ -199,3 +206,70 @@ app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') app.quit()
 })
 
+
+
+//----------------------------------------------------------//
+
+
+
+function handleSquirrelEvent() {
+    if (process.argv.length === 1) {
+      return false;
+    }
+   
+    const ChildProcess = require('child_process');
+    const path = require('path');
+   
+    const appFolder = path.resolve(process.execPath, '..');
+    const rootAtomFolder = path.resolve(appFolder, '..');
+    const updateDotExe = path.resolve(path.join(rootAtomFolder, 'Update.exe'));
+    const exeName = path.basename(process.execPath);
+   
+    const spawn = function(command, args) {
+      let spawnedProcess, error;
+   
+      try {
+        spawnedProcess = ChildProcess.spawn(command, args, {detached: true});
+      } catch (error) {}
+   
+      return spawnedProcess;
+    };
+   
+    const spawnUpdate = function(args) {
+      return spawn(updateDotExe, args);
+    };
+   
+    const squirrelEvent = process.argv[1];
+    switch (squirrelEvent) {
+      case '--squirrel-install':
+      case '--squirrel-updated':
+        // Optionally do things such as:
+        // - Add your .exe to the PATH
+        // - Write to the registry for things like file associations and
+        //   explorer context menus
+   
+        // Install desktop and start menu shortcuts
+        spawnUpdate(['--createShortcut', exeName]);
+   
+        setTimeout(app.quit, 1000);
+        return true;
+   
+      case '--squirrel-uninstall':
+        // Undo anything you did in the --squirrel-install and
+        // --squirrel-updated handlers
+   
+        // Remove desktop and start menu shortcuts
+        spawnUpdate(['--removeShortcut', exeName]);
+   
+        setTimeout(app.quit, 1000);
+        return true;
+   
+      case '--squirrel-obsolete':
+        // This is called on the outgoing version of your app before
+        // we update to the new version - it's the opposite of
+        // --squirrel-updated
+   
+        app.quit();
+        return true;
+    }
+  };

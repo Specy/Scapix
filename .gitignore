@@ -13,7 +13,7 @@ yarn.lock
 # production
 /build
 /dist
-
+/scapix-win32-x64
 # misc
 .DS_Store
 .env.local
