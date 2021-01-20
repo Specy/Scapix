@@ -1,7 +1,7 @@
 const electronInstaller = require('electron-winstaller');
 async function build(){
     try {
-        console.log("Starting packaging")
+        console.log("Starting setup")
         await electronInstaller.createWindowsInstaller({
           appDirectory: './scapix-win32-x64/',
           outputDirectory: './packaged',
@@ -10,11 +10,12 @@ async function build(){
           noMsi: true,
           setupExe: "ScapixSetup.exe",
           iconUrl:"https://raw.githubusercontent.com/Specy-wot/Scapix/main/icon.ico",
-          setupIcon: "./icon.ico"
+          setupIcon: "./icon.ico",
+          loadingGif: "./loading.gif"
         });
-        console.log('Packaging worked');
+        console.log('Setup worked');
       } catch (e) {
-        console.log(`Packaging error: ${e.message}`);
+        console.log(`Setup error: ${e.message}`);
       }
 }
 build()

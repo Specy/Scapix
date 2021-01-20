@@ -43,6 +43,7 @@
     "react-build": "react-scripts build",
     "react-test": "react-scripts test",
     "react-eject": "react-scripts eject",
+    "setup": "node build.js",
     "custom-build": "electron-packager . --icon=icon.ico --overwrite=true",
     "electron-react-release": "npm run react-bulid && electron-builder --publish=always",
     "electron-react-build": "npm react-bulid && electron-builder",
