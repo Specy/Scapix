@@ -6,7 +6,9 @@
     "appId": "com.specy.scapix",
     "icon": "./icon.png",
     "files": [
-      "build/**/*"
+      "build/**/*",
+      "!/packaged",
+      "!/scapix-win32-x64"
     ]
   },
   "homepage": "./",
@@ -19,6 +21,7 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "electron-is-dev": "^1.2.0",
     "electron-squirrel-startup": "^1.0.0",
     "gif-frames": "^1.0.1",
     "open-file-explorer": "^1.0.2",
@@ -27,7 +30,7 @@
     "react-dom": "^17.0.1",
     "react-dropzone": "^11.2.4",
     "sanitize-filename": "^1.6.3",
-    "waifu2x": "^0.1.9",
+    "waifu2x": "^0.2.2",
     "web-vitals": "^0.2.4"
   },
   "devDependencies": {
@@ -47,7 +50,10 @@
     "custom-build": "electron-packager . --icon=icon.ico --overwrite=true",
     "electron-react-release": "npm run react-bulid && electron-builder --publish=always",
     "electron-react-build": "npm react-bulid && electron-builder",
-    "electron-react": "concurrently \"npm start\" \"wait-on http://localhost:3000 && electron .\""
+    "electron-react": "concurrently \"npm start\" \"wait-on http://localhost:3000 && electron .\"",
+    "deploy-step1": "react-scripts build",
+    "deploy-step2": "electron-packager . --icon=icon.ico --overwrite=true",
+    "deploy-step3": "node build.js"
   },
   "eslintConfig": {
     "extends": [

@@ -66,14 +66,14 @@ class FileContainer extends Component {
                 <div className="flex centerX centerY">
                     {data.name.includes(".gif") ? 
                         <div className="column centerY" style={{ marginRight: "0.5rem" }}>
-                            <div style={{ marginTop: "-1.2rem" }}>Frames</div>
+                            <div style={{ marginTop: "-1.2rem" }}>Speed</div>
                             <input
                                 type="number"
                                 className={"individualInput"}
-                                step="1"
-                                name="fps"
+                                step="0.1"
+                                name="speed"
                                 onChange={this.handleChange}
-                                value={data.fps}
+                                value={data.speed}
                             />
                         </div> 
                         : ""

@@ -27,6 +27,11 @@ class App extends Component {
         type: ""
       }
     }
+    window.ipcRenderer.on("log-error",(event,arg)=>{
+      console.log("Error in main thread: ")
+      console.error(arg)
+      this.showMessage(arg.toString(),1,4000)
+    })
     window.showMessage = this.showMessage
     this.checkUpdate()
     this.populateStorage()
@@ -43,16 +48,16 @@ class App extends Component {
       floatingImagesToggled: !this.state.floatingImagesToggled,
       floatingImages: data
     })
-
   }
   showMessage = (text,type,timeout = 4000,action) =>{
+    if(typeof action !== "function") action = () => {}
     let newState = {
       message: text,
       isShown: true,
       type: type,
       action: action
     }
-    let tmout = setTimeout(()=>{
+    setTimeout(()=>{
       let newState = this.state.floatingMessage
       newState.isShown = false
       this.setState({

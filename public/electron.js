@@ -4,6 +4,7 @@ if(require('electron-squirrel-startup')) app.quit();
 if (handleSquirrelEvent()) {
      app.quit()
 }
+const isDev = require('electron-is-dev')
 const path = require("path");
 const fs = require('fs').promises
 const fsSync = require('fs')
@@ -15,7 +16,15 @@ let globalOutput = {
     usesDefault: true,
     path: ""
 }
-let isDev = false
+let emitError = function (error) {
+    console.error(error)
+    if(mainWindow === null) return
+    mainWindow.webContents.send("log-error",error)
+}
+process.on('uncaughtException', emitError)
+process.on("unhandledRejection", emitError)
+process.on("uncaughtExceptionMonitor", emitError)
+
 ipcMain.on('open-folder', async (event, arg) => {
     let endPath = path.join(__dirname,"/results")
     if(!globalOutput.usesDefault) endPath = globalOutput.path
@@ -38,6 +47,7 @@ ipcMain.on("exec-function", (event, data) => {
     switch (data.name) {
         case "close": {
             app.quit()
+            process.exit(1)
             break
         }
         case "minimize": {
@@ -100,7 +110,7 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         endPath += outputFile
         endPath = endPath.replace(/\//g,"\\")
         if (getFormat(el.name) === ".gif") {
-            options.constraint = el.fps
+            options.speed = el.speed
             output = await waifu2x.upscaleGIF(el.path, endPath ,options)
         } else {
             output = await waifu2x.upscaleImage(el.path, endPath,options)

@@ -75,7 +75,7 @@ class MainPage extends Component {
 				height: el.height,
 				noise: el.noise,
 				scale: el.scale,
-				fps: el.fps,
+				speed: el.speed,
 				endPath: this.props.settings.outputPath,
 				format: el.format,
 				id: el.id,
@@ -86,19 +86,19 @@ class MainPage extends Component {
 	}
 
 	handleIndividualSettingsChange = (value, type, id) => {
+		let toChange = isNaN(value) ? value : parseFloat(value)
 		if (value < 0.6 && type === "scale" && value !== "") {
-			value = 0.6
+			toChange = 0.6
 		}
 		let oldState = this.state.files[id]
-		oldState[type] = value
+		oldState[type] = toChange
 		this.setState({
 			files: this.state.files
 		})
 	}
 
 	handleImgSettingsChange = (value, type) => {
-		let toChange = this.state.globalImgSettings[type]
-		toChange = isNaN(value) ? value : parseFloat(value)
+		let toChange = isNaN(value) ? value : parseFloat(value)
 		if (value < 0.6 && type === "scale" && value !== "") {
 			toChange = 0.6
 		}
@@ -132,7 +132,7 @@ class MainPage extends Component {
 				src: null,
 				width: 0,
 				height: 0,
-				fps: 999,
+				speed: 1,
 				endPath : "default",
 				scale: this.state.globalImgSettings.scale,
 				status: "idle",
