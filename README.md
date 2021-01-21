@@ -12,9 +12,10 @@ After downloading the ScapixSetup.exe, run it and it will install the program, o
 
 # Usage
 
-Drag and drop your files or select them in the upper part of the page, then select the select your denoise and upscale options, once you are ready, press the "Run all" button.
+Drag and drop your files or select them in the upper part of the page, then chose your denoise and upscale options, once you are ready, press the "Run all" button.
 
-Now the images will be in a pending state waiting for the previous one to be processed, there are 3 status colors: <br>
+Now the images will be in a pending state waiting for the previous one to be processed, there are 4 status colors: <br>
+White/Black (dark mode) = idle <br>
 Yellow = pending <br>
 Green = finished <br>
 Red = error <br>
@@ -23,9 +24,9 @@ You can read the output information clicking the "i" icon on the right of the im
 
 You can also view the difference between original and upscaled images by clicking the "eye" icon
 
-# Building
+# Building from source
 
-If you want to build the app you must follow those building steps:
+If you want to build the app you have to follow those building steps:
 
 After finishing your changes you have to close the dev server and run:
 
@@ -44,7 +45,7 @@ This ^ will create the electron package (time ~= 10min)
 3)
 You should now go to
 ```
-./scapix-win32-x64/app/node_modules/
+./scapix-win32-x64/resources/app/node_modules/
 ```
 And delete the .cache file, reason being that the packaged file exceeds window's max directory length of 260 characters
 
