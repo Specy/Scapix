@@ -67,8 +67,13 @@ class ImagesSettings extends Component {
                     </button>
                     <button
                         className="button fillY darkTeal"
-                        style={{ marginTop: "0.5rem" }}
+                        style={{ 
+                            marginTop: "0.5rem",
+                            filter:this.props.canRun ? "brightness(1)" : "brightness(0.8)"
+                        }}
+                        disabled={!this.props.canRun}
                         onClick={this.props.executeWaifu}
+
                     >
                         Run all
                     </button>

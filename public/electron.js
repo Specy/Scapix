@@ -111,7 +111,14 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         endPath = endPath.replace(/\//g,"\\")
         if (getFormat(el.name) === ".gif") {
             options.speed = el.speed
-            output = await waifu2x.upscaleGIF(el.path, endPath ,options)
+            let callback = (current,final) => {
+                event.reply('update-execution',{
+                    id:el.id,
+                    status: "processing",
+                    frames: [current,final]
+                })
+            }
+            output = await waifu2x.upscaleGIF(el.path, endPath ,options,callback)
         } else {
             output = await waifu2x.upscaleImage(el.path, endPath,options)
         }

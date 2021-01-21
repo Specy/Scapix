@@ -176,7 +176,7 @@ input[type=number]{
 }
 .fileRow{
   display: flex;
-  height: 110px;
+  min-height: 110px;
   justify-content: space-between;
   align-items: center;
   margin: 0 0.8rem;
@@ -335,4 +335,30 @@ select{
 }
 .hiddenRight{
   right: -13rem;
+}
+.progressWrapper{
+  flex-direction: column;
+  display: flex;
+  margin-top: auto;
+  margin-bottom: -1rem;
+  flex: 1;
+  justify-content: flex-end;
+  align-items: center;
+  font-size: 0.8rem;
+}
+
+.progressOuter{
+  width: 60%;
+  background-color: #a6a6a6;
+  height: 0.5rem;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.progressInner{
+  width: 0%;
+  background-color:#4040d1;
+  height: 1rem;
+}
+.row{
+  flex-wrap: unset;
 }

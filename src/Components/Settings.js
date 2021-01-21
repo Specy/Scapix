@@ -48,8 +48,10 @@ class Settings extends Component {
                     </div>
                     <div className="settingRow">
                         <div className="settingsOption">Output path</div>
-                        <button className="button" onClick={this.handleDialog}>Click to select</button>
-                        <div>{s.outputPath}</div>
+                        <button className="button wm-L3" onClick={this.handleDialog}>Click to select</button>
+                        <div style={{marginLeft:"1rem"}}>
+                            {s.outputPath}
+                        </div>
                     </div>
                     <div className="settingRow">
                         More to come...

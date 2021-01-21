@@ -12,7 +12,7 @@
     ]
   },
   "homepage": "./",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "main": "./public/electron.js",
   "dependencies": {
@@ -30,7 +30,7 @@
     "react-dom": "^17.0.1",
     "react-dropzone": "^11.2.4",
     "sanitize-filename": "^1.6.3",
-    "waifu2x": "^0.2.2",
+    "waifu2x": "^0.2.3",
     "web-vitals": "^0.2.4"
   },
   "devDependencies": {

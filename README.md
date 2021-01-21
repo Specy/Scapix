@@ -19,3 +19,33 @@ Red = error
 You can read the output information clicking the "i" icon on the right of the image after it finished processing
 
 You can also view the difference between original and upscaled images by clicking the "eye" icon
+
+# Building
+
+If you want to build the app you must follow those building steps:
+
+After finishing your changes you have to close the dev server and run:
+1)
+```
+npm run deploy-step1
+```
+This ^ will create the react bundle in ./bundle (time ~= 2min)
+
+2)
+```
+npm run deploy-step2
+```
+This ^ will create the electron package (time ~= 10min)
+
+3)
+You should now go to
+```
+./scapix-win32-x64/app/node_modules/
+```
+And delete the .cache file, reason being that the packaged file exceeds window's max directory length of 260 characters
+
+4)
+```
+npm run deploy-step3
+```
+This ^ will run the build.js file which will create the setup of the application that can then be used to install the program. (time ~= 20min)

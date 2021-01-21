@@ -38,9 +38,12 @@ class FileContainer extends Component {
             } else {
                 color = s.darkMode === "on" ? "rgb(144 74 74)" : "#e3b0b0"
             }
-        } else if (data.status === "pending") {
+        } else if (data.status === "pending" || data.status === "processing") {
             color = s.darkMode === "on" ? "#d6c869" : "#f7f1cb"
         }
+        let progressBar = data.frames[0] / data.frames[1]*95 + "%"
+        if(data.status === "done") progressBar = "100%"
+
         return (
             <div
                 className={s.darkMode === "on" ? "fileRow" : "fileRow text-dark"}
@@ -62,7 +65,24 @@ class FileContainer extends Component {
                         </div>
                     </div>
                 </div>
-
+                <div 
+                    className="progressWrapper"
+                    style={{visibility:data.frames[1] === 0 || data.status === "done" ? "hidden": "visible"}}
+                >
+                    <div>
+                        {data.frames[0] === data.frames[1]
+                            ?"Encoding gif..."
+                            :"Upscaling frame: " + data.frames[0] + "/" + data.frames[1]
+                        }
+                    </div>
+                    <div className="progressOuter">
+                        <div 
+                            className="progressInner"
+                            style={{width:progressBar}}
+                        >
+                        </div>
+                    </div>
+                </div>
                 <div className="flex centerX centerY">
                     {data.name.includes(".gif") ? 
                         <div className="column centerY" style={{ marginRight: "0.5rem" }}>
