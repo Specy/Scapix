@@ -12,7 +12,7 @@
     ]
   },
   "homepage": "./",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "main": "./public/electron.js",
   "dependencies": {
@@ -23,7 +23,6 @@
     "@testing-library/user-event": "^12.1.10",
     "electron-is-dev": "^1.2.0",
     "electron-squirrel-startup": "^1.0.0",
-    "gif-frames": "^1.0.1",
     "open-file-explorer": "^1.0.2",
     "pretty-bytes": "^5.5.0",
     "react": "^17.0.1",
