@@ -18,7 +18,7 @@ function DropZone(props) {
 			{
 				isDragActive ?
 					<p>Drop files here...</p> :
-					<p>Drop files here or click to select.</p>
+					<p>Drop files here or click to select</p>
 			}
 			<div className="formats">
 				.gif .webp .png .jpg
@@ -39,34 +39,34 @@ class MainPage extends Component {
 			}
 		}
 		window.ipcRenderer.on('done-execution', (event, arg) => {
-			try{
+			try {
 				let file = this.state.files[arg.id]
 				file.message = arg.message
 				file.status = arg.status
 				file.success = arg.success
 				file.updatedImg = arg.upscaledImg
-				console.log("Done",arg.id)
+				console.log("Done", arg.id)
 				this.setState({
 					files: this.state.files
 				})
-			}catch(e){
-				window.showMessage("Error",1)
+			} catch (e) {
+				window.showMessage("Error", 1)
 				console.log(e)
 			}
 
 		})
 		window.ipcRenderer.on('update-execution', (event, arg) => {
-			try{
-				
+			try {
+
 				let file = this.state.files[arg.id]
 				file.status = arg.status
-				if(Array.isArray(arg.frames)) file.frames = arg.frames
-				console.log("Update",arg.id)
+				if (Array.isArray(arg.frames)) file.frames = arg.frames
+				console.log("Update", arg.id)
 				this.setState({
 					files: this.state.files
 				})
-			}catch(e){
-				window.showMessage("Error",1)
+			} catch (e) {
+				window.showMessage("Error", 1)
 				console.log(e)
 			}
 
@@ -91,7 +91,7 @@ class MainPage extends Component {
 				noise: el.noise,
 				scale: el.scale,
 				speed: el.speed,
-				frames: [0,0],
+				frames: [0, 0],
 				endPath: this.props.settings.outputPath,
 				format: el.format,
 				id: el.id,
@@ -100,7 +100,19 @@ class MainPage extends Component {
 		})
 		window.ipcRenderer.send('execute-waifu', dataToSend)
 	}
+	cancelExecution = () => {
+		window.ipcRenderer.send("cancel-execution")
+		Object.keys(this.state.files).map(img => {
+			img = this.state.files[img]
+			img.status = "idle"
+			img.frames = [0, 0]
+			return img
+		})
+		this.setState({
+			files: this.state.files
+		})
 
+	}
 	handleIndividualSettingsChange = (value, type, id) => {
 		let toChange = isNaN(value) ? value : parseFloat(value)
 		if (value < 0.6 && type === "scale" && value !== "") {
@@ -149,11 +161,11 @@ class MainPage extends Component {
 				width: 0,
 				height: 0,
 				speed: 1,
-				endPath : "default",
+				endPath: "default",
 				scale: this.state.globalImgSettings.scale,
 				status: "idle",
 				updatedImg: null,
-				frames: [0,0],
+				frames: [0, 0],
 				format: this.state.globalImgSettings.outputFormat,
 				noise: this.state.globalImgSettings.denoiseLevel,
 				id: this.getRandomId(),
@@ -190,7 +202,7 @@ class MainPage extends Component {
 			let file = this.state.files[key]
 			return file.status === "done" || file.status === "idle"
 		})
-		if(Object.keys(this.state.files).length === 0) canRun = false
+		if (Object.keys(this.state.files).length === 0) canRun = false
 		return (
 			<div
 				className={s.darkMode === "on" ? "content dm-L1" : "content l1"}
@@ -204,10 +216,12 @@ class MainPage extends Component {
 				<div className="bottomMainPage">
 					<ImagesSettings
 						settings={s}
+						isEmpty={Object.keys(this.state.files).length === 0}
 						canRun={canRun}
 						data={this.state.globalImgSettings}
 						action={this.handleImgSettingsChange}
 						executeWaifu={this.executeWaifu}
+						cancelExecution={this.cancelExecution}
 					/>
 					<div className={s.darkMode === "on" ? "filesHolder dm-L2" : "filesHolder l1 box-shadow"}>
 						<div className="overflowFileHolder scroll">
@@ -216,7 +230,7 @@ class MainPage extends Component {
 								return <FileContainer
 									settings={s}
 									key={file.id}
-
+									canRun={canRun}
 									action={this.removeImage}
 									individualChange={this.handleIndividualSettingsChange}
 									data={file}

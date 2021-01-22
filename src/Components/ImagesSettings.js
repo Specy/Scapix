@@ -11,6 +11,14 @@ class ImagesSettings extends Component {
     openFolder = () => {
         window.ipcRenderer.send("open-folder")
     }
+    executeBtnCommand = () => {
+        if (this.props.canRun) {
+            this.props.executeWaifu()
+        } else {
+            this.props.cancelExecution()
+
+        }
+    }
     //=======================================================//
     render() {
         let data = this.props.data
@@ -66,16 +74,17 @@ class ImagesSettings extends Component {
                         Open output folder
                     </button>
                     <button
-                        className="button fillY darkTeal"
-                        style={{ 
-                            marginTop: "0.5rem",
-                            filter:this.props.canRun ? "brightness(1)" : "brightness(0.8)"
+                        className={
+                            "button fillY runBtn " +
+                            (this.props.canRun || this.props.isEmpty ? "darkTeal" : "red")
+                        }
+                        onClick={this.executeBtnCommand}
+                        style={{
+                            filter: this.props.isEmpty ? "brightness(0.8)" : "brightness(1)"
                         }}
-                        disabled={!this.props.canRun}
-                        onClick={this.props.executeWaifu}
-
+                        disabled={this.props.isEmpty}
                     >
-                        Run all
+                        {this.props.canRun || this.props.isEmpty ? "Run all" : "Cancel"}
                     </button>
                 </div>
 

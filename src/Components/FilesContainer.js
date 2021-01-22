@@ -19,7 +19,7 @@ class FileContainer extends Component {
         this.props.individualChange(el.value, el.name, this.props.data.id)
     }
     showInfo = (e) => {
-        window.showMessage(this.props.data.message,1,10000,() =>{
+        window.showMessage(this.props.data.message, 1, 10000, () => {
             console.log("clicked")
         })
     }
@@ -29,7 +29,9 @@ class FileContainer extends Component {
         let s = this.props.settings
         let color = s.darkMode === "on" ? "rgb(27, 25, 35)" : "rgb(238, 238, 238)"
         let visible = { visibility: "hidden" }
-        let visible2 = {visibility: "hidden"}
+        let visible2 = { visibility: "hidden" }
+        let visible3 = { visibility: "visible" }
+        if (!this.props.canRun) visible3.visibility = "hidden"
         if (data.status === "done") {
             visible2.visibility = "visible"
             if (data.success) {
@@ -41,9 +43,8 @@ class FileContainer extends Component {
         } else if (data.status === "pending" || data.status === "processing") {
             color = s.darkMode === "on" ? "#d6c869" : "#f7f1cb"
         }
-        let progressBar = data.frames[0] / data.frames[1]*95 + "%"
-        if(data.status === "done") progressBar = "100%"
-
+        let progressBar = data.frames[0] / data.frames[1] * 95 + "%"
+        if (data.status === "done") progressBar = "100%"
         return (
             <div
                 className={s.darkMode === "on" ? "fileRow" : "fileRow text-dark"}
@@ -65,26 +66,26 @@ class FileContainer extends Component {
                         </div>
                     </div>
                 </div>
-                <div 
+                <div
                     className="progressWrapper"
-                    style={{visibility:data.frames[1] === 0 || data.status === "done" ? "hidden": "visible"}}
+                    style={{ visibility: data.frames[1] === 0 || data.status === "done" ? "hidden" : "visible" }}
                 >
                     <div>
                         {data.frames[0] === data.frames[1]
-                            ?"Encoding gif..."
-                            :"Upscaling frame: " + data.frames[0] + "/" + data.frames[1]
+                            ? "Encoding gif..."
+                            : "Upscaling frame: " + data.frames[0] + "/" + data.frames[1]
                         }
                     </div>
                     <div className="progressOuter">
-                        <div 
+                        <div
                             className="progressInner"
-                            style={{width:progressBar}}
+                            style={{ width: progressBar }}
                         >
                         </div>
                     </div>
                 </div>
                 <div className="flex centerX centerY">
-                    {data.name.includes(".gif") ? 
+                    {data.name.includes(".gif") ?
                         <div className="column centerY" style={{ marginRight: "0.5rem" }}>
                             <div style={{ marginTop: "-1.2rem" }}>Speed</div>
                             <input
@@ -95,7 +96,7 @@ class FileContainer extends Component {
                                 onChange={this.handleChange}
                                 value={data.speed}
                             />
-                        </div> 
+                        </div>
                         : ""
                     }
                     <div className="column centerY" style={{ marginRight: "0.5rem" }}>
@@ -120,9 +121,12 @@ class FileContainer extends Component {
                         onClick={this.sendImagesData}
                     />
                     <DeleteForever
-                        onClick={() => this.props.action(data.id)}
+                        onClick={() => {
+                            this.props.action(data.id)
+                        }}
+
                         className={s.darkMode === "on" ? "text-white redHover" : "text-dark redHover"}
-                        style={{ fontSize: 25 }}
+                        style={{ fontSize: 25, ...visible3 }}
                     />
                 </div>
             </div>

@@ -5,8 +5,8 @@ import "../specy.css"
 class Settings extends Component {
     constructor(props) {
         super(props)
-        window.ipcRenderer.on("change-dest-answer",(event,arg)=>{
-            if(arg[0]){
+        window.ipcRenderer.on("change-dest-answer", (event, arg) => {
+            if (arg[0]) {
                 let obj = {
                     type: "outputPath",
                     value: arg[1]
@@ -28,8 +28,8 @@ class Settings extends Component {
         }
         this.props.toggleSettings(obj)
     }
-    handleDialog = async () =>{
-        window.ipcRenderer.send("change-dest","")
+    handleDialog = async () => {
+        window.ipcRenderer.send("change-dest", "")
     }
     //=======================================================//
     render() {
@@ -49,7 +49,7 @@ class Settings extends Component {
                     <div className="settingRow">
                         <div className="settingsOption">Output path</div>
                         <button className="button wm-L3" onClick={this.handleDialog}>Click to select</button>
-                        <div style={{marginLeft:"1rem"}}>
+                        <div style={{ marginLeft: "1rem" }}>
                             {s.outputPath}
                         </div>
                     </div>
