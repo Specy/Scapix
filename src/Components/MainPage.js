@@ -207,7 +207,6 @@ class MainPage extends Component {
 			return file.status === "done" || file.status === "idle"
 		})
 		if (Object.keys(this.state.files).length === 0) canRun = false
-		console.log(this.state.files)
 		return (
 			<div
 				className={s.darkMode === "on" ? "content dm-L1" : "content l1"}

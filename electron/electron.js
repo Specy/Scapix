@@ -159,9 +159,15 @@ ipcMain.on('execute-waifu', async (event, arg) => {
                     frames: [current, final]
                 })
             }
+            
             output = await waifu2x.upscaleGIF(el.path, endPath, options, callback)
         } else {
-            output = await waifu2x.upscaleImage(el.path, endPath, options)
+            try{
+                output = await waifu2x.upscaleImage(el.path, endPath, options)
+            }catch(e){
+                console.log("Error")
+                reply.success = false
+            }
         }
         let reply = {
             id: el.id,
