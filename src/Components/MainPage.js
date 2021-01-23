@@ -91,6 +91,7 @@ class MainPage extends Component {
 				noise: el.noise,
 				scale: el.scale,
 				speed: el.speed,
+				model: el.model,
 				frames: [0, 0],
 				endPath: this.props.settings.outputPath,
 				format: el.format,
@@ -126,6 +127,7 @@ class MainPage extends Component {
 	}
 
 	handleImgSettingsChange = (value, type) => {
+
 		let toChange = isNaN(value) ? value : parseFloat(value)
 		if (value < 0.6 && type === "scale" && value !== "") {
 			toChange = 0.6
@@ -137,6 +139,7 @@ class MainPage extends Component {
 			img.noise = newState.denoiseLevel
 			img.scale = newState.scale
 			img.format = newState.outputFormat
+			img.model = newState.model
 			return img
 		})
 		this.setState({
@@ -164,6 +167,7 @@ class MainPage extends Component {
 				endPath: "default",
 				scale: this.state.globalImgSettings.scale,
 				status: "idle",
+				model: "Drawing",
 				updatedImg: null,
 				frames: [0, 0],
 				format: this.state.globalImgSettings.outputFormat,
@@ -203,6 +207,7 @@ class MainPage extends Component {
 			return file.status === "done" || file.status === "idle"
 		})
 		if (Object.keys(this.state.files).length === 0) canRun = false
+		console.log(this.state.files)
 		return (
 			<div
 				className={s.darkMode === "on" ? "content dm-L1" : "content l1"}

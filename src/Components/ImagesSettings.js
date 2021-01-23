@@ -2,7 +2,15 @@ import React, { Component } from 'react'
 class ImagesSettings extends Component {
     constructor(props) {
         super(props)
-
+        this.state = {
+            models : []
+        }
+        window.ipcRenderer.send("get-models")
+        window.ipcRenderer.on("got-models",(event, arg) =>{
+            this.setState({
+                models: arg
+            })
+        })
     }
 
     handleChange = (event) => {
@@ -16,7 +24,6 @@ class ImagesSettings extends Component {
             this.props.executeWaifu()
         } else {
             this.props.cancelExecution()
-
         }
     }
     //=======================================================//
@@ -64,6 +71,21 @@ class ImagesSettings extends Component {
                             <option>.png</option>
                             <option>.jpg</option>
                             <option>.webp</option>
+                        </select>
+                    </div>
+                    <div className="column">
+                        <div>Image type</div>
+                        <select
+                            className="input wm-L2"
+                            value={data.model}
+                            name="model"
+                            onChange={this.handleChange}
+                        >
+                            {this.state.models.map(model =>{
+                                return <option key={model}>
+                                    {model}
+                                </option>
+                            })}
                         </select>
                     </div>
                     <button

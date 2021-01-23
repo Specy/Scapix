@@ -1,0 +1,66 @@
+<html>
+<style>
+    html {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+
+    }
+
+    * {
+        font-family: Arial;
+        color: white;
+        box-sizing: border-box;
+    }
+
+    body {
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgb(42, 41, 51);
+    }
+
+    .loading {
+        font-size: 3rem;
+        animation: spin 2.5s cubic-bezier(0.44, 0.03, 0.4, 0.99) infinite;
+        font-weight: bold;
+    }
+
+    img{
+        width: 30vh;
+        animation: scale 2.5s cubic-bezier(0.44, 0.03, 0.49, 0.93) infinite;
+    }
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+    @keyframes scale {
+        0% {
+            transform: scale(1);
+        }
+
+        75% {
+            transform: scale(1.25);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+</style>
+
+<body>
+    <div class="loading">
+        <img src="../public/icons/icon.svg">
+    </div>
+</body>
+
+</html>
