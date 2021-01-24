@@ -1,17 +1,23 @@
 import React, { Component } from 'react'
 import "../App.css"
 import { DeleteForever, Visibility, Info } from "@material-ui/icons"
-const isVideo = require('is-video');
 class FileContainer extends Component {
     constructor(props) {
         super(props)
     }
     sendImagesData = () => {
+        let propsData = this.props.data
         let data = {
-            original: this.props.data.src,
-            modified: this.props.data.updatedImg,
-            format: this.props.data.height / this.props.data.width,
-            hasImages: true
+            original: propsData.src,
+            modified: propsData.updatedImg,
+            format: propsData.height / propsData.width,
+            hasImages: true,
+            isVideo: false
+        }
+
+        if(propsData.isVideo){
+            data.video = propsData.video
+            data.isVideo = true
         }
         this.props.toggleFloatingImages(data)
     }
@@ -52,7 +58,7 @@ class FileContainer extends Component {
                 style={{ backgroundColor: color }}>
                 <div className="row">
                     <div style={{ position: "relative" }}>
-                        {isVideo(data.name) ? 
+                        {data.isVideo ? 
                           data.video
                         : <img src={data.src} className="previewImage" />
                         }
@@ -76,7 +82,7 @@ class FileContainer extends Component {
                 >
                     <div>
                         {data.frames[0] === data.frames[1]
-                            ? "Encoding gif..."
+                            ? "Encoding..."
                             : "Upscaling frame: " + data.frames[0] + "/" + data.frames[1]
                         }
                     </div>

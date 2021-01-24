@@ -12,17 +12,20 @@ class FloatingImages extends Component {
     //=======================================================//
     render() {
         let shown = this.props.toggled ? "flex" : "none"
-
-        let isHorizontal = this.props.data.format < 1.5
-
-        let orientation = {
-            width: isHorizontal ? "calc(35vw - 1.5rem)" : "unset",
-            height: isHorizontal ? "unset" : "calc(91vh - 2rem)"
-        }
         let data = this.props.data
-        if (data.isVideo) {
-
+        let isHorizontal = this.props.data.format < 1.5
+        let orientation = {}
+        let videoClass = data.isVideo ? "verticalVideo" : ""
+        if(isHorizontal){
+            orientation = {
+                width: isHorizontal ? "calc(35vw - 1.5rem)" : "unset",
+                height: isHorizontal ? "unset" : "calc(91vh - 2rem)"
+            }
+            videoClass = data.isVideo ? "horizontalVideo" : ""
         }
+
+        
+        let textAndImageClass = "textAndImage " + videoClass
         return (
             <div
                 className="floatingImages"
@@ -38,14 +41,14 @@ class FloatingImages extends Component {
                     className="imagesContainer"
                     onClick={this.preventDefault}
                 >
-                    <div className="textAndImage">
+                    <div className={textAndImageClass}>
                         <div className="floatingImgText">Original</div>
                         {data.isVideo
                             ? data.video
                             : <img src={data.original} style={orientation} />
                         }
                     </div>
-                    <div className="textAndImage">
+                    <div className={textAndImageClass}>
                         <div className="floatingImgText">Modified</div>
                         {data.isVideo
                             ? <video

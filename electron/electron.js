@@ -13,7 +13,7 @@ const openExplorer = require('open-file-explorer');
 const { shell } = require('electron')
 const { dialog } = require('electron')
 const isVideo = require('is-video');
-console.log(isVideo)
+const ffmpegBin = require('@ffmpeg-installer/ffmpeg');
 //----------------------------------------------------------//
 //----------------------------------------------------------//
 //----------------------------------------------------------//
@@ -107,6 +107,7 @@ ipcMain.on('execute-waifu', async (event, arg) => {
     arg.forEach(async (el, i, arr) => {
         if (currentExecution !== localExecution) return
         let noise = 0
+        let isVidOrGif = getFormat(el.name) === ".gif" || el.isVideo
         switch (el.noise) {
             case "Low": noise = 1
                 break;
@@ -125,13 +126,12 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         let options = {
             noise: noise,
             scale: el.scale,
-            absolutePath: true,
         }
         if (el.model !== "Drawing") {
             options.modelDir = path.join(__dirname, "../models/", el.model)
         }
         let safeName = sanitize(el.name)
-        let outputFile = replaceFormat(safeName, el.format)
+        let outputFile = isVidOrGif ? safeName :replaceFormat(safeName, el.format)
         let date = new Date()
         let dailyFolder = + date.getDate() + "-" + date.getMonth()
 
@@ -163,12 +163,12 @@ ipcMain.on('execute-waifu', async (event, arg) => {
             output = await waifu2x.upscaleGIF(el.path, endPath, options, callback)
         } else if (isVideo(el.path)) {
             //IF THE FILE IS A VIDEO
-            console.log("VIDEO")
             let videoOptions = {
-                framerate:24,
-                quality:16,
-                speed:1,
-                absolutePath: true,
+                framerate:30,
+                quality:0,
+                noise: noise,
+                scale: el.scale,
+                ffmpegPath: ffmpegBin.path
             }
             output = await waifu2x.upscaleVideo(el.path,endPath,videoOptions,callback)
             
@@ -189,11 +189,11 @@ ipcMain.on('execute-waifu', async (event, arg) => {
             upscaledImg: null,
         }
         try {
-            if (getFormat(safeName) === ".gif") endPath += "/" + outputFile
             let upscaledImg = await fs.readFile(endPath, { encoding: "base64" })
             let base = "data:image/"
             if(isVideo(el.name)) base = "data:video/"
-            reply.upscaledImg = "data:image/" + getFormat(el.format, true) + ";base64," + upscaledImg
+            let endFormat = el.format === "Original" || isVidOrGif? getFormat(el.name, true) : getFormat(el.format, true)
+            reply.upscaledImg = base + endFormat + ";base64," + upscaledImg
 
         } catch (e) {
             console.log("Error finding file ", e)

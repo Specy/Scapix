@@ -257,7 +257,15 @@ select{
   justify-items: center;
 }
 .textAndImage video{
-  width: calc(35vw - 1.5rem);
+  
+}
+.verticalVideo video{
+  height: calc(91vh - 2rem) !important;
+  width:unset !important;
+}
+.horizontalVideo video{
+  width: calc(35vw - 1.5rem) !important;
+  height: unset !important;
 }
 .floatingImgText{
   position: absolute;

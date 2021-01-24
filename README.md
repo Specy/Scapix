@@ -1,6 +1,6 @@
 # Welcome to Scapix
-Scapix is an image upscaling and denoiser app which uses waifu2x, a machine learning library. <br>
-It's able to upscale and denoise many different image formats and can also upscale GIFs, it can also convert an image format.
+Scapix is an image,gif and video upscaling and denoiser app which uses waifu2x, a machine learning library. <br>
+It's able to upscale and denoise many different image formats and can also upscale GIFs and videos.
 
 <img src="https://cdn.discordapp.com/attachments/466748625138089994/801768795349581864/photo1.PNG" width=400>
 <img src="https://cdn.discordapp.com/attachments/466748625138089994/801768799451873281/photo2.PNG" width=400>

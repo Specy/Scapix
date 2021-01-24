@@ -22,7 +22,7 @@ function DropZone(props) {
 					<p>Drop files here or click to select</p>
 			}
 			<div className="formats">
-				.gif .webp .png .jpg
+				.mp4 .gif .webp .png .jpg
 		</div>
 		</div>
 	)
@@ -36,7 +36,8 @@ class MainPage extends Component {
 			globalImgSettings: {
 				scale: 2,
 				denoiseLevel: "None",
-				outputFormat: "Original"
+				outputFormat: "Original",
+				model: "Drawing"
 			}
 		}
 		window.ipcRenderer.on('done-execution', (event, arg) => {
@@ -51,7 +52,7 @@ class MainPage extends Component {
 					files: this.state.files
 				})
 			} catch (e) {
-				window.showMessage("Error", 1)
+				window.showMessage("Error, Stop the execution and reload", 1)
 				console.log(e)
 			}
 
@@ -67,7 +68,7 @@ class MainPage extends Component {
 					files: this.state.files
 				})
 			} catch (e) {
-				window.showMessage("Error", 1)
+				window.showMessage("Error, Stop the execution and reload", 1)
 				console.log(e)
 			}
 
@@ -93,6 +94,7 @@ class MainPage extends Component {
 				scale: el.scale,
 				speed: el.speed,
 				model: el.model,
+				isVideo: el.isVideo,
 				frames: [0, 0],
 				endPath: this.props.settings.outputPath,
 				format: el.format,
@@ -117,9 +119,10 @@ class MainPage extends Component {
 	}
 	handleIndividualSettingsChange = (value, type, id) => {
 		let toChange = isNaN(value) ? value : parseFloat(value)
-		if (value < 0.6 && type === "scale" && value !== "") {
+		if (value < 0.6 && type === "scale") {
 			toChange = 0.6
 		}
+		if(value === "") toChange = 2
 		let oldState = this.state.files[id]
 		oldState[type] = toChange
 		this.setState({
@@ -130,9 +133,10 @@ class MainPage extends Component {
 	handleImgSettingsChange = (value, type) => {
 
 		let toChange = isNaN(value) ? value : parseFloat(value)
-		if (value < 0.6 && type === "scale" && value !== "") {
+		if (value < 0.6 && type === "scale") {
 			toChange = 0.6
 		}
+		if(value === "") toChange = 2
 		let newState = this.state.globalImgSettings
 		newState[type] = toChange
 		Object.keys(this.state.files).map(img => {
