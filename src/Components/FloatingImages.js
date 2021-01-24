@@ -19,6 +19,10 @@ class FloatingImages extends Component {
             width: isHorizontal ? "calc(35vw - 1.5rem)" : "unset",
             height: isHorizontal ? "unset" : "calc(91vh - 2rem)"
         }
+        let data = this.props.data
+        if (data.isVideo) {
+
+        }
         return (
             <div
                 className="floatingImages"
@@ -36,11 +40,24 @@ class FloatingImages extends Component {
                 >
                     <div className="textAndImage">
                         <div className="floatingImgText">Original</div>
-                        <img src={this.props.data.original} style={orientation} />
+                        {data.isVideo
+                            ? data.video
+                            : <img src={data.original} style={orientation} />
+                        }
                     </div>
                     <div className="textAndImage">
                         <div className="floatingImgText">Modified</div>
-                        <img src={this.props.data.modified} style={orientation} />
+                        {data.isVideo
+                            ? <video
+                                autoPlay
+                                muted={true}
+                                loop={true}
+                            >
+                                <source src={data.modified}>
+                                </source>
+                            </video>
+                            : <img src={data.modified} style={orientation} />
+                        }
                     </div>
 
                 </div>

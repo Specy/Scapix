@@ -256,6 +256,9 @@ select{
   align-items: center;
   justify-items: center;
 }
+.textAndImage video{
+  width: calc(35vw - 1.5rem);
+}
 .floatingImgText{
   position: absolute;
   top: 0.5rem;

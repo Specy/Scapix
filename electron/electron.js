@@ -12,8 +12,8 @@ const sanitize = require("sanitize-filename")
 const openExplorer = require('open-file-explorer');
 const { shell } = require('electron')
 const { dialog } = require('electron')
-
-
+const isVideo = require('is-video');
+console.log(isVideo)
 //----------------------------------------------------------//
 //----------------------------------------------------------//
 //----------------------------------------------------------//
@@ -37,10 +37,10 @@ process.on("uncaughtExceptionMonitor", emitError)
 
 //-------------------------------------//
 
-ipcMain.on("get-models",async (event)=>{
-    let models = await fs.readdir(path.join(__dirname,"../models/"))
+ipcMain.on("get-models", async (event) => {
+    let models = await fs.readdir(path.join(__dirname, "../models/"))
     models.unshift("Drawing")
-    event.reply("got-models",models)
+    event.reply("got-models", models)
 })
 
 ipcMain.on('open-folder', async (event, arg) => {
@@ -104,7 +104,7 @@ ipcMain.on("exec-function", (event, data) => {
 ipcMain.on('execute-waifu', async (event, arg) => {
     currentExecution = new Date().getTime()
     let localExecution = currentExecution
-    arg.forEach(async (el,i,arr) => {
+    arg.forEach(async (el, i, arr) => {
         if (currentExecution !== localExecution) return
         let noise = 0
         switch (el.noise) {
@@ -127,8 +127,8 @@ ipcMain.on('execute-waifu', async (event, arg) => {
             scale: el.scale,
             absolutePath: true,
         }
-        if(el.model !== "Drawing"){
-            options.modelDir = path.join(__dirname,"../models/",el.model)
+        if (el.model !== "Drawing") {
+            options.modelDir = path.join(__dirname, "../models/", el.model)
         }
         let safeName = sanitize(el.name)
         let outputFile = replaceFormat(safeName, el.format)
@@ -149,22 +149,34 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         }
         endPath += outputFile
         endPath = endPath.replace(/\//g, "\\")
+        let callback = (current, final) => {
+            if (currentExecution !== localExecution) return true
+            event.reply('update-execution', {
+                id: el.id,
+                status: "processing",
+                frames: [current, final]
+            })
+        }
         if (getFormat(el.name) === ".gif") {
+            //IF THE FILE IS A GIF
             options.speed = el.speed
-            let callback = (current, final) => {
-                if (currentExecution !== localExecution) return true
-                event.reply('update-execution', {
-                    id: el.id,
-                    status: "processing",
-                    frames: [current, final]
-                })
-            }
-            
             output = await waifu2x.upscaleGIF(el.path, endPath, options, callback)
+        } else if (isVideo(el.path)) {
+            //IF THE FILE IS A VIDEO
+            console.log("VIDEO")
+            let videoOptions = {
+                framerate:24,
+                quality:16,
+                speed:1,
+                absolutePath: true,
+            }
+            output = await waifu2x.upscaleVideo(el.path,endPath,videoOptions,callback)
+            
         } else {
-            try{
+            //IF THE FILE IS A PHOTO
+            try {
                 output = await waifu2x.upscaleImage(el.path, endPath, options)
-            }catch(e){
+            } catch (e) {
                 console.log("Error")
                 reply.success = false
             }
@@ -174,11 +186,13 @@ ipcMain.on('execute-waifu', async (event, arg) => {
             message: output,
             success: true,
             status: "done",
-            upscaledImg: null
+            upscaledImg: null,
         }
         try {
             if (getFormat(safeName) === ".gif") endPath += "/" + outputFile
             let upscaledImg = await fs.readFile(endPath, { encoding: "base64" })
+            let base = "data:image/"
+            if(isVideo(el.name)) base = "data:video/"
             reply.upscaledImg = "data:image/" + getFormat(el.format, true) + ";base64," + upscaledImg
 
         } catch (e) {
@@ -187,9 +201,9 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         }
         if (currentExecution !== localExecution) return console.log("stopped execution")
         event.reply('done-execution', reply)
-        if (currentExecution === localExecution && i === arr.length - 1){
+        if (currentExecution === localExecution && i === arr.length - 1) {
             mainWindow.flashFrame(true)
-            setTimeout(() => mainWindow.flashFrame(false),6000)
+            setTimeout(() => mainWindow.flashFrame(false), 6000)
         }
     })
 
@@ -228,7 +242,7 @@ function createWindow() {
         minHeight: screen.height,
         backgroundColor: "#7f7ba6",
         minWidth: 720,
-        icon: path.join(__dirname,"../public/icons/icon.png"),
+        icon: path.join(__dirname, "../public/icons/icon.png"),
         frame: false,
         webPreferences: {
             nodeIntegration: true,
@@ -263,7 +277,7 @@ function loadSplash() {
         height: screen.height,
         minWidth: screen.width,
         minHeight: screen.height,
-        icon: path.join(__dirname,"../public/icons/icon.png"),
+        icon: path.join(__dirname, "../public/icons/icon.png"),
         frame: false,
         alwaysOnTop: true
     })

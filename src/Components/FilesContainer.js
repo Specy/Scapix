@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import "../App.css"
 import { DeleteForever, Visibility, Info } from "@material-ui/icons"
+const isVideo = require('is-video');
 class FileContainer extends Component {
     constructor(props) {
         super(props)
@@ -51,7 +52,10 @@ class FileContainer extends Component {
                 style={{ backgroundColor: color }}>
                 <div className="row">
                     <div style={{ position: "relative" }}>
-                        <img src={data.src} className="previewImage" />
+                        {isVideo(data.name) ? 
+                          data.video
+                        : <img src={data.src} className="previewImage" />
+                        }
                         <div className="fileName">
                             {data.name}
                         </div>

@@ -5,6 +5,7 @@ import prettyBytes from "pretty-bytes"
 import ImagesSettings from "./ImagesSettings"
 import "../App.css"
 import "../specy.css"
+const isVideo = require('is-video')
 function DropZone(props) {
 	const onDrop = useCallback(acceptedFiles => {
 		props.drop(acceptedFiles)
@@ -161,6 +162,7 @@ class MainPage extends Component {
 				name: file.name,
 				path: file.path,
 				src: null,
+				video: <video />,
 				width: 0,
 				height: 0,
 				speed: 1,
@@ -170,6 +172,7 @@ class MainPage extends Component {
 				model: "Drawing",
 				updatedImg: null,
 				frames: [0, 0],
+				isVideo: isVideo(file.path),
 				format: this.state.globalImgSettings.outputFormat,
 				noise: this.state.globalImgSettings.denoiseLevel,
 				id: this.getRandomId(),
@@ -183,16 +186,39 @@ class MainPage extends Component {
 				files[obj.id] = obj
 				const reader = new FileReader();
 				reader.onload = (data) => {
-					var image = new Image();
-					image.src = data.target.result
-					image.onload = () => {
-						obj.src = data.target.result
-						obj.width = image.width
-						obj.height = image.height
+					if (obj.isVideo) {
+						let callback = (e) => {
+							obj.width = e.currentTarget.videoWidth
+							obj.height = e.currentTarget.videoHeight
+							this.setState({
+								files: files
+							})
+						}
+						obj.video = <video className="previewImage" 
+							autoPlay 
+							muted={true} 
+							loop={true} 
+							onLoadedMetadata={callback}
+						>
+							<source src={data.target.result}>
+							</source>
+						</video>
 						this.setState({
 							files: files
 						})
+					} else {
+						let image = new Image();
+						image.src = data.target.result
+						image.onload = () => {
+							obj.src = data.target.result
+							obj.width = image.width
+							obj.height = image.height
+							this.setState({
+								files: files
+							})
+						}
 					}
+
 				}
 				reader.readAsDataURL(file);
 			}
