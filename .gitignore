@@ -14,6 +14,7 @@ yarn.lock
 /build
 /dist
 /scapix-win32-x64
+test.js
 /packaged
 # misc
 .DS_Store

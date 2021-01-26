@@ -4,6 +4,7 @@ if (require('electron-squirrel-startup')) app.quit();
 if (handleSquirrelEvent()) {
     app.quit()
 }
+const os = require('os');
 const isDev = require('electron-is-dev')
 const path = require("path");
 const fs = require('fs').promises
@@ -13,7 +14,9 @@ const openExplorer = require('open-file-explorer');
 const { shell } = require('electron')
 const { dialog } = require('electron')
 const isVideo = require('is-video');
-const ffmpegBin = require('@ffmpeg-installer/ffmpeg');
+const ffmpegPath = path.resolve(__dirname,"../ffmpeg")
+const ffmpegPrefix = os.platform() === 'win32' ? 'ffmpeg.exe' : 'ffmpeg';
+
 //----------------------------------------------------------//
 //----------------------------------------------------------//
 //----------------------------------------------------------//
@@ -102,6 +105,10 @@ ipcMain.on("exec-function", (event, data) => {
 //-------------------------------------//
 
 ipcMain.on('execute-waifu', async (event, arg) => {
+
+    //TODO Add parallel execution, currently all files are executed at the same time
+    // i should add a limit to this, say max 5 at a time, once one is finished, add others
+    // and also add settings to limit the amount of files to be processed at a time
     currentExecution = new Date().getTime()
     let localExecution = currentExecution
     arg.forEach(async (el, i, arr) => {
@@ -164,12 +171,12 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         } else if (isVideo(el.path)) {
             //IF THE FILE IS A VIDEO
             let videoOptions = {
-                framerate:30,
                 quality:0,
                 noise: noise,
                 scale: el.scale,
-                ffmpegPath: ffmpegBin.path
+                ffmpegPath: path.resolve(ffmpegPath,ffmpegPrefix)
             }
+            
             output = await waifu2x.upscaleVideo(el.path,endPath,videoOptions,callback)
             
         } else {
@@ -212,8 +219,6 @@ ipcMain.on('execute-waifu', async (event, arg) => {
 //----------------------------------------------------------//
 //----------------------------------------------------------//
 //----------------------------------------------------------//
-
-
 
 function replaceFormat(path, newFormat) {
     if (newFormat === "Original") return path
