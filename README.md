@@ -1,20 +1,26 @@
+[![Downloads](https://img.shields.io/github/downloads/Specy-wot/Scapix/total.svg?style=for-the-badge)](https://github.com/Specy-wot/Scapix/releases)
+
 # Welcome to Scapix
-Scapix is an image,gif and video upscaling and denoiser app which uses waifu2x, a machine learning library. <br>
-It's able to upscale and denoise many different image formats and can also upscale GIFs and videos.
+Scapix is an image,gif and video upscaling and denoiser app developed with electron, react, waifu2x and ffmpeg.<br>
+
 
 <img src="https://cdn.discordapp.com/attachments/466748625138089994/801768795349581864/photo1.PNG" width=400>
 <img src="https://cdn.discordapp.com/attachments/466748625138089994/801768799451873281/photo2.PNG" width=400>
 
-# Installation
+# Installation (Windows)
 
 Head over to the releases on github to download the latest version of Scapix.
 After downloading the ScapixSetup.exe, run it and it will install the program, once done you should be able to find the executable on the desktop.
 
+# Other OS
+
+I do not own other OS to test things out so i'm not 100% sure how things are going to work but to make it work for other OS you should be able to just clone the repo, replace the ffmpeg bin to the one for your OS and then go to node_modules/waifu2x/waifu2x and download or build the correct files for your OS from [here](https://github.com/DeadSix27/waifu2x-converter-cpp) and replace the windows one.
+Then follow the building steps to create the executable
 # Usage
 
 Drag and drop your files or select them in the upper part of the page, then chose your denoise and upscale options, once you are ready, press the "Run all" button.
 
-Now the images will be in a pending state waiting for the previous one to be processed, there are 4 status colors: <br>
+Now the images will be in a pending state waiting for the previous one to be processed, there are 4 status colors: <br> <br>
 White/Black (dark mode) = idle <br>
 Yellow = pending <br>
 Green = finished <br>
@@ -54,3 +60,10 @@ And delete the .cache file, reason being that the packaged file exceeds window's
 npm run deploy-step3
 ```
 This ^ will run the build.js file which will create the setup of the application that can then be used to install the program. (time ~= 20min)
+
+
+# Credits 
+
+[Waifu2x module](https://github.com/Tenpi/waifu2x) <br>
+[Waifu2x Models](https://github.com/nagadomi/waifu2x) <br>
+[ffmpeg](https://github.com/FFmpeg/FFmpeg) <br> 
