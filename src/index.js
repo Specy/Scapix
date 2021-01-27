@@ -75,7 +75,7 @@ class App extends Component {
 		if (data.version !== window.package.version) {
       let action = () => {
         let toExec = {
-          data:"https://github.com/Specy-wot/Scapix",
+          data:"https://github.com/Specy-wot/Scapix/releases",
           name: "open"
         }
         window.ipcRenderer.send("exec-function",toExec)
