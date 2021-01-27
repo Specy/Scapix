@@ -18,17 +18,16 @@ html{
 }
 .input{
   margin: 0.3rem 0;
-  width: 100%;
-  max-width: 100%;
 }
+
 *{
   outline: none;
 }
 button:active{
   filter: brightness(0.9);
 }
-input[type=number]{
-  width: calc(100% - 16px);
+.settingInput{
+  width: 100%;
 }
 .sideMenu{
   display: flex;
@@ -152,14 +151,18 @@ input[type=number]{
   width: 13vw;
   border-radius: 0.6rem;
   padding: 0.8rem;
-  min-width: 140px;
+  min-width: 10rem;
   box-sizing: border-box;
   display: flex;
+}
+.settingsNum{
+  width: 3rem;
 }
 .innerSideSettings{
   display: flex;
   flex-direction: column;
   flex: 1;
+  width: 100%;
 }
 .MuiSvgIcon-root{
   cursor: pointer;
@@ -255,9 +258,6 @@ select{
   display: grid;
   align-items: center;
   justify-items: center;
-}
-.textAndImage video{
-  
 }
 .verticalVideo video{
   height: calc(91vh - 2rem) !important;

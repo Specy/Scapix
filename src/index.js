@@ -19,7 +19,8 @@ class App extends Component {
       floatingImages: {},
       settings: {
         darkMode: "off",
-        outputPath: "default"
+        outputPath: "default",
+        maxUpscales: 4
       },
       floatingMessage:{
         message: "",

@@ -14,9 +14,9 @@ const openExplorer = require('open-file-explorer');
 const { shell } = require('electron')
 const { dialog } = require('electron')
 const isVideo = require('is-video');
-const ffmpegPath = path.resolve(__dirname,"../ffmpeg")
+const ffmpegPath = path.resolve(__dirname, "../ffmpeg")
 const ffmpegPrefix = os.platform() === 'win32' ? 'ffmpeg.exe' : 'ffmpeg';
-
+const Semaphore = require("semaphore")
 //----------------------------------------------------------//
 //----------------------------------------------------------//
 //----------------------------------------------------------//
@@ -104,14 +104,21 @@ ipcMain.on("exec-function", (event, data) => {
 
 //-------------------------------------//
 
-ipcMain.on('execute-waifu', async (event, arg) => {
 
-    //TODO Add parallel execution, currently all files are executed at the same time
-    // i should add a limit to this, say max 5 at a time, once one is finished, add others
-    // and also add settings to limit the amount of files to be processed at a time
+function withSemaphore(sema, f) {
+    return new Promise((resolve) => {
+        sema.take(() => f().then(sema.leave).then(resolve))
+    })
+}
+
+
+
+ipcMain.on('execute-waifu', async (event, arg) => {
+    if (!Number.isInteger(arg.maxUpscales)) arg.maxUpscales = 4
+    let sem = new Semaphore(arg.maxUpscales)
     currentExecution = new Date().getTime()
     let localExecution = currentExecution
-    arg.forEach(async (el, i, arr) => {
+    let calc = async (el) => {
         if (currentExecution !== localExecution) return
         let noise = 0
         let isVidOrGif = getFormat(el.name) === ".gif" || el.isVideo
@@ -138,7 +145,7 @@ ipcMain.on('execute-waifu', async (event, arg) => {
             options.modelDir = path.join(__dirname, "../models/", el.model)
         }
         let safeName = sanitize(el.name)
-        let outputFile = isVidOrGif ? safeName :replaceFormat(safeName, el.format)
+        let outputFile = isVidOrGif ? safeName : replaceFormat(safeName, el.format)
         let date = new Date()
         let dailyFolder = + date.getDate() + "-" + date.getMonth()
 
@@ -171,14 +178,14 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         } else if (isVideo(el.path)) {
             //IF THE FILE IS A VIDEO
             let videoOptions = {
-                quality:0,
+                quality: 0,
                 noise: noise,
                 scale: el.scale,
-                ffmpegPath: path.resolve(ffmpegPath,ffmpegPrefix)
+                ffmpegPath: path.resolve(ffmpegPath, ffmpegPrefix)
             }
-            
-            output = await waifu2x.upscaleVideo(el.path,endPath,videoOptions,callback)
-            
+
+            output = await waifu2x.upscaleVideo(el.path, endPath, videoOptions, callback)
+
         } else {
             //IF THE FILE IS A PHOTO
             try {
@@ -198,8 +205,8 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         try {
             let upscaledImg = await fs.readFile(endPath, { encoding: "base64" })
             let base = "data:image/"
-            if(isVideo(el.name)) base = "data:video/"
-            let endFormat = el.format === "Original" || isVidOrGif? getFormat(el.name, true) : getFormat(el.format, true)
+            if (isVideo(el.name)) base = "data:video/"
+            let endFormat = el.format === "Original" || isVidOrGif ? getFormat(el.name, true) : getFormat(el.format, true)
             reply.upscaledImg = base + endFormat + ";base64," + upscaledImg
 
         } catch (e) {
@@ -208,11 +215,13 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         }
         if (currentExecution !== localExecution) return console.log("stopped execution")
         event.reply('done-execution', reply)
-        if (currentExecution === localExecution && i === arr.length - 1) {
-            mainWindow.flashFrame(true)
-            setTimeout(() => mainWindow.flashFrame(false), 6000)
-        }
-    })
+
+    }
+    await Promise.all(arg.files.map(file => {
+        return withSemaphore(sem, () => calc(file))
+    }))
+    mainWindow.flashFrame(true)
+    setTimeout(() => mainWindow.flashFrame(false), 6000)
 
 })
 

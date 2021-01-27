@@ -19,9 +19,9 @@ class Settings extends Component {
         let el = e.target
         let value = el.value
         if (el.type === "checkbox") {
-            let checked = Boolean(el.checked)
-            value = checked ? "on" : "off"
+            value = Boolean(el.checked) ? "on" : "off"
         }
+        if(el.type === "number") value = Number(value)
         let obj = {
             type: el.name,
             value: value
@@ -52,6 +52,16 @@ class Settings extends Component {
                         <div style={{ marginLeft: "1rem" }}>
                             {s.outputPath}
                         </div>
+                    </div>
+                    <div className="settingRow">
+                        <div className="settingsOption">Max upscales at a time</div>
+                        <input 
+                            type="number" 
+                            className="input wm-L3 settingsNum"
+                            onChange={this.handleSettingsChange}
+                            value={s.maxUpscales}
+                            name="maxUpscales"
+                            />
                     </div>
                     <div className="settingRow">
                         More to come...

@@ -7,6 +7,7 @@ window.package = require("../package.json")
 window.Storage = class {
     constructor() {
         this.storage = null
+        this.populate()
     }
     get = async (key) => {
         if (this.storage === null) await this.populate()
@@ -31,25 +32,3 @@ window.Storage = class {
         this.storage = data
     }
 }
-
-/*
-New storage
-class Storage {
-  constructor(storage) {
-    this.storage = storage
-  }
-
-  get(key) {
-    // safe to call this.storage here without checking because your constructor guarantees its initialization
-  }
-
-  async static create() {
-    const data = await fs.promises.readFile(...)
-    return new this(data)
-  }
-}
-
-const storage = await Storage.create()
-
-
-*/

@@ -83,7 +83,7 @@ class MainPage extends Component {
 	}
 	executeWaifu = () => {
 		console.log("Executing")
-		let dataToSend = Object.keys(this.state.files).map((el) => {
+		let files = Object.keys(this.state.files).map((el) => {
 			el = this.state.files[el]
 			return {
 				name: el.name,
@@ -102,7 +102,18 @@ class MainPage extends Component {
 				size: el.size,
 			}
 		})
-		window.ipcRenderer.send('execute-waifu', dataToSend)
+		let dataToSend = {
+			maxUpscales: this.props.settings.maxUpscales,
+			files: files
+		}
+		 Object.keys(this.state.files).map(img => {
+			img = this.state.files[img]
+			img.status = "idle"
+			return img
+		})
+		this.setState({
+			files: this.state.files
+		},() => {window.ipcRenderer.send('execute-waifu', dataToSend)})	
 	}
 	cancelExecution = () => {
 		window.ipcRenderer.send("cancel-execution")

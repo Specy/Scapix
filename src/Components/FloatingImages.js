@@ -14,17 +14,18 @@ class FloatingImages extends Component {
         let shown = this.props.toggled ? "flex" : "none"
         let data = this.props.data
         let isHorizontal = this.props.data.format < 1.5
+        console.log(isHorizontal)
         let orientation = {}
         let videoClass = data.isVideo ? "verticalVideo" : ""
-        if(isHorizontal){
-            orientation = {
-                width: isHorizontal ? "calc(35vw - 1.5rem)" : "unset",
-                height: isHorizontal ? "unset" : "calc(91vh - 2rem)"
-            }
+        if (isHorizontal) {
             videoClass = data.isVideo ? "horizontalVideo" : ""
         }
+        orientation = {
+            width: isHorizontal ? "calc(35vw - 1.5rem)" : "unset",
+            height: isHorizontal ? "unset" : "calc(91vh - 2rem)"
+        }
+        console.log(orientation)
 
-        
         let textAndImageClass = "textAndImage " + videoClass
         return (
             <div

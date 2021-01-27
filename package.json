@@ -30,6 +30,7 @@
     "react-dom": "^17.0.1",
     "react-dropzone": "^11.2.4",
     "sanitize-filename": "^1.6.3",
+    "semaphore": "^1.1.0",
     "waifu2x": "^0.3.8",
     "web-vitals": "^0.2.4"
   },

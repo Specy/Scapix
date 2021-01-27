@@ -3,10 +3,10 @@ class ImagesSettings extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            models : []
+            models: []
         }
         window.ipcRenderer.send("get-models")
-        window.ipcRenderer.on("got-models",(event, arg) =>{
+        window.ipcRenderer.on("got-models", (event, arg) => {
             this.setState({
                 models: arg
             })
@@ -34,60 +34,52 @@ class ImagesSettings extends Component {
 
             <div className={s.darkMode === "on" ? "sideSettings dm-L2" : "sideSettings l1 box-shadow"}>
                 <div className="innerSideSettings">
-                    <div className="column">
-                        <div>Scale</div>
-                        <input
-                            type="number"
-                            step="0.05"
-                            value={data.scale}
-                            className="input wm-L2"
-                            name="scale"
-                            onChange={this.handleChange}
-                        />
-                    </div>
-                    <div className="column">
-                        <div>Denoise level</div>
-                        <select
-                            className="input wm-L2"
-                            value={data.denoiseLevel}
-                            name="denoiseLevel"
-                            onChange={this.handleChange}
-                        >
-                            <option>None</option>
-                            <option>Low</option>
-                            <option>Medium</option>
-                            <option>High</option>
-                        </select>
-                    </div>
-                    <div className="column">
-                        <div>Output format</div>
-                        <select
-                            className="input wm-L2"
-                            value={data.outputFormat}
-                            name="outputFormat"
-                            onChange={this.handleChange}
-                        >
-                            <option>Original</option>
-                            <option>.png</option>
-                            <option>.jpg</option>
-                            <option>.webp</option>
-                        </select>
-                    </div>
-                    <div className="column">
-                        <div>Image type</div>
-                        <select
-                            className="input wm-L2"
-                            value={data.model}
-                            name="model"
-                            onChange={this.handleChange}
-                        >
-                            {this.state.models.map(model =>{
-                                return <option key={model}>
-                                    {model}
-                                </option>
-                            })}
-                        </select>
-                    </div>
+                    <div>Scale</div>
+                    <input
+                        type="number"
+                        step="0.05"
+                        value={data.scale}
+                        className="input wm-L2 numInput"
+                        name="scale"
+                        onChange={this.handleChange}
+                    />
+                    <div>Denoise level</div>
+                    <select
+                        className="input wm-L2 settingInput"
+                        value={data.denoiseLevel}
+                        name="denoiseLevel"
+                        onChange={this.handleChange}
+                    >
+                        <option>None</option>
+                        <option>Low</option>
+                        <option>Medium</option>
+                        <option>High</option>
+                    </select>
+                    <div>Output format</div>
+                    <select
+                        className="input wm-L2 settingInput"
+                        value={data.outputFormat}
+                        name="outputFormat"
+                        onChange={this.handleChange}
+                    >
+                        <option>Original</option>
+                        <option>.png</option>
+                        <option>.jpg</option>
+                        <option>.webp</option>
+                    </select>
+                    <div>Image type</div>
+                    <select
+                        className="input wm-L2 settingInput"
+                        value={data.model}
+                        name="model"
+                        onChange={this.handleChange}
+                    >
+                        {this.state.models.map(model => {
+                            return <option key={model}>
+                                {model}
+                            </option>
+                        })}
+                    </select>
                     <button
                         style={{ margin: 0, marginTop: "auto" }}
                         className="button fillY outputFolder"
