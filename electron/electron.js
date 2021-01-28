@@ -171,10 +171,25 @@ ipcMain.on('execute-waifu', async (event, arg) => {
                 frames: [current, final]
             })
         }
+        let reply = {
+            id: el.id,
+            message: output,
+            success: true,
+            status: "done",
+            upscaledImg: null,
+        }
+
         if (getFormat(el.name) === ".gif") {
             //IF THE FILE IS A GIF
             options.speed = el.speed
-            output = await waifu2x.upscaleGIF(el.path, endPath, options, callback)
+            try{
+                reply.output = await waifu2x.upscaleGIF(el.path, endPath, options, callback)
+            }catch(e){
+                console.log("Error",e)
+                reply.success = false
+                reply.output = e
+            }
+            
         } else if (isVideo(el.path)) {
             //IF THE FILE IS A VIDEO
             let videoOptions = {
@@ -183,25 +198,26 @@ ipcMain.on('execute-waifu', async (event, arg) => {
                 scale: el.scale,
                 ffmpegPath: path.resolve(ffmpegPath, ffmpegPrefix)
             }
-
-            output = await waifu2x.upscaleVideo(el.path, endPath, videoOptions, callback)
+            try{
+                reply.output = await waifu2x.upscaleVideo(el.path, endPath, videoOptions, callback)
+            }catch(e){
+                console.log("Error",e)
+                reply.success = false
+                reply.output = e
+            }
 
         } else {
             //IF THE FILE IS A PHOTO
             try {
-                output = await waifu2x.upscaleImage(el.path, endPath, options)
+                reply.output = await waifu2x.upscaleImage(el.path, endPath, options)
             } catch (e) {
-                console.log("Error")
+                console.log("Error",e)
                 reply.success = false
+                reply.output = e
             }
+
         }
-        let reply = {
-            id: el.id,
-            message: output,
-            success: true,
-            status: "done",
-            upscaledImg: null,
-        }
+
         try {
             let upscaledImg = await fs.readFile(endPath, { encoding: "base64" })
             let base = "data:image/"
