@@ -4,13 +4,14 @@
 Scapix is an image,gif and video upscaling and denoiser app developed with electron, react, waifu2x and ffmpeg.<br>
 
 
-<img src="https://cdn.discordapp.com/attachments/466748625138089994/801768795349581864/photo1.PNG" width=400>
-<img src="https://cdn.discordapp.com/attachments/466748625138089994/801768799451873281/photo2.PNG" width=400>
+<img src="https://cdn.discordapp.com/attachments/466748625138089994/805395009120632863/1.PNG" width=400>
+<img src="https://cdn.discordapp.com/attachments/466748625138089994/805395008144277544/2.PNG" width=400>
 
 # Installation (Windows)
 
 Head over to the releases on github to download the latest version of Scapix.
 After downloading the ScapixSetup.exe, run it and it will install the program, once done you should be able to find the executable on the desktop.
+The Setup takes 5/10 seconds to open, wait untill it opens, if you run it again it will error out. 
 
 # Other OS
 
