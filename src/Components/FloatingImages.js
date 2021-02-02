@@ -42,7 +42,14 @@ class FloatingImages extends Component {
                     <div className={textAndImageClass}>
                         <div className="floatingImgText">Original</div>
                         {data.isVideo
-                            ? data.video
+                            ? <video
+                            autoPlay
+                            muted={true}
+                            loop={true}
+                        >
+                            <source src={data.video}>
+                            </source>
+                        </video>
                             : <img src={data.original} style={orientation} />
                         }
                     </div>

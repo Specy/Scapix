@@ -25,6 +25,14 @@ class FileContainer extends Component {
         let el = e.target
         this.props.individualChange(el.value, el.name, this.props.data.id)
     }
+    getEven = (num) => 2 * Math.round(num / 2); 
+
+	loadedMetadata = (e) => {
+        this.props.handleMetadata({
+            event: e,
+            id: this.props.data.id
+        })
+    } 
     showInfo = (e) => {
         window.showMessage(this.props.data.message, 1, 10000, () => {
             console.log("clicked")
@@ -59,7 +67,19 @@ class FileContainer extends Component {
                 <div className="row">
                     <div style={{ position: "relative" }}>
                         {data.isVideo ? 
-                          data.video
+                            <video
+                                className="previewImage" 
+                                autoPlay
+                                muted={true}
+                                loop={true}
+                                onLoadedMetadata={this.loadedMetadata}
+                            >
+                              <source 
+                                src={data.video}
+                                
+                            >
+                              </source>
+                          </video>
                         : <img src={data.src} className="previewImage" />
                         }
                         <div className="fileName">

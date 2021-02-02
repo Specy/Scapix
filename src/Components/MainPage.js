@@ -88,8 +88,8 @@ class MainPage extends Component {
 			return {
 				name: el.name,
 				path: el.path,
-				width: el.width,
-				height: el.height,
+				width: this.getEven(el.width),
+				height: this.getEven(el.height),
 				noise: el.noise,
 				scale: el.scale,
 				speed: el.speed,
@@ -104,7 +104,8 @@ class MainPage extends Component {
 		})
 		let dataToSend = {
 			maxUpscales: this.props.settings.maxUpscales,
-			files: files
+			files: files,
+			parallelFrames: this.props.settings.parallelFrames
 		}
 		 Object.keys(this.state.files).map(img => {
 			img = this.state.files[img]
@@ -169,7 +170,15 @@ class MainPage extends Component {
 		let str2 = Math.random().toString(36).substring(7)
 		return str1 + str2
 	}
-
+	getEven = (num) => 2 * Math.round(num / 2); 
+	handleMetadata = (data) => {
+		let obj = this.state.files[data.id]
+		obj.width = data.event.currentTarget.videoWidth
+		obj.height = data.event.currentTarget.videoHeight
+		this.setState({
+			files: this.state.files
+		})
+	}
 	handleDrop = (e) => {
 		let files = this.state.files
 		for (const file of e) {
@@ -187,6 +196,7 @@ class MainPage extends Component {
 				model: "Drawing",
 				updatedImg: null,
 				frames: [0, 0],
+				parallelFrames: 1,
 				isVideo: isVideo(file.path),
 				format: this.state.globalImgSettings.outputFormat,
 				noise: this.state.globalImgSettings.denoiseLevel,
@@ -205,11 +215,13 @@ class MainPage extends Component {
 						let callback = (e) => {
 							obj.width = e.currentTarget.videoWidth
 							obj.height = e.currentTarget.videoHeight
+							
 							this.setState({
 								files: files
 							})
 						}
-						obj.video = <video className="previewImage" 
+						obj.video = data.target.result
+						let vid = <video className="previewImage" 
 							autoPlay 
 							muted={true} 
 							loop={true} 
@@ -276,6 +288,7 @@ class MainPage extends Component {
 									settings={s}
 									key={file.id}
 									canRun={canRun}
+									handleMetadata={this.handleMetadata}
 									action={this.removeImage}
 									individualChange={this.handleIndividualSettingsChange}
 									data={file}

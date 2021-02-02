@@ -1,6 +1,9 @@
 *{
   -webkit-app-region: no-drag
 }
+.button{
+  margin: 0;
+}
 html{
   overflow: hidden;
 }
@@ -224,6 +227,7 @@ select{
 }
 .settingsOption{
   margin-right: 2rem;
+  min-width: 20%;
 }
 .floatingImages{
   top: 0;
@@ -322,6 +326,7 @@ select{
   align-items: center;
   background-color: rgba(144,144,144,0.2);
   margin-bottom: 1rem;
+  min-height: 2.3rem;
 }
 .floatingMessage{
   background-color: rgba(70, 70, 70, 0.85);
@@ -378,4 +383,9 @@ select{
 .runBtn{
   margin: 0;
   margin-top: 0.8rem;
+}
+.advancedSettings{
+  font-size: 1.3rem;
+  margin-top: 3rem;
+  margin-bottom: 0.5rem;
 }

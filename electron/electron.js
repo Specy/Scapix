@@ -16,6 +16,7 @@ const { dialog } = require('electron')
 const isVideo = require('is-video');
 const ffmpegPath = path.resolve(__dirname, "../ffmpeg")
 const ffmpegPrefix = os.platform() === 'win32' ? 'ffmpeg.exe' : 'ffmpeg';
+const ffprobePrefix = os.platform() === 'win32' ? 'ffprobe.exe' : 'ffprobe';
 const Semaphore = require("semaphore")
 //----------------------------------------------------------//
 //----------------------------------------------------------//
@@ -178,10 +179,10 @@ ipcMain.on('execute-waifu', async (event, arg) => {
             status: "done",
             upscaledImg: null,
         }
-
         if (getFormat(el.name) === ".gif") {
             //IF THE FILE IS A GIF
             options.speed = el.speed
+            options.parallelFrames = arg.parallelFrames
             try{
                 reply.output = await waifu2x.upscaleGIF(el.path, endPath, options, callback)
             }catch(e){
@@ -196,7 +197,9 @@ ipcMain.on('execute-waifu', async (event, arg) => {
                 quality: 0,
                 noise: noise,
                 scale: el.scale,
-                ffmpegPath: path.resolve(ffmpegPath, ffmpegPrefix)
+                ffmpegPath: path.resolve(ffmpegPath, ffmpegPrefix),
+                ffprobePath: path.resolve(ffmpegPath, ffprobePrefix),
+                parallelFrames: arg.parallelFrames,
             }
             try{
                 reply.output = await waifu2x.upscaleVideo(el.path, endPath, videoOptions, callback)
@@ -228,6 +231,7 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         } catch (e) {
             console.log("Error finding file ", e)
             reply.success = false
+            reply.output = e
         }
         if (currentExecution !== localExecution) return console.log("stopped execution")
         event.reply('done-execution', reply)

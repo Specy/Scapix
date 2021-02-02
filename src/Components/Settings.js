@@ -21,7 +21,7 @@ class Settings extends Component {
         if (el.type === "checkbox") {
             value = Boolean(el.checked) ? "on" : "off"
         }
-        if(el.type === "number") value = Number(value)
+        if (el.type === "number") value = Number(value)
         let obj = {
             type: el.name,
             value: value
@@ -48,23 +48,63 @@ class Settings extends Component {
                     </div>
                     <div className="settingRow">
                         <div className="settingsOption">Output path</div>
-                        <button className="button wm-L3" onClick={this.handleDialog}>Click to select</button>
+                        <button
+                            className="button wm-L3"
+                            onClick={this.handleDialog}
+                        >
+                            Click to select
+                        </button>
                         <div style={{ marginLeft: "1rem" }}>
                             {s.outputPath}
                         </div>
                     </div>
                     <div className="settingRow">
                         <div className="settingsOption">Max upscales at a time</div>
-                        <input 
-                            type="number" 
+                        <input
+                            type="number"
                             className="input wm-L3 settingsNum"
                             onChange={this.handleSettingsChange}
                             value={s.maxUpscales}
+                            step={1}
                             name="maxUpscales"
-                            />
+                        />
                     </div>
                     <div className="settingRow">
-                        More to come...
+                        <div className="settingsOption">Max video/gif frames at a time </div>
+                        <input
+                            type="number"
+                            className="input wm-L3 settingsNum"
+                            onChange={this.handleSettingsChange}
+                            step={1}
+                            value={s.parallelFrames}
+                            name="parallelFrames"
+                        />
+                        <div style={{ marginLeft: "1rem" }}>Higher = faster, but harder to compute</div>
+                    </div>
+                    <div style={{display:"none"}}>
+                        <div className="advancedSettings">
+                            Advanced settings
+                        </div>
+                        <div className="settingRow">
+                            <div className="settingsOption">Use TTA</div>
+                            <input
+                                type="checkbox"
+                                onChange={this.handleSettingsChange}
+                                name="TTA"
+                                checked={s.TTA === "on" ? true : false}
+                            />
+                        </div>
+                        <div className="settingRow">
+                            <div className="settingsOption">Block size</div>
+                            <input
+                                type="number"
+                                className="input wm-L3 settingsNum"
+                                onChange={this.handleSettingsChange}
+                                step={1}
+                                value={s.blockSize}
+                                name="blockSize"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

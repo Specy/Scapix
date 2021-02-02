@@ -20,18 +20,21 @@ class App extends Component {
       settings: {
         darkMode: "off",
         outputPath: "default",
-        maxUpscales: 4
+        maxUpscales: 4,
+        parallelFrames: 1,
+        TTA: "off",
+        blockSize: 1,
       },
-      floatingMessage:{
+      floatingMessage: {
         message: "",
         isShown: false,
         type: ""
       }
     }
-    window.ipcRenderer.on("log-error",(event,arg)=>{
+    window.ipcRenderer.on("log-error", (event, arg) => {
       console.log("Error in main thread: ")
       console.error(arg)
-      this.showMessage(arg.toString(),1,4000)
+      this.showMessage(arg.toString(), 1, 4000)
     })
     window.showMessage = this.showMessage
     this.checkUpdate()
@@ -50,45 +53,45 @@ class App extends Component {
       floatingImages: data
     })
   }
-  showMessage = (text,type,timeout = 4000,action) =>{
-    if(typeof action !== "function") action = () => {}
+  showMessage = (text, type, timeout = 4000, action) => {
+    if (typeof action !== "function") action = () => { }
     let newState = {
       message: text,
       isShown: true,
       type: type,
       action: action
     }
-    setTimeout(()=>{
+    setTimeout(() => {
       let newState = this.state.floatingMessage
       newState.isShown = false
       this.setState({
-        floatingMessage : newState
+        floatingMessage: newState
       })
-    },timeout)
+    }, timeout)
     this.setState({
-      floatingMessage : newState,
+      floatingMessage: newState,
     })
   }
-  
+
   checkUpdate = async () => {
-		let data = await fetch("https://raw.githubusercontent.com/Specy-wot/Scapix/main/package.json").then(data => data.json())
-		if (data.version !== window.package.version) {
+    let data = await fetch("https://raw.githubusercontent.com/Specy-wot/Scapix/main/package.json").then(data => data.json())
+    if (data.version !== window.package.version) {
       let action = () => {
         let toExec = {
-          data:"https://github.com/Specy-wot/Scapix/releases",
+          data: "https://github.com/Specy-wot/Scapix/releases",
           name: "open"
         }
-        window.ipcRenderer.send("exec-function",toExec)
+        window.ipcRenderer.send("exec-function", toExec)
       }
-      this.showMessage("There is an update available! Click to View",1,10000,action)
-		} else {
-			console.log("No update")
-		}
+      this.showMessage("There is an update available! Click to View", 1, 10000, action)
+    } else {
+      console.log("No update")
+    }
   }
 
-  populateStorage = async () =>{
+  populateStorage = async () => {
     let data = await Storage.get("settings")
-    if(data){
+    if (data) {
       this.setState({
         settings: data
       })
@@ -101,7 +104,7 @@ class App extends Component {
     this.setState({
       settings: newState
     })
-    await Storage.set("settings",newState)
+    await Storage.set("settings", newState)
   }
   changePage = (index) => {
     this.setState({
@@ -111,8 +114,8 @@ class App extends Component {
   render() {
     return (
       <div className="body">
-        <TopMenu/>
-        <FloatingMessage data={this.state.floatingMessage}/>
+        <TopMenu />
+        <FloatingMessage data={this.state.floatingMessage} />
         <div className="appWrapper">
           <FloatingImages
             toggled={this.state.floatingImagesToggled}
