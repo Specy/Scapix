@@ -164,20 +164,23 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         }
         endPath += outputFile
         endPath = endPath.replace(/\//g, "\\")
-        let callback = (current, final) => {
-            if (currentExecution !== localExecution) return true
-            event.reply('update-execution', {
-                id: el.id,
-                status: "processing",
-                frames: [current, final]
-            })
-        }
+
         let reply = {
             id: el.id,
             message: output,
             success: true,
             status: "done",
             upscaledImg: null,
+        }
+        let callback = (current, final) => {
+            if (currentExecution !== localExecution) return true
+            if(reply.success === true){
+                event.reply('update-execution', {
+                    id: el.id,
+                    status: "processing",
+                    frames: [current, final]
+                })
+            }
         }
         if (getFormat(el.name) === ".gif") {
             //IF THE FILE IS A GIF
@@ -199,7 +202,7 @@ ipcMain.on('execute-waifu', async (event, arg) => {
                 scale: el.scale,
                 ffmpegPath: path.resolve(ffmpegPath, ffmpegPrefix),
                 ffprobePath: path.resolve(ffmpegPath, ffprobePrefix),
-                parallelFrames: arg.parallelFrames,
+                parallelFrames: arg.parallelFrames
             }
             try{
                 reply.output = await waifu2x.upscaleVideo(el.path, endPath, videoOptions, callback)

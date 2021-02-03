@@ -1,6 +1,6 @@
 {
   "name": "scapix",
-  "description": "An image,gif and video upscaling and denoiser app",
+  "description": "An image, gif, video upscaling and denoiser app",
   "author": "Specy",
   "build": {
     "appId": "com.specy.scapix",
@@ -31,7 +31,7 @@
     "react-dropzone": "^11.2.4",
     "sanitize-filename": "^1.6.3",
     "semaphore": "^1.1.0",
-    "waifu2x": "^0.3.9",
+    "waifu2x": "^0.4.2",
     "web-vitals": "^0.2.4"
   },
   "devDependencies": {
