@@ -4,6 +4,7 @@ import { DeleteForever, Visibility, Info } from "@material-ui/icons"
 class FileContainer extends Component {
     constructor(props) {
         super(props)
+        this.videoHref = React.createRef();
     }
     sendImagesData = () => {
         let propsData = this.props.data
@@ -60,6 +61,11 @@ class FileContainer extends Component {
         }
         let progressBar = data.frames[0] / data.frames[1] * 95 + "%"
         if (data.status === "done") progressBar = "100%"
+        let frameTime = data.length * (data.frames[0] / data.frames[1])
+        if(data.frames[0] !== 0){
+            this.videoHref.current.currentTime = frameTime
+            this.videoHref.current.pause()
+        }
         return (
             <div
                 className={s.darkMode === "on" ? "fileRow" : "fileRow text-dark"}
@@ -71,6 +77,7 @@ class FileContainer extends Component {
                                 className="previewImage" 
                                 autoPlay
                                 muted={true}
+                                ref={this.videoHref}
                                 loop={true}
                                 onLoadedMetadata={this.loadedMetadata}
                             >

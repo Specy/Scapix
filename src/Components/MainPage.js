@@ -173,8 +173,10 @@ class MainPage extends Component {
 	getEven = (num) => 2 * Math.round(num / 2); 
 	handleMetadata = (data) => {
 		let obj = this.state.files[data.id]
-		obj.width = data.event.currentTarget.videoWidth
-		obj.height = data.event.currentTarget.videoHeight
+		let el = data.event.currentTarget
+		obj.width = el.videoWidth
+		obj.height = el.videoHeight
+		obj.length = el.duration
 		this.setState({
 			files: this.state.files
 		})
@@ -190,6 +192,7 @@ class MainPage extends Component {
 				width: 0,
 				height: 0,
 				speed: 1,
+				length:0,
 				endPath: "default",
 				scale: this.state.globalImgSettings.scale,
 				status: "idle",

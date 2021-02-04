@@ -92,6 +92,7 @@ ipcMain.on("exec-function", (event, data) => {
             break
         }
         case "reload": {
+            currentExecution = new Date().getTime()
             mainWindow.reload()
             break
         }
