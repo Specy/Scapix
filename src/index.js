@@ -21,7 +21,7 @@ class App extends Component {
         darkMode: "off",
         outputPath: "default",
         maxUpscales: 4,
-        parallelFrames: 1,
+        parallelFrames: 2,
         TTA: "off",
         blockSize: 1,
       },

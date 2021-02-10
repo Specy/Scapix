@@ -62,7 +62,7 @@ class FileContainer extends Component {
         let progressBar = data.frames[0] / data.frames[1] * 95 + "%"
         if (data.status === "done") progressBar = "100%"
         let frameTime = data.length * (data.frames[0] / data.frames[1])
-        if(data.frames[0] !== 0){
+        if(data.frames[0] !== 0 && data.isVideo){
             this.videoHref.current.currentTime = frameTime
             this.videoHref.current.pause()
         }

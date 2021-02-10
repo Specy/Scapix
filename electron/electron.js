@@ -16,7 +16,6 @@ const { dialog } = require('electron')
 const isVideo = require('is-video');
 const ffmpegPath = path.resolve(__dirname, "../ffmpeg")
 const ffmpegPrefix = os.platform() === 'win32' ? 'ffmpeg.exe' : 'ffmpeg';
-const ffprobePrefix = os.platform() === 'win32' ? 'ffprobe.exe' : 'ffprobe';
 const Semaphore = require("semaphore")
 //----------------------------------------------------------//
 //----------------------------------------------------------//
@@ -149,7 +148,7 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         let safeName = sanitize(el.name)
         let outputFile = isVidOrGif ? safeName : replaceFormat(safeName, el.format)
         let date = new Date()
-        let dailyFolder = + date.getDate() + "-" + date.getMonth()
+        let dailyFolder = + date.getDate() + "-" + (date.getMonth() + 1)
 
         event.reply('update-execution', {
             id: el.id,
@@ -183,16 +182,18 @@ ipcMain.on('execute-waifu', async (event, arg) => {
                 })
             }
         }
+
         if (getFormat(el.name) === ".gif") {
             //IF THE FILE IS A GIF
             options.speed = el.speed
             options.parallelFrames = arg.parallelFrames
+            options.cumulative= true 
             try{
                 reply.output = await waifu2x.upscaleGIF(el.path, endPath, options, callback)
             }catch(e){
                 console.log("Error",e)
                 reply.success = false
-                reply.output = e
+                reply.output = e.toString()
             }
             
         } else if (isVideo(el.path)) {
@@ -202,7 +203,6 @@ ipcMain.on('execute-waifu', async (event, arg) => {
                 noise: noise,
                 scale: el.scale,
                 ffmpegPath: path.resolve(ffmpegPath, ffmpegPrefix),
-                ffprobePath: path.resolve(ffmpegPath, ffprobePrefix),
                 parallelFrames: arg.parallelFrames
             }
             try{
@@ -210,7 +210,7 @@ ipcMain.on('execute-waifu', async (event, arg) => {
             }catch(e){
                 console.log("Error",e)
                 reply.success = false
-                reply.output = e
+                reply.output = e.toString()
             }
 
         } else {
@@ -220,11 +220,10 @@ ipcMain.on('execute-waifu', async (event, arg) => {
             } catch (e) {
                 console.log("Error",e)
                 reply.success = false
-                reply.output = e
+                reply.output = e.toString()
             }
 
         }
-
         try {
             let upscaledImg = await fs.readFile(endPath, { encoding: "base64" })
             let base = "data:image/"
@@ -235,7 +234,7 @@ ipcMain.on('execute-waifu', async (event, arg) => {
         } catch (e) {
             console.log("Error finding file ", e)
             reply.success = false
-            reply.output = e
+            reply.output = e.toString()
         }
         if (currentExecution !== localExecution) return console.log("stopped execution")
         event.reply('done-execution', reply)
