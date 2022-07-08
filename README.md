@@ -2,7 +2,7 @@
 
 # Welcome to Scapix
 Scapix is an image,gif and video upscaling and denoiser app developed with electron, react, waifu2x and ffmpeg.<br>
-
+**Warning**, the code for this is pretty bad, i'd have to rewrite it from scratch to make it a bit better
 
 <img src="https://cdn.discordapp.com/attachments/466748625138089994/805395009120632863/1.PNG" width=400>
 <img src="https://cdn.discordapp.com/attachments/466748625138089994/805395008144277544/2.PNG" width=400>
