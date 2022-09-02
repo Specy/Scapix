@@ -1,5 +1,5 @@
 [![Downloads](https://img.shields.io/github/downloads/Specy-wot/Scapix/total.svg?style=for-the-badge)](https://github.com/Specy-wot/Scapix/releases)
-
+## ⚠️ Warning, the app is not currently being developed as i'm busy with other projects, i wanted to rewrite it to imrpove the code.
 # Welcome to Scapix
 Scapix is an image,gif and video upscaling and denoiser app developed with electron, react, waifu2x and ffmpeg.<br>
 **Warning**, the code for this is pretty bad, i'd have to rewrite it from scratch to make it a bit better
@@ -34,7 +34,7 @@ You can also view the difference between original and upscaled images by clickin
 # Building from source
 
 If you want to build the app you have to follow those building steps:
-
+Firstly clone the repo and install all modules with `npm i`, then continue with the steps below.
 After finishing your changes you have to close the dev server and run:
 
 1)
