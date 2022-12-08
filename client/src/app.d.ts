@@ -7,3 +7,12 @@ declare namespace App {
 	// interface PageData {}
 	// interface Platform {}
 }
+
+
+export declare global {
+	interface Window {
+		api: {
+			ping: () => Promise<string>
+		}
+	}
+}

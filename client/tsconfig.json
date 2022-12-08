@@ -8,8 +8,21 @@
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
 		"sourceMap": true,
-		"strict": true
-	}
+		"strict": true,
+		"baseUrl": ".",
+		"paths": {
+			"$lib": ["src/lib/"],
+			"$lib/*": ["src/lib/*"],
+			"$cmp": ["src/components/"],
+			"$cmp/*": ["src/components/*"],
+			"$stores" : ["src/stores/"],
+			"$stores/*" : ["src/stores/*"],
+			"$utils": ["src/utils/"],
+			"$utils/*": ["src/utils/*"]
+		},
+	},
+
+	"exclude": ["node_modules"],
 	// Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
 	//
 	// If you want to overwrite includes/excludes, make sure to copy over the relevant includes/excludes

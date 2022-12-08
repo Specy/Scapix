@@ -12,6 +12,14 @@ module.exports = {
 		sourceType: 'module',
 		ecmaVersion: 2020
 	},
+	rules: {
+		'@typescript-eslint/ban-ts-comment': [
+		  'error',
+		  {'ts-ignore': 'allow-with-description'},
+		],
+		'@typescript-eslint/explicit-module-boundary-types': 'off',
+		'no-useless-escape': 'off'
+	  },
 	env: {
 		browser: true,
 		es2017: true,
