@@ -1,7 +1,16 @@
-<script>
-	import ElementRow from '$cmp/ElementRow.svelte';
+<script lang="ts">
+	import Button from '$cmp/buttons/Button.svelte';
+import ElementRow from '$cmp/ElementRow.svelte';
+	import GlobalsSelector from '$cmp/GlobalsSelector.svelte';
 	import DropZone from '$cmp/misc/DropZone.svelte';
-	import { conversionsStore } from '$stores/conversionStore';
+	import { conversionsStore, DenoiseLevel, ImageType, type GlobalSettings } from '$stores/conversionStore';
+
+
+	let globals:GlobalSettings = {
+		scale: 1,
+		denoise: DenoiseLevel.None,
+		imageType: ImageType.Drawing,
+	}
 </script>
 
 <div class="page">
@@ -16,12 +25,19 @@
 	</DropZone>
 
 	<div class="globals">
+		<GlobalsSelector  bind:globals/>
 
+		<Button style="width:100%">
+			Run all
+		</Button>
 	</div>
 	<div class="elements">
+		{#if !$conversionsStore.files.length}
+			<div class="dropper">No files selected, go add some!</div>
+		{/if}
 		{#each $conversionsStore.files as el}
-		<ElementRow element={el} />
-	{/each}
+			<ElementRow element={el} />
+		{/each}
 	</div>
 
 </div>
@@ -59,10 +75,11 @@
 	.globals{
 		grid-area: s;
 		display: flex;
+		flex-direction: column;
 		flex: 1;
 		min-width: 15rem;
 		background-color: var(--secondary);
 		border-radius: 0.6rem;
-		padding: 1rem;
+		padding: 0.8rem;
 	}
 </style>

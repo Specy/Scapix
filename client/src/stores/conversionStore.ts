@@ -21,6 +21,23 @@ export enum Status {
     Error = "error"
 }
 
+export enum DenoiseLevel {
+    None = "none",
+    Low = "low",
+    Medium = "medium",
+    High = "high",
+}
+export enum ImageType {
+    Drawing = "drawing",
+    Photo = "photo",
+}
+
+export type GlobalSettings = { 
+    scale?: number
+    denoise?: DenoiseLevel
+    imageType: ImageType
+}
+
 export type BaseSettings = {
     scale: number
     denoise: 0 | 1 | 2 | 3
@@ -47,10 +64,21 @@ export type LocalSettings = BaseSettings & ({
     type: FileType.Unknown
 })
 
+type Stats = {
+    size: number
+    width: number
+    height: number
+}
 export class ConversionFile {
     id: string
     file: File
+    finalName: string
     status: Status = Status.Waiting
+    stats: Stats = {
+        size: 0,
+        width: 0,
+        height: 0,
+    }
     private obj: string | null = null
 
     settings: LocalSettings = {
@@ -60,15 +88,46 @@ export class ConversionFile {
         upscaler: Upscaler.Waifu2x,
     }
 
-    constructor(file: File, settings?: LocalSettings) {
+    constructor(file: File, settings?: LocalSettings, stats?: Stats) {
         this.file = file
         this.id = `${Math.random().toString(36).substring(2, 9)}-${file.name}`
-        if (settings) this.settings = settings
+        this.stats = stats ?? this.stats
+        this.finalName = file.name
+        this.settings = settings ?? this.settings
     }
 
+    static getFileStats(file: File, type: FileType): Stats {
+        if([FileType.Gif, FileType.Webp, FileType.Image].includes(type)) {
+            const img = new Image()
+            img.src = URL.createObjectURL(file)
+            const stats = {
+                size: file.size,
+                width: img.width,
+                height: img.height,
+            }
+            URL.revokeObjectURL(img.src)
+            return stats
+        }else if(type === FileType.Video) {
+            const video = document.createElement("video")
+            video.src = URL.createObjectURL(file)
+            const stats = {
+                size: file.size,
+                width: video.videoWidth,
+                height: video.videoHeight,
+            }
+            URL.revokeObjectURL(video.src)
+            return stats
+        }
+        return {
+            size: file.size,
+            width: 0,
+            height: 0,
+        }
+    }
     static from(file: File): ConversionFile {
         const type = getFileType(file)
-        return new ConversionFile(file, getDefaultSettings(type))
+        const stats = ConversionFile.getFileStats(file, type)
+        return new ConversionFile(file, getDefaultSettings(type), stats)
     }
 
     toObjectUrl(): string {

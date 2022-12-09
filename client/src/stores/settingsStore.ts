@@ -1,4 +1,5 @@
 import { browser } from "$app/environment"
+import { createDebouncer } from "$lib/utils"
 import { get, writable } from "svelte/store"
 
 
@@ -8,8 +9,9 @@ export type SettingValue<T> = {
     value: T
 }
 export type SettingValues = {
-    useDecimalAsDefault: SettingValue<boolean>
-    autoScrollStackTab: SettingValue<boolean>
+    maxConcurrentOperations: SettingValue<number>
+    maxConcurrentFrames: SettingValue<number>   
+    outputDirectory: SettingValue<string>
 }
 export type Settings = {
     meta: {
@@ -25,30 +27,39 @@ function createValue<T>(name: string, value: T) {
     } as SettingValue<T>
 }
 const baseValues: SettingValues = {
-    useDecimalAsDefault: createValue("Use decimal as default for registers", false),
-    autoScrollStackTab: createValue("Auto scroll stack memory tab", true)
+    maxConcurrentOperations: createValue("Max concurrent operations", 4),
+    maxConcurrentFrames: createValue("Max concurrent frames", 4),
+    outputDirectory: createValue("Output directory", "")
 }
 
-const CURRENT_VERSION = "1.0.4"
+const debouncer = createDebouncer(1000)
+const CURRENT_VERSION = "1.0.1"
 function createSettingsStore() {
-    const { subscribe, update, set } = writable<Settings>({
-        meta: {
-            version: CURRENT_VERSION
-        },
-        values: baseValues
+    const { subscribe, update, set } = writable<SettingValues>(baseValues)
+    let current = baseValues
+    subscribe(v => {
+        current = v
+        store(v)
     })
-
-    function store(settings?: Settings) {
-        settings = settings ?? get({ subscribe })
-        localStorage.setItem("asm-editor_settings", JSON.stringify(settings))
+    function store(settings?: SettingValues) {
+        if(!browser) return
+        debouncer(() => {
+            const toStore =  {
+                meta: {
+                    version: CURRENT_VERSION
+                },
+                values: settings ?? current
+            }
+            localStorage.setItem("scapix_settings", JSON.stringify(toStore))
+        })
     }
 
     function fetch() {
         try {
-            const stored = JSON.parse(localStorage.getItem("asm-editor_settings"))
+            const stored = JSON.parse(localStorage.getItem("scapix_settings") ?? "null") as Settings
             if (!stored) return store()
-            if (stored.meta.version !== CURRENT_VERSION) return store()
-            set(stored)
+            if (stored?.meta?.version !== CURRENT_VERSION) return store()
+            set(stored.values)
         } catch (e) {
             console.error(e)
         }
@@ -57,16 +68,15 @@ function createSettingsStore() {
     function setValue(key: keyof SettingValues, value: SettingValues[keyof SettingValues]["value"]) {
         update(settings => {
             //@ts-ignore - this should be fine
-            settings.values[key].value = value
-            store(settings)
+            settings[key].value = value
             return settings
         })
     }
-
     if (browser) fetch()
     return {
         subscribe,
-        setValue
+        setValue,
+        set
     }
 }
 

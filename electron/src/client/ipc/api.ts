@@ -1,9 +1,5 @@
 import { contextBridge, ipcRenderer as ipc } from "electron";
-
-
-
-
-
+import type { Stats } from 'fs'
 type EventListener = {
     id: string,
     callback: (...args: any[]) => void
@@ -43,14 +39,13 @@ const controls = {
         return ipc.invoke("maximize")
     },
     toggleMaximize: async () => {
-        return ipc.invoke("toggleMaximize")
+        return ipc.invoke("toggle-maximize")
     },
     addOnMaximizationChange: (callback: (isMaximized: boolean) => void) => {
         const id = EventListeners.generateId();
         const listener = {
             id, 
             callback: (e: any, data: any) => {
-                console.log(e, data)
                 callback(data);
             }
         }
@@ -71,7 +66,14 @@ contextBridge.exposeInMainWorld("controls", controls)
 const api = {
     ping: async () => {
         return ipc.invoke("ping")
+    },
+    askDirectory: async () => {
+        return ipc.invoke("ask-directory") as Promise<string | undefined>
+    },
+    gotoExternal: (url: string) => {
+        return ipc.send("goto-external", url)
     }
 }
+
 export type Api = typeof api;
 contextBridge.exposeInMainWorld("api", api)

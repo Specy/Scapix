@@ -29,6 +29,10 @@ export function getErrorMessage(error: any): string{
     return JSON.stringify(error)
 }
 
+export function capitalize(str:string){
+    return str[0].toUpperCase() + str.slice(1)
+}
+
 export function delay(ms:number){
     return new Promise(resolve => setTimeout(resolve, ms))
 }

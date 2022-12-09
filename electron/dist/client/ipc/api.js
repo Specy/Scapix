@@ -87,7 +87,7 @@ var controls = {
     }); },
     toggleMaximize: function () { return __awaiter(void 0, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            return [2 /*return*/, electron_1.ipcRenderer.invoke("toggleMaximize")];
+            return [2 /*return*/, electron_1.ipcRenderer.invoke("toggle-maximize")];
         });
     }); },
     addOnMaximizationChange: function (callback) {
@@ -95,7 +95,6 @@ var controls = {
         var listener = {
             id: id,
             callback: function (e, data) {
-                console.log(e, data);
                 callback(data);
             }
         };
@@ -116,6 +115,14 @@ var api = {
         return __generator(this, function (_a) {
             return [2 /*return*/, electron_1.ipcRenderer.invoke("ping")];
         });
-    }); }
+    }); },
+    askDirectory: function () { return __awaiter(void 0, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            return [2 /*return*/, electron_1.ipcRenderer.invoke("ask-directory")];
+        });
+    }); },
+    gotoExternal: function (url) {
+        return electron_1.ipcRenderer.send("goto-external", url);
+    }
 };
 electron_1.contextBridge.exposeInMainWorld("api", api);

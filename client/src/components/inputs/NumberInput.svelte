@@ -2,17 +2,24 @@
 	export let value = 0
     export let placeholder = ''
     export let style = ''
+
+	function onBlur(e: Event) {
+		// @ts-ignore
+		const v = e.target.value
+		if (!Number.isFinite(Number(v)) || !v) {
+			value = 0
+		}
+	}
 </script>
 
-<div class="input-wrapper">
-    <input
+<input
     type="number"
     bind:value
     class="form-input"
+	on:blur={onBlur}
     {placeholder}
     {style}
 />
-</div>
 
 <style lang="scss">
 	.form-input {
@@ -20,8 +27,8 @@
 		align-items: center;
 		border-radius: 0.4rem;
 		padding: 0.2rem;
-		background-color: rgb(81 85 87 / 50%);
-        color: white;
+		background-color: var(--tertiary);
+        color: var(--tertiary-text);
 		padding: 0.6rem 1rem;
 	}
 	input::placeholder {

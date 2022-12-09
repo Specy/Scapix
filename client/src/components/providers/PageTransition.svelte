@@ -16,8 +16,8 @@
 		}
 		if (s === 'ended') {
 			clearTimeout(timeout)
+			titleBarStore.setBarPosition(100)
 			timeout = setTimeout(() => {
-				titleBarStore.setBarPosition(100)
 			}, 200)
 		}
 	}

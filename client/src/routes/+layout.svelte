@@ -28,7 +28,7 @@
 						</SideMenuOption>
 					</div>
 					<div slot="bottom" class="links">
-						<SideMenuOption to="settings">
+						<SideMenuOption to="/settings">
 							<FaCog />
 						</SideMenuOption>
 					</div>
