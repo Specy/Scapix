@@ -2,7 +2,7 @@
 	export let value = 0
     export let placeholder = ''
     export let style = ''
-
+	export let step = 1
 	function onBlur(e: Event) {
 		// @ts-ignore
 		const v = e.target.value
@@ -15,6 +15,7 @@
 <input
     type="number"
     bind:value
+	{step}
     class="form-input"
 	on:blur={onBlur}
     {placeholder}

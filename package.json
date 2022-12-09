@@ -18,11 +18,12 @@
   },
   "homepage": "https://github.com/Specy/Scapix#readme",
   "dependencies": {
+    "waifu2x": "^1.1.5"
+  },
+  "devDependencies": {
+    "electron-reloader": "^1.2.3",
     "concurrently": "^7.6.0",
     "electron": "^22.0.0",
     "typescript": "^4.9.3"
-  },
-  "devDependencies": {
-    "electron-reloader": "^1.2.3"
   }
 }

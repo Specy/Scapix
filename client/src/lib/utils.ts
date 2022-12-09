@@ -33,6 +33,10 @@ export function capitalize(str:string){
     return str[0].toUpperCase() + str.slice(1)
 }
 
+export function toResourceUrl(path:string){
+    return `resource://${path.replace(/\\/g, "/")}`
+}
+
 export function delay(ms:number){
     return new Promise(resolve => setTimeout(resolve, ms))
 }

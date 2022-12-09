@@ -14,7 +14,7 @@
         <div class="title">
             Scale
         </div>
-        <NumberInput bind:value={globals.scale} />
+        <NumberInput bind:value={globals.scale} step={0.1}/>
     </div>
     <div class="column">
         <div class="title">

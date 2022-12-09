@@ -1,3 +1,4 @@
+import { toResourceUrl } from "$lib/utils";
 import { writable } from "svelte/store";
 
 
@@ -32,16 +33,16 @@ export enum ImageType {
     Photo = "photo",
 }
 
-export type GlobalSettings = { 
-    scale?: number
-    denoise?: DenoiseLevel
+export type GlobalSettings = {
+    scale: number
+    denoise: DenoiseLevel
     imageType: ImageType
 }
 
 export type BaseSettings = {
-    scale: number
-    denoise: 0 | 1 | 2 | 3
-    upscaler: Upscaler
+    scale?: number
+    denoise?: 0 | 1 | 2 | 3
+    upscaler?: Upscaler
 }
 
 export type LocalSettings = BaseSettings & ({
@@ -83,8 +84,6 @@ export class ConversionFile {
 
     settings: LocalSettings = {
         type: FileType.Unknown,
-        scale: 2,
-        denoise: 0,
         upscaler: Upscaler.Waifu2x,
     }
 
@@ -96,46 +95,45 @@ export class ConversionFile {
         this.settings = settings ?? this.settings
     }
 
-    static getFileStats(file: File, type: FileType): Stats {
-        if([FileType.Gif, FileType.Webp, FileType.Image].includes(type)) {
-            const img = new Image()
-            img.src = URL.createObjectURL(file)
-            const stats = {
-                size: file.size,
-                width: img.width,
-                height: img.height,
+    static async getFileStats(file: File, type: FileType): Promise<Stats> {
+        return new Promise((res, rej) => {
+            if ([FileType.Gif, FileType.Webp, FileType.Image].includes(type)) {
+                const img = new Image()
+                img.src = toResourceUrl(file.path)
+                img.onload = () => {
+                    const stats = {
+                        size: file.size,
+                        width: img.width,
+                        height: img.height,
+                    }
+                    res(stats)
+                }
+            } else if (type === FileType.Video) {
+                const video = document.createElement("video")
+                video.src = toResourceUrl(file.path)
+                video.addEventListener("loadedmetadata", () => {
+                    const stats = {
+                        size: file.size,
+                        width: video.videoWidth,
+                        height: video.videoHeight,
+                    }
+                    res(stats)
+                })
+            } else {
+                res({
+                    size: file.size,
+                    width: 0,
+                    height: 0,
+                })
             }
-            URL.revokeObjectURL(img.src)
-            return stats
-        }else if(type === FileType.Video) {
-            const video = document.createElement("video")
-            video.src = URL.createObjectURL(file)
-            const stats = {
-                size: file.size,
-                width: video.videoWidth,
-                height: video.videoHeight,
-            }
-            URL.revokeObjectURL(video.src)
-            return stats
-        }
-        return {
-            size: file.size,
-            width: 0,
-            height: 0,
-        }
+        })
+
     }
-    static from(file: File): ConversionFile {
+    static async from(file: File): Promise<ConversionFile> {
         const type = getFileType(file)
-        const stats = ConversionFile.getFileStats(file, type)
+        const stats = await ConversionFile.getFileStats(file, type)
         return new ConversionFile(file, getDefaultSettings(type), stats)
     }
-
-    toObjectUrl(): string {
-        if (this.obj) return this.obj
-        this.obj = URL.createObjectURL(this.file)
-        return this.obj
-    }
-
     getType(): FileType {
         return this.settings.type
     }
@@ -161,7 +159,6 @@ function getFileType(file: File): FileType {
 
 function getDefaultSettings(type: FileType): LocalSettings {
     const base: BaseSettings = {
-        scale: 2,
         denoise: 0,
         upscaler: Upscaler.Waifu2x,
     }
@@ -207,20 +204,31 @@ interface ConversionStore {
 }
 
 
+
+
 function createConversionsStore() {
     const { subscribe, set, update } = writable<ConversionStore>({
         files: [],
     });
 
-    function add(...files: File[]) {
+    async function add(...files: File[]) {
+        const parsed = await Promise.all(files.map(file => ConversionFile.from(file)))
         update(state => {
-            state.files.push(...files.map(file => ConversionFile.from(file)))
+            state.files.push(...parsed)
+            return state
+        })
+    }
+    function remove(idOrFile: string| ConversionFile) {
+        update(state => {
+            const id = typeof idOrFile === "string" ? idOrFile : idOrFile.id
+            state.files = state.files.filter(file => file.id !== id)
             return state
         })
     }
     return {
         subscribe,
         add,
+        remove
     }
 }
 
