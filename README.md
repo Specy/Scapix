@@ -1,5 +1,5 @@
 [![Downloads](https://img.shields.io/github/downloads/Specy-wot/Scapix/total.svg?style=for-the-badge)](https://github.com/Specy-wot/Scapix/releases)
-## ⚠️ Warning, the app is not currently being developed as i'm busy with other projects, i wanted to rewrite it to imrpove the code.
+## ⚠️ Warning, the app is not being rewritten, you can look at the progress in the `rewrite` branch
 # Welcome to Scapix
 Scapix is an image,gif and video upscaling and denoiser app developed with electron, react, waifu2x and ffmpeg.<br>
 **Warning**, the code for this is pretty bad, i'd have to rewrite it from scratch to make it a bit better
