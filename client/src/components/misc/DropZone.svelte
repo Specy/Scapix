@@ -20,9 +20,9 @@
 	on:dragenter={() => (isDragging = true)}
 	on:dragleave={() => (isDragging = false)}
 	on:dragover={(e) => {
-        e.preventDefault()
-        isDragging = true
-    }}
+		e.preventDefault();
+		isDragging = true;
+	}}
 >
 	<input
 		type="file"
@@ -51,7 +51,7 @@
 		cursor: pointer;
 		padding: 1rem;
 		background: none;
-        color: var(--primary-text);
+		color: var(--primary-text);
 		border: none;
 	}
 
@@ -59,14 +59,13 @@
 		display: flex;
 		height: 10rem;
 		flex: 1;
-		border-radius: 1rem;
-		border: dashed 4px var(--accent2);
+		box-shadow: inset 0 0 1.5rem 1rem var(--secondary);
+		border-radius: 0.6rem;
 		overflow: hidden;
 		background-color: var(--primary);
-		transition: all 0.2s;
+		transition: all 0.4s;
 	}
 	.isDragging {
 		background-color: var(--accent2);
-		color: var(--accent2-text);
 	}
 </style>

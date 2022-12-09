@@ -1,5 +1,6 @@
-import { app, BrowserWindow, ipcMain as ipc} from "electron";
+import { app, BrowserWindow, ipcMain as ipc, protocol } from "electron";
 import electronReloader from "electron-reloader";
+import url from "url";
 import path from "path";
 const isDev = !app.isPackaged
 const paths = {
@@ -8,7 +9,7 @@ const paths = {
     electronClient: path.join(__dirname, "/client"),
 }
 
-try{
+try {
     electronReloader(module);
 } catch (error) {
     console.log(error);
@@ -25,9 +26,9 @@ function createWindow() {
             preload: path.join(paths.electronClient, "/ipc/api.js")
         },
     });
-    if(isDev){
+    if (isDev) {
         win.loadURL("http://localhost:3123");
-    }else{
+    } else {
         win.loadFile(path.join(paths.svelteDist, "/index.html"));
     }
     setUpIpc(win);
@@ -39,9 +40,9 @@ function setUpIpc(win: BrowserWindow) {
     ipc.handle("close", () => win.close())
     ipc.handle("ping", () => "pong")
     ipc.handle("toggleMaximize", () => {
-        if(win.isMaximized()){
+        if (win.isMaximized()) {
             win.unmaximize();
-        }else{
+        } else {
             win.maximize();
         }
     })
@@ -51,11 +52,18 @@ function setUpIpc(win: BrowserWindow) {
 
 
 
+
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit()
 })
 
 app.whenReady().then(() => {
     createWindow()
+    protocol.registerFileProtocol('resource', (request, callback) => {
+        console.log(request)
+        console.log(request.url)
+        const filePath = url.fileURLToPath('file://' + request.url.slice('resource://'.length))
+        callback(filePath)
+    })
 })
 

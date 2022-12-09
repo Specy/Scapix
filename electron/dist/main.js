@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var electron_1 = require("electron");
 var electron_reloader_1 = __importDefault(require("electron-reloader"));
+var url_1 = __importDefault(require("url"));
 var path_1 = __importDefault(require("path"));
 var isDev = !electron_1.app.isPackaged;
 var paths = {
@@ -60,4 +61,10 @@ electron_1.app.on('window-all-closed', function () {
 });
 electron_1.app.whenReady().then(function () {
     createWindow();
+    electron_1.protocol.registerFileProtocol('resource', function (request, callback) {
+        console.log(request);
+        console.log(request.url);
+        var filePath = url_1.default.fileURLToPath('file://' + request.url.slice('resource://'.length));
+        callback(filePath);
+    });
 });

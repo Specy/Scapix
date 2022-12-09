@@ -10,7 +10,7 @@ const themeObject = {
         name: 'primary'
     },
     secondary: {
-        color: '#212630',
+        color: '#1c2029',
         name: 'secondary'
     },
     secondaryDarker: {
