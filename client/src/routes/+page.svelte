@@ -1,22 +1,34 @@
 <script>
-	import { onMount } from "svelte";
+	import DropZone from "$cmp/misc/DropZone.svelte";
 
-
-    let a = 0
-
-    onMount(async () => {
-        console.log(await window.api.ping())
-    })
 
 </script>
 
-<button on:click={() => a++}>
-    Test
-</button>
-{a}
+<div class="page">
+	<DropZone on:drop={console.log}>
+		<div class="dropper">
+			Click to select files or drag and drop files here
+		</div>
+		<div slot="hover" class="dropper">
+			Drop files here...
+		</div>
+	</DropZone>
+</div>
 
 <style>
-    button {
-        color: red;
-    }
+	.page{
+		display: flex;
+		flex: 1;
+		padding: 1rem;
+	}
+	.dropper{
+		display: flex;
+		flex: 1;
+		font-size: 1.3rem;
+		font-weight: bold;
+		height: 100%;
+		justify-content: center;
+		align-items: center;
+	}
+
 </style>

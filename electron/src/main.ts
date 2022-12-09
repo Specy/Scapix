@@ -15,10 +15,10 @@ try{
 }
 function createWindow() {
     const win = new BrowserWindow({
-        width: 1400,
-        height: 1400,
-        //transparent: true,
-        //frame: false,
+        width: 800,
+        height: 600,
+        transparent: true,
+        frame: false,
         //show: false,
         webPreferences: {
             nodeIntegration: true,
@@ -27,13 +27,29 @@ function createWindow() {
     });
     if(isDev){
         win.loadURL("http://localhost:3123");
-        win.webContents.openDevTools()
     }else{
         win.loadFile(path.join(paths.svelteDist, "/index.html"));
     }
+    setUpIpc(win);
 }
 
-ipc.handle("ping", () => "pong")
+function setUpIpc(win: BrowserWindow) {
+    ipc.handle("minimize", () => win.minimize())
+    ipc.handle("maximize", () => win.maximize())
+    ipc.handle("close", () => win.close())
+    ipc.handle("ping", () => "pong")
+    ipc.handle("toggleMaximize", () => {
+        if(win.isMaximized()){
+            win.unmaximize();
+        }else{
+            win.maximize();
+        }
+    })
+    win.on("maximize", () => win.webContents.send("maximize-change", true))
+    win.on("unmaximize", () => win.webContents.send("maximize-change", false))
+}
+
+
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit()

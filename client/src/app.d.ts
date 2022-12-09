@@ -1,3 +1,5 @@
+import type { Api, Controls } from '../../electron/src/client/ipc/api'
+
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
 // and what to do when importing types
@@ -11,8 +13,7 @@ declare namespace App {
 
 export declare global {
 	interface Window {
-		api: {
-			ping: () => Promise<string>
-		}
+		api: Api
+		controls: Controls
 	}
 }

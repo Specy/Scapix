@@ -37,10 +37,85 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var electron_1 = require("electron");
-electron_1.contextBridge.exposeInMainWorld("api", {
+var EventListeners = /** @class */ (function () {
+    function EventListeners() {
+        this.listeners = new Map();
+    }
+    EventListeners.generateId = function () {
+        return Math.random().toString(36).substring(2, 9);
+    };
+    EventListeners.prototype.addListener = function (event, listener) {
+        var _a;
+        if (!this.listeners.has(event)) {
+            this.listeners.set(event, []);
+        }
+        (_a = this.listeners.get(event)) === null || _a === void 0 ? void 0 : _a.push(listener);
+    };
+    EventListeners.prototype.removeListener = function (event, listener) {
+        if (!this.listeners.has(event))
+            return;
+        var listeners = this.listeners.get(event);
+        var index = listeners.findIndex(function (l) {
+            if (typeof listener === "string")
+                return l.id === listener;
+            if (typeof listener === "function")
+                return l.callback === listener;
+            return l.id === listener.id;
+        });
+        if (index < 0)
+            return;
+        return listeners.splice(index, 1)[0];
+    };
+    return EventListeners;
+}());
+var eventListeners = new EventListeners();
+var controls = {
+    close: function () { return __awaiter(void 0, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            return [2 /*return*/, electron_1.ipcRenderer.invoke("close")];
+        });
+    }); },
+    minimize: function () { return __awaiter(void 0, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            return [2 /*return*/, electron_1.ipcRenderer.invoke("minimize")];
+        });
+    }); },
+    maximize: function () { return __awaiter(void 0, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            return [2 /*return*/, electron_1.ipcRenderer.invoke("maximize")];
+        });
+    }); },
+    toggleMaximize: function () { return __awaiter(void 0, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            return [2 /*return*/, electron_1.ipcRenderer.invoke("toggleMaximize")];
+        });
+    }); },
+    addOnMaximizationChange: function (callback) {
+        var id = EventListeners.generateId();
+        var listener = {
+            id: id,
+            callback: function (e, data) {
+                console.log(e, data);
+                callback(data);
+            }
+        };
+        eventListeners.addListener("maximize-change", listener);
+        electron_1.ipcRenderer.on("maximize-change", listener.callback);
+        return id;
+    },
+    removeOnMaximizationChange: function (id) {
+        var listener = eventListeners.removeListener("maximize-change", id);
+        if (!listener)
+            return;
+        electron_1.ipcRenderer.removeListener("maximize-change", listener.callback);
+    }
+};
+electron_1.contextBridge.exposeInMainWorld("controls", controls);
+var api = {
     ping: function () { return __awaiter(void 0, void 0, void 0, function () {
         return __generator(this, function (_a) {
             return [2 /*return*/, electron_1.ipcRenderer.invoke("ping")];
         });
     }); }
-});
+};
+electron_1.contextBridge.exposeInMainWorld("api", api);

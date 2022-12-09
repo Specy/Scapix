@@ -20,10 +20,10 @@ catch (error) {
 }
 function createWindow() {
     var win = new electron_1.BrowserWindow({
-        width: 1400,
-        height: 1400,
-        //transparent: true,
-        //frame: false,
+        width: 800,
+        height: 600,
+        transparent: true,
+        frame: false,
         //show: false,
         webPreferences: {
             nodeIntegration: true,
@@ -32,13 +32,28 @@ function createWindow() {
     });
     if (isDev) {
         win.loadURL("http://localhost:3123");
-        win.webContents.openDevTools();
     }
     else {
         win.loadFile(path_1.default.join(paths.svelteDist, "/index.html"));
     }
+    setUpIpc(win);
 }
-electron_1.ipcMain.handle("ping", function () { return "pong"; });
+function setUpIpc(win) {
+    electron_1.ipcMain.handle("minimize", function () { return win.minimize(); });
+    electron_1.ipcMain.handle("maximize", function () { return win.maximize(); });
+    electron_1.ipcMain.handle("close", function () { return win.close(); });
+    electron_1.ipcMain.handle("ping", function () { return "pong"; });
+    electron_1.ipcMain.handle("toggleMaximize", function () {
+        if (win.isMaximized()) {
+            win.unmaximize();
+        }
+        else {
+            win.maximize();
+        }
+    });
+    win.on("maximize", function () { return win.webContents.send("maximize-change", true); });
+    win.on("unmaximize", function () { return win.webContents.send("maximize-change", false); });
+}
 electron_1.app.on('window-all-closed', function () {
     if (process.platform !== 'darwin')
         electron_1.app.quit();
