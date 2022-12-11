@@ -18,6 +18,21 @@ export enum Status {
     Done = "done",
     Error = "error"
 }
+export type StatusUpdate = {
+    status: Status.Idle | Status.Waiting
+} | {
+    status: Status.Error
+    error: string
+} | {
+    status: Status.Done
+    resultPath: string
+} | {
+    status: Status.Converting
+    progress?: number
+    currentFrame?: number
+    totalFrames?: number
+}
+
 export enum DenoiseLevel {
     None = "none",
     Low = "low",
@@ -76,7 +91,7 @@ export type Stats = {
 export interface SerializedConversionFile{
     id: string
     finalName: string
-    status: Status
+    status: StatusUpdate
     settings: LocalSettings
     stats: Stats
     path: string

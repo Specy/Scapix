@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain as ipc, protocol, dialog, shell} from "electron";
+import { app, BrowserWindow, ipcMain as ipc, protocol, dialog, shell } from "electron";
 import electronReloader from "electron-reloader";
 import url from "url";
 import path from "path";
@@ -29,6 +29,8 @@ function createWindow() {
     const win = new BrowserWindow({
         width: 1280,
         height: 720,
+        minWidth: 1280,
+        minHeight: 720,
         transparent: true,
         frame: false,
         icon: path.join(paths.electronStatic, "/favicon.ico"),
@@ -44,8 +46,8 @@ function createWindow() {
     }
     setUpIpc(win);
 }
-function denoiseLevelToNumber(level: DenoiseLevel){
-    switch(level){
+function denoiseLevelToNumber(level: DenoiseLevel) {
+    switch (level) {
         case DenoiseLevel.None: return 0;
         case DenoiseLevel.Low: return 1;
         case DenoiseLevel.Medium: return 2;
@@ -53,10 +55,11 @@ function denoiseLevelToNumber(level: DenoiseLevel){
     }
 }
 
-function settingsToWaifu2x(settings: LocalSettings, globals: GlobalSettings) {
-    const final:Waifu2xOptions = {...settings}
+function settingsToWaifu2x(settings: LocalSettings, globals: GlobalSettings, appSettings: SerializedSettings) {
+    const final: Waifu2xOptions = { ...settings }
     final.scale = final.scale ?? globals.scale;
-    final.noise = denoiseLevelToNumber(settings.denoise ?? globals.denoise);   
+    final.noise = denoiseLevelToNumber(settings.denoise ?? globals.denoise);
+    final.parallelFrames = appSettings.maxConcurrentFrames;
     return final;
 }
 
@@ -86,31 +89,64 @@ function setUpIpc(win: BrowserWindow) {
 
     ipc.handle("execute-files", (e, files: SerializedConversionFile[], globals: GlobalSettings, settings: SerializedSettings) => {
         pool.setCapacity(settings.maxConcurrentOperations);
+        for( const file of files ){
+            win.webContents.send("file-status-change", file, { status: Status.Waiting })
+        }
         const out = settings.outputDirectory
-        for(const file of files){
-            const opts = settingsToWaifu2x(file.settings, globals)
+        for (const file of files) {
+            const opts = settingsToWaifu2x(file.settings, globals, settings)
             pool.add(async () => {
-                win.webContents.send("file-status-change", file, Status.Converting)
-                try{
-                    switch(file.settings.type){
+                win.webContents.send("file-status-change", file, { status: Status.Converting })
+                try {
+                    const resultPath = path.join(out, file.finalName)
+                    switch (file.settings.type) {
                         case FileType.Image:
-                            await Waifu2x.upscaleImage(file.path, path.join(out, file.finalName), opts); break;
+                            await Waifu2x.upscaleImage(
+                                file.path,
+                                resultPath,
+                                opts,
+                                (progress) => {
+                                    win.webContents.send("file-status-change", file, { status: Status.Converting, progress })
+                                }
+                            ); break;
                         case FileType.Video:
                             //TODO add progress
-                            await Waifu2x.upscaleVideo(file.path, path.join(out, file.finalName), opts); break;   
+                            await Waifu2x.upscaleVideo(
+                                file.path,
+                                resultPath,
+                                opts,
+                                (currentFrame, totalFrames) => {
+                                    win.webContents.send("file-status-change", file, { status: Status.Converting, currentFrame, totalFrames })
+                                }
+                            ); break;
                         case FileType.Gif:
                             //TODO add progress
-                            await Waifu2x.upscaleGIF(file.path, path.join(out, file.finalName), opts); break;
+                            await Waifu2x.upscaleGIF(
+                                file.path, 
+                                resultPath, 
+                                opts,
+                                (currentFrame, totalFrames) => {
+                                    win.webContents.send("file-status-change", file, { status: Status.Converting, currentFrame, totalFrames })
+                                }
+                            ); break;
                         case FileType.Webp:
                             //TODO add progress
-                            await Waifu2x.upscaleAnimatedWebp(file.path, path.join(out, file.finalName), opts); break;
+                            await Waifu2x.upscaleAnimatedWebp(
+                                file.path, 
+                                resultPath, 
+                                opts,
+                                (currentFrame, totalFrames) => {
+                                    win.webContents.send("file-status-change", file, { status: Status.Converting, currentFrame, totalFrames })
+                                }
+                            ); break;
                     }
-                }catch(e){
-                    win.webContents.send("file-status-change", file, Status.Error)
+                    win.webContents.send("file-status-change", file, { status: Status.Done, resultPath })
+                } catch (e) {
+                    win.webContents.send("file-status-change", file, { status: Status.Error, error: e })
                     console.error(e);
                     return;
                 }
-                win.webContents.send("file-status-change", file, Status.Done)
+                
             })
         }
     })

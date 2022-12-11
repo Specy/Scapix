@@ -4,15 +4,16 @@
 	import FaTrashAlt from 'svelte-icons/fa/FaTrashAlt.svelte'
 	import FaPlay from 'svelte-icons/fa/FaPlay.svelte'
 	import prettyBytes from 'pretty-bytes';
-	import { capitalize, toResourceUrl } from '$lib/utils';
+	import { capitalize, clamp, toResourceUrl } from '$lib/utils';
 	import Icon from './layout/Icon.svelte';
 	import FaCog from 'svelte-icons/fa/FaCog.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import ElementSettings from './ElementSettings.svelte';
-	import FaRegClock from 'svelte-icons/fa/FaRegClock.svelte'
-	import FaCircleNotch from 'svelte-icons/fa/FaCircleNotch.svelte'
-	import type { ConversionFile } from '$stores/conversionStore';
+	import type { ConversionDiff, ConversionFile } from '$stores/conversionStore';
 	import { settingsStore } from '$stores/settingsStore';
+	import StatusBar from './StatusBar.svelte';
+	import ResultDisplayer from './ResultDisplayer.svelte';
+	import { toast } from '$stores/toastStore';
 	export let element: ConversionFile;
 	export let globals: GlobalSettings;
 	let type = element.getType();
@@ -21,7 +22,10 @@
 	let videoRef: HTMLVideoElement;
 	let settingsOpen = false;
 
-	const dispatcher = createEventDispatcher()
+	const dispatcher = createEventDispatcher<{
+		delete: undefined; 
+		showResult: ConversionDiff
+	}>()
     $: {
         type = element.getType();
         path =  toResourceUrl(element.file.path)
@@ -29,6 +33,8 @@
 	function onNameChange(e: Event) {
 		element.finalName = (e.target as HTMLDivElement).innerText;
 	}
+	let status = element.status.status;
+	$: status = element.status.status;
 	$: scaleFactor = element.settings.scale ?? globals.scale;
 </script>
 
@@ -57,8 +63,8 @@
 	</div>
     <div 
 		class="row-content"
-		class:error={element.status === Status.Error}
-		class:done={element.status === Status.Done}
+		class:error={status === Status.Error}
+		class:done={status === Status.Done}
 	>
 		<div class="stats">
 			<div class="file-name" contenteditable="true" on:input={onNameChange}>
@@ -90,20 +96,27 @@
 				</div>
 			</div>
 		</div>
-		<div class="actions">
-			{#if element.status === Status.Converting || element.status === Status.Waiting}
-				<div style="display:flex; align-items:center; padding-right: 1rem">
-					<Icon>
-						{#if element.status === Status.Converting}
-							<div class="spin">
-								<FaCircleNotch />
-							</div>
-						{:else if element.status === Status.Waiting}
-							<FaRegClock />
-						{/if}
-					</Icon>
-				</div>
+		<div class="mid">
+			{#if element.status.status === Status.Converting && element.status.currentFrame}
+				<StatusBar 
+					percentage={clamp((element.status.currentFrame / (element.status.totalFrames || 1) * 100), 0, 99)}
+					showPercentage
+					style="max-width: 20rem"
+				/>
 			{/if}
+		</div>
+
+		<div class="actions">
+			<ResultDisplayer 
+				status={element.status}
+				on:showError={(e) => toast.error(e.detail)}
+				on:showResult={result => {
+					dispatcher('showResult', {
+						original: element,
+						converted: result.detail
+					})
+				}}
+			/>
 			<button 
 				style="--normal: rgba(var(--RGB-tertiary), 0.4); --hover: rgba(var(--RGB-tertiary), 0.8);"
 				class="action-button"
@@ -163,6 +176,12 @@
         width: 100%;
 		height: 100%;
 	}
+	.mid{
+		display: flex;
+		flex: 1;
+		align-items: center;
+		justify-content: center;
+	}
 	.el-background-image {
 		border-radius: 0.2rem;
         filter: blur(0.3rem);
@@ -176,17 +195,7 @@
 		height: 100%;
 		object-fit: cover;
 	}
-	.spin{
-		animation: spin 1s linear infinite;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		aspect-ratio: 1/1;
-	}
-	@keyframes spin {
-		0% { transform: rotate(0deg); }
-		100% { transform: rotate(360deg); }
-	}
+
 	.action-button{
 		height:100%; 
 		border-radius: 0.3rem;

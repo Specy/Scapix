@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer as ipc } from "electron";
-import { GlobalSettings, SerializedConversionFile, SerializedSettings, Status } from "../../common/types/Files";
+import { GlobalSettings, SerializedConversionFile, SerializedSettings, Status, StatusUpdate } from "../../common/types/Files";
 type EventListener = {
     id: string,
     callback: (...args: any[]) => void
@@ -83,10 +83,10 @@ const api = {
     stopOne: async (id: string) => {
         return ipc.invoke("stop-one", id)
     },
-    onProcessStatusChange: (callback: (file: SerializedConversionFile, status: Status) => void) => {
+    onProcessStatusChange: (callback: (file: SerializedConversionFile, status: StatusUpdate) => void) => {
         const listener = {
             id: EventListeners.generateId(),
-            callback: (_: any, file: SerializedConversionFile, status: Status) => callback(file, status)
+            callback: (_: any, file: SerializedConversionFile, status: StatusUpdate) => callback(file, status)
         }
         eventListeners.addListener("file-status-change", listener);
         ipc.on("file-status-change", listener.callback);

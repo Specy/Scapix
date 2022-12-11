@@ -41,13 +41,11 @@ export class AsyncSemaphore {
 
     setCapacity(capacity: number) {
         this.capacity = capacity;
-        this.next();
     }
 
     clear(){
         this.queue = [];
         this.running = 0;
-
     }
 }
 

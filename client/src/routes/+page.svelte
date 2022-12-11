@@ -3,30 +3,58 @@
 	import ElementRow from '$cmp/ElementRow.svelte';
 	import GlobalsSelector from '$cmp/GlobalsSelector.svelte';
 	import DropZone from '$cmp/misc/DropZone.svelte';
-	import { conversionsStore } from '$stores/conversionStore';
-	import { Upscaler, type GlobalSettings } from '$common/types/Files';
+	import { conversionsStore, type ConversionDiff } from '$stores/conversionStore';
+	import { Status, Upscaler, type GlobalSettings } from '$common/types/Files';
 	import { DenoiseLevel, ImageType } from '$common/types/Files';
 	import { fade, slide } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
 	import { onMount } from 'svelte';
 	import { settingsStore } from '$stores/settingsStore';
+	import ResultPreviewer from '$cmp/ResultPreviewer.svelte';
 	let globals:GlobalSettings = {
 		scale: 2,
 		denoise: DenoiseLevel.None,
 		imageType: ImageType.Drawing,
 		upscaler: Upscaler.Waifu2x
 	}
+	let floatingResult: ConversionDiff | undefined;
+
 	onMount(() => {
 		const id = window.api.onProcessStatusChange((file, status) => {
 			conversionsStore.updateStatus(file.id, status)
 		})
+		function onKeyDown(e: KeyboardEvent){
+			const code = e.code;
+			console.log(code)
+			if(code === "Escape"){
+				floatingResult = undefined;
+			}
+			if((code === "ArrowDown" || code === "ArrowUp") && floatingResult){
+				const next = conversionsStore.getNextValid(floatingResult?.original, code === "ArrowDown" ? "next" : "previous")
+				if(next && next.status.status === Status.Done){
+					floatingResult = {
+						original: next,
+						converted: next.status.resultPath
+					}
+				}
+			}
+		}
+		window.addEventListener("keydown", onKeyDown)
 		return () => {
 			window.api.removeOnProcessStatusChange(id)
+			window.removeEventListener("keydown", onKeyDown)
 		}
 	})
 </script>
 
 <div class="page">
+
+	<ResultPreviewer 
+		diff={floatingResult}
+		on:close={() => {
+			floatingResult = undefined;
+		}}
+	/>
 	<DropZone
 		style="grid-area: d;"
 		on:drop={(e) => {
@@ -70,6 +98,9 @@
 						element={el} 
 						{globals}
 						on:delete={() => conversionsStore.remove(el)}
+						on:showResult={(data) => {
+							floatingResult = data.detail;
+						}}
 					/>
 				</div>
 			{/each}
@@ -89,6 +120,7 @@
 		grid-template-columns: min-content;
 		flex: 1;
 		padding: 1rem;
+		position: relative;
 	}
 	.dropper {
 		display: flex;

@@ -13,11 +13,13 @@
 	<div class="proprieties">
 		<SettingsRow name={$settingsStore.maxConcurrentFrames.name}>
 			<NumberInput 
+				min={1}
 				bind:value={$settingsStore.maxConcurrentFrames.value} 
 			/>
 		</SettingsRow>
 		<SettingsRow name={$settingsStore.maxConcurrentOperations.name}>
 			<NumberInput 
+				min={1}
 				bind:value={$settingsStore.maxConcurrentOperations.value} 
 			/>
 		</SettingsRow>

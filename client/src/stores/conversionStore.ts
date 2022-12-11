@@ -1,13 +1,20 @@
 import { toResourceUrl } from "$lib/utils";
-import { writable } from "svelte/store";
-import { FileType, Upscaler, Status } from "$common/types/Files"
+import { get, writable } from "svelte/store";
+import { FileType, Upscaler, Status, type StatusUpdate } from "$common/types/Files"
 import type { LocalSettings, SerializedConversionFile, Stats, BaseSettings } from "$common/types/Files"
+
+export type ConversionDiff = {
+    original: ConversionFile
+    converted: string
+}
 
 export class ConversionFile {
     id: string
     file: File
     finalName: string
-    status: Status = Status.Idle
+    status: StatusUpdate = {
+        status: Status.Idle
+    }
     stats: Stats = {
         size: 0,
         width: 0,
@@ -155,7 +162,8 @@ function createConversionsStore() {
     const { subscribe, set, update } = writable<ConversionStore>({
         files: [],
     });
-
+    let current = get({subscribe})
+    subscribe(value => current = value)
     async function add(...files: File[]) {
         const parsed = await Promise.all(files.map(file => ConversionFile.from(file)))
         update(state => {
@@ -163,27 +171,38 @@ function createConversionsStore() {
             return state
         })
     }
-    function remove(idOrFile: string| ConversionFile) {
+    function remove(idOrFile: string | ConversionFile) {
         update(state => {
             const id = typeof idOrFile === "string" ? idOrFile : idOrFile.id
             state.files = state.files.filter(file => file.id !== id)
             return state
         })
     }
-    function updateStatus(idOrFile: string| ConversionFile, status: Status) {
+    function updateStatus(idOrFile: string | ConversionFile, statusUpdate: StatusUpdate) {
         update(state => {
             const id = typeof idOrFile === "string" ? idOrFile : idOrFile.id
             const file = state.files.find(file => file.id === id)
             if (!file) return state
-            file.status = status
+            file.status = statusUpdate
             return state
         })
+    }
+    function getNextValid(idOrFile: string | ConversionFile, direction: "next" | "previous" = "next") {
+        const id = typeof idOrFile === "string" ? idOrFile : idOrFile.id
+        const currentIndex = current.files.findIndex(file => file.id === id)
+        if (currentIndex === -1) return null
+        if(direction === "next") {
+            return current.files.slice(currentIndex + 1).find(file => file.status.status === Status.Done)
+        }else{
+            return current.files.slice(0, currentIndex).reverse().find(file => file.status.status === Status.Done)
+        }
     }
     return {
         subscribe,
         add,
         remove,
-        updateStatus
+        updateStatus,
+        getNextValid,
     }
 }
 
