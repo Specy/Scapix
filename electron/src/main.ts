@@ -2,12 +2,13 @@ import { app, BrowserWindow, ipcMain as ipc, protocol, dialog, shell } from "ele
 import electronReloader from "electron-reloader";
 import url from "url";
 import path from "path";
+import os from "os";
 import { AsyncSemaphore } from "./utils";
 import { DenoiseLevel, FileType, GlobalSettings, LocalSettings, SerializedConversionFile, SerializedSettings, Status, Upscaler } from "./common/types/Files";
 import Waifu2x from "waifu2x";
 import fs from "fs/promises"
 import { Waifu2xOptions } from "waifu2x";
-//--------------------------------------//
+const ffmpeg = os.platform() === 'win32' ? 'ffmpeg.exe' : 'ffmpeg';
 try {
     electronReloader(module);
 } catch (error) {
@@ -20,9 +21,9 @@ const paths = {
     electronDist: path.join(base, "/dist"),
     electronClient: path.join(base, "/dist/client"),
     electronStatic: path.join(base, "/static"),
-    models: path.join(base, "../models/")
+    models: path.join(base, "../models/"),
+    ffmpeg: path.join(base, "../ffmpeg/", ffmpeg),
 }
-//--------------------------------------//
 
 
 const pool = new AsyncSemaphore(2);
@@ -137,7 +138,7 @@ function setUpIpc(win: BrowserWindow) {
                             await Waifu2x.upscaleVideo(
                                 file.path,
                                 resultPath,
-                                opts,
+                                {...opts, ffmpegPath: paths.ffmpeg},
                                 (currentFrame, totalFrames) => {
                                     win.webContents.send("file-status-change", file, { status: Status.Converting, currentFrame, totalFrames })
                                 }
