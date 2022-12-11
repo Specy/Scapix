@@ -4,12 +4,10 @@
 	import Title from "$cmp/layout/Title.svelte";
 	import SettingsRow from "$cmp/SettingsRow.svelte";
 	import { settingsStore } from "$stores/settingsStore";
-
-
 </script>
 
 <div class="page">
-	<Title>
+	<Title noMargin>
 		Settings
 	</Title>
 	<div class="proprieties">
@@ -20,7 +18,6 @@
 		</SettingsRow>
 		<SettingsRow name={$settingsStore.maxConcurrentOperations.name}>
 			<NumberInput 
-			
 				bind:value={$settingsStore.maxConcurrentOperations.value} 
 			/>
 		</SettingsRow>
@@ -49,7 +46,8 @@
 		display: flex;
 		flex: 1;
 		flex-direction: column;
-		padding: 1rem;
+		padding: 2rem;
+		gap: 1rem;
 	}
 	.ellipsis{
 		overflow: hidden;
@@ -57,8 +55,8 @@
 		white-space: nowrap;
 	}
 	.proprieties{
-		margin: 2rem;
 		display: grid;
+		padding-left: 1rem;
 		align-items: center;
 		grid-template-columns: 1fr 1fr;
 		gap: 1rem;

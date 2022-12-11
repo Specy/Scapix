@@ -77,7 +77,7 @@
 		padding-right: 0.4rem;
 		overflow: hidden;
 		border-top-left-radius: 0.2rem;
-		margin-left: 3.4rem;
+		margin-left: 3.6rem;
 	}
 	.line-inner {
 		width: 100%;

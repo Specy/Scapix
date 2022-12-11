@@ -18,7 +18,7 @@ const themeObject = {
         name: 'secondary-darker'
     },
     tertiary:  {
-        color: '#2d3950',
+        color: '#282f3e',
         name: 'tertiary'
     },
     mainText: {
@@ -34,7 +34,7 @@ const themeObject = {
         name: 'accent'
     },
     accent2: {
-        color: '#596c6a',
+        color: '#547571',
         name: 'accent2',
     },
     hint: {
@@ -46,7 +46,7 @@ const themeObject = {
         name: 'red'
     },
     green: {
-        color: 'rgb(16, 185, 129)',
+        color: 'rgb(38 149 112)',
         name: 'green'
     }
 }

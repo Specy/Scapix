@@ -6,10 +6,19 @@
 </script>
 
 <div class="page">
-	<Title>Donate</Title>
-
+	<Title noMargin>
+		Donate
+	</Title>
     <div class="content">
-        <div>If you like this app, please consider donating to help support the development.</div>
+        <div>
+			If you like this app, please consider donating to help support the development.
+			<div 
+				on:click={() => window.api.gotoExternal("https://specy.app")}
+				class="external-link"
+			>
+				Visit my website for more apps 
+			</div>
+		</div>
         <div class="links">
             <button class="link" alt="Kofi" on:click={() => window.api.gotoExternal("https://ko-fi.com/specy ")}>
 				<Icon size={3}>
@@ -29,16 +38,25 @@
 <style lang="scss">
     .content{
         padding: 0  1rem;
+		max-width: 40rem;
+		line-height: 1.4rem;
     }
+	.external-link{
+		color: var(--accent);
+		display: inline-block;
+		cursor: pointer;
+	}
 	.links {
 		display: flex;
 		flex-direction: row;
 		gap: 2rem;
-        margin-top: 1rem;
-        padding: 1rem;
+		margin-top: 1rem;
 	}
 	.page {
-		padding: 1rem;
+		padding: 2rem;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
 	}
 	.link {
 		border: none;

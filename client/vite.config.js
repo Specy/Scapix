@@ -10,7 +10,8 @@ const config = {
 			$cmp: resolve('./src/components/'),
 			$sec: resolve('./src/'),
 			$stores: resolve('./src/stores/'),
-			$utils: resolve('./src/utils/')
+			$utils: resolve('./src/utils/'),
+			$common: resolve('../electron/src/common/')
 		}
 	},
 	plugins: [sveltekit()]

@@ -1,18 +1,26 @@
 <script lang="ts">
-	import { FileType, type ConversionFile, type GlobalSettings } from '$stores/conversionStore';
+	import { FileType, Status, type GlobalSettings } from '$common/types/Files';
 	import FaArrowRight from 'svelte-icons/fa/FaArrowRight.svelte'
 	import FaTrashAlt from 'svelte-icons/fa/FaTrashAlt.svelte'
+	import FaPlay from 'svelte-icons/fa/FaPlay.svelte'
 	import prettyBytes from 'pretty-bytes';
-	import { toResourceUrl } from '$lib/utils';
+	import { capitalize, toResourceUrl } from '$lib/utils';
 	import Icon from './layout/Icon.svelte';
 	import FaCog from 'svelte-icons/fa/FaCog.svelte';
 	import { createEventDispatcher } from 'svelte';
+	import ElementSettings from './ElementSettings.svelte';
+	import FaRegClock from 'svelte-icons/fa/FaRegClock.svelte'
+	import FaCircleNotch from 'svelte-icons/fa/FaCircleNotch.svelte'
+	import type { ConversionFile } from '$stores/conversionStore';
+	import { settingsStore } from '$stores/settingsStore';
 	export let element: ConversionFile;
 	export let globals: GlobalSettings;
 	let type = element.getType();
     let path = toResourceUrl(element.file.path)
 	let scaleFactor = globals.scale;
 	let videoRef: HTMLVideoElement;
+	let settingsOpen = false;
+
 	const dispatcher = createEventDispatcher()
     $: {
         type = element.getType();
@@ -47,13 +55,22 @@
 		{/if}
 		<div class="el-mask" />
 	</div>
-    <div class="row-content">
+    <div 
+		class="row-content"
+		class:error={element.status === Status.Error}
+		class:done={element.status === Status.Done}
+	>
 		<div class="stats">
 			<div class="file-name" contenteditable="true" on:input={onNameChange}>
 				{element.finalName}
 			</div>
-			<div style="margin-top: auto;">
-				{prettyBytes(element.stats.size)}
+			<div style="margin-top: auto; display:flex">
+				<div style="margin-right: 0.8rem">
+					{prettyBytes(element.stats.size)}
+				</div>
+				<div>
+					{capitalize(element.settings.type)}
+				</div>
 			</div>
 			<div class="sizes-stats">
 				<div>
@@ -74,12 +91,38 @@
 			</div>
 		</div>
 		<div class="actions">
+			{#if element.status === Status.Converting || element.status === Status.Waiting}
+				<div style="display:flex; align-items:center; padding-right: 1rem">
+					<Icon>
+						{#if element.status === Status.Converting}
+							<div class="spin">
+								<FaCircleNotch />
+							</div>
+						{:else if element.status === Status.Waiting}
+							<FaRegClock />
+						{/if}
+					</Icon>
+				</div>
+			{/if}
 			<button 
-				style="--normal: rgba(var(--RGB-tertiary), 0.1); --hover: rgba(var(--RGB-tertiary), 0.5);"
+				style="--normal: rgba(var(--RGB-tertiary), 0.4); --hover: rgba(var(--RGB-tertiary), 0.8);"
 				class="action-button"
+				class:active={settingsOpen}
+				on:click={() => settingsOpen = !settingsOpen}
 			>
 				<Icon>
 					<FaCog />
+				</Icon>
+			</button>
+			<button 
+				style="--normal: rgba(var(--RGB-green), 0.1); --hover: rgba(var(--RGB-green), 0.5);"
+				class="action-button"
+				on:click={() => {
+					window.api.executeFiles([element.serialize()], globals, settingsStore.serialize())
+				}}
+			>
+				<Icon>
+					<FaPlay />
 				</Icon>
 			</button>
 			<button
@@ -95,16 +138,21 @@
 			</button>
 		</div>
     </div>
+	{#if settingsOpen}
+	<ElementSettings 
+		{globals}
+		bind:settings={element.settings}
+	/>
+{/if}
 </div>
 
 <style lang="scss">
 	.el-row {
 		display: flex;
-		border-radius: 0.4rem;
-		outline: solid 0.4rem transparent;
+		flex-direction: column;
+		border-radius: 0.5rem;
         overflow: hidden;
 		position: relative;
-        min-height: 8rem;
 		background-color: var(--secondary);
 	}
 	.el-background,
@@ -128,8 +176,18 @@
 		height: 100%;
 		object-fit: cover;
 	}
+	.spin{
+		animation: spin 1s linear infinite;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		aspect-ratio: 1/1;
+	}
+	@keyframes spin {
+		0% { transform: rotate(0deg); }
+		100% { transform: rotate(360deg); }
+	}
 	.action-button{
-		border: none;
 		height:100%; 
 		border-radius: 0.3rem;
 		color: var(--secondary-text);
@@ -140,8 +198,10 @@
 		&:hover{
 			background-color: var(--hover);
 		}
+		&.active{
+			background-color: var(--accent2);
+		}
 	}
-
 	.el-mask {
 		position: absolute;
 		top: 0;
@@ -154,7 +214,10 @@
     .row-content{
         display: flex;   
 		flex: 1;
+        min-height: 8rem;
+		border-radius: 0.5rem;
 		justify-content: space-between;
+		outline-offset: -0.2rem;
         padding: 0.4rem;
         z-index: 10;
     }
@@ -182,5 +245,11 @@
 		display: flex;
 		gap: 0.8rem;
 		width: fit-content;
+	}
+	.error{
+		outline: solid 0.2rem var(--red);
+	}
+	.done{
+		outline: solid 0.2rem var(--green);
 	}
 </style>

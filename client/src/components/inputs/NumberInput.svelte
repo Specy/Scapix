@@ -1,8 +1,12 @@
 <script lang="ts">
-	export let value = 0
+	import { createEventDispatcher } from "svelte";
+
+
+	export let value:number
     export let placeholder = ''
     export let style = ''
 	export let step = 1
+	export let min:number|undefined = undefined
 	function onBlur(e: Event) {
 		// @ts-ignore
 		const v = e.target.value
@@ -10,14 +14,24 @@
 			value = 0
 		}
 	}
+	function onChange(e: Event) {
+		// @ts-ignore
+		const v = e.target.value as string
+		dispatcher("change", Number(v))
+
+	}
+	const dispatcher = createEventDispatcher<{change: number}>()
+
 </script>
 
 <input
     type="number"
     bind:value
 	{step}
+	{min}
     class="form-input"
 	on:blur={onBlur}
+	on:change={onChange}
     {placeholder}
     {style}
 />

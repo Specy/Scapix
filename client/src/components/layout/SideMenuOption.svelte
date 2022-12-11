@@ -15,8 +15,8 @@
 <style lang="scss">
 	.side-menu-option {
 		display: flex;
-		width: 2.8rem;
-		height: 2.8rem;
+		width: 3rem;
+		height: 3rem;
 		cursor: pointer;
 		padding: 0.6rem;
 		border-radius: 0.3rem;
@@ -24,9 +24,8 @@
 		background-color: var(--primary);
 	}
 	.side-menu-option:hover {
-		background-color: var(--secondary);
+		background-color: var(--tertiary);
 	}
-
 	button {
 		background: none;
 		border: none;

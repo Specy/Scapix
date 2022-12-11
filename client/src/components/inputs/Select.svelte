@@ -30,6 +30,9 @@
 		padding: 0.6rem 0.8rem;
         appearance: none;
 	}
+    option {
+        line-height: 2rem;
+    }
     .chevron{
         display: flex;
         top: 0;
@@ -38,6 +41,7 @@
         align-items: center;
         position: absolute;
         height: 100%;
+        pointer-events: none;
     }
     .wrapper{
         display: flex;

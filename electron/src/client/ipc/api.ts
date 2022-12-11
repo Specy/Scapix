@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer as ipc } from "electron";
-import type { Stats } from 'fs'
+import { GlobalSettings, SerializedConversionFile, SerializedSettings, Status } from "../../common/types/Files";
 type EventListener = {
     id: string,
     callback: (...args: any[]) => void
@@ -27,6 +27,7 @@ class EventListeners{
         return listeners.splice(index, 1)[0];
     }
 }
+
 const eventListeners = new EventListeners();
 const controls = {
     close: async () => {
@@ -72,6 +73,29 @@ const api = {
     },
     gotoExternal: (url: string) => {
         return ipc.send("goto-external", url)
+    },
+    executeFiles: async (files: SerializedConversionFile[], globals: GlobalSettings, settings: SerializedSettings) => {
+        return ipc.invoke("execute-files", files, globals, settings)
+    },
+    stopAll: async () => {
+        return ipc.invoke("stop-all")
+    },
+    stopOne: async (id: string) => {
+        return ipc.invoke("stop-one", id)
+    },
+    onProcessStatusChange: (callback: (file: SerializedConversionFile, status: Status) => void) => {
+        const listener = {
+            id: EventListeners.generateId(),
+            callback: (_: any, file: SerializedConversionFile, status: Status) => callback(file, status)
+        }
+        eventListeners.addListener("file-status-change", listener);
+        ipc.on("file-status-change", listener.callback);
+        return listener.id;
+    },
+    removeOnProcessStatusChange: (id: string) => {
+        const listener = eventListeners.removeListener("file-status-change", id);
+        if(!listener) return;
+        ipc.removeListener("file-status-change", listener.callback);
     }
 }
 

@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { capitalize } from "$lib/utils";
-	import { DenoiseLevel, ImageType , type GlobalSettings, } from "$stores/conversionStore";
+	import { ImageType , type GlobalSettings, } from "$common/types/Files";
+	import DenoiseLevelPicker from "./DenoiseLevelPicker.svelte";
 	import NumberInput from "./inputs/NumberInput.svelte";
 	import Select from "./inputs/Select.svelte";
     export let globals:GlobalSettings
-    const denoiseLevels = Object.values(DenoiseLevel)
     const imageTypes = Object.values(ImageType)
 </script>
 
@@ -20,13 +20,9 @@
         <div class="title">
             Denoise
         </div>
-        <Select 
+        <DenoiseLevelPicker 
             bind:value={globals.denoise}
-        >
-            {#each denoiseLevels as level}
-                <option value={level}>{capitalize(level)}</option>
-            {/each}
-        </Select>
+        />
     </div>
     <div class="column">
         <div class="title">

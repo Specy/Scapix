@@ -12,6 +12,7 @@ yarn.lock
 /electron/results/*
 # production
 /build
+electron/dist
 /dist
 /scapix-win32-x64
 test.js

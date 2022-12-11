@@ -1,80 +1,13 @@
 import { toResourceUrl } from "$lib/utils";
 import { writable } from "svelte/store";
+import { FileType, Upscaler, Status } from "$common/types/Files"
+import type { LocalSettings, SerializedConversionFile, Stats, BaseSettings } from "$common/types/Files"
 
-
-export enum FileType {
-    Image = "image",
-    Video = "video",
-    Gif = "gif",
-    Webp = "webp",
-    Unknown = "unknown"
-}
-
-export enum Upscaler {
-    Waifu2x = "waifu2x",
-    RealESRGAN = "real-esrgan",
-}
-
-export enum Status {
-    Waiting = "waiting",
-    Converting = "converting",
-    Done = "done",
-    Error = "error"
-}
-
-export enum DenoiseLevel {
-    None = "none",
-    Low = "low",
-    Medium = "medium",
-    High = "high",
-}
-export enum ImageType {
-    Drawing = "drawing",
-    Photo = "photo",
-}
-
-export type GlobalSettings = {
-    scale: number
-    denoise: DenoiseLevel
-    imageType: ImageType
-}
-
-export type BaseSettings = {
-    scale?: number
-    denoise?: 0 | 1 | 2 | 3
-    upscaler?: Upscaler
-}
-
-export type LocalSettings = BaseSettings & ({
-    type: FileType.Gif
-    quality: number
-    speed: number
-    cumulative: boolean
-} | {
-    type: FileType.Image
-} | {
-    type: FileType.Video
-    framerate: number
-    quality: number
-    speed: number
-} | {
-    type: FileType.Webp
-    quality: number
-    speed: number
-} | {
-    type: FileType.Unknown
-})
-
-type Stats = {
-    size: number
-    width: number
-    height: number
-}
 export class ConversionFile {
     id: string
     file: File
     finalName: string
-    status: Status = Status.Waiting
+    status: Status = Status.Idle
     stats: Stats = {
         size: 0,
         width: 0,
@@ -132,12 +65,25 @@ export class ConversionFile {
     static async from(file: File): Promise<ConversionFile> {
         const type = getFileType(file)
         const stats = await ConversionFile.getFileStats(file, type)
-        return new ConversionFile(file, getDefaultSettings(type), stats)
+        const baseSettings: LocalSettings = {
+            upscaler: Upscaler.Waifu2x,
+            type
+        }
+        return new ConversionFile(file, baseSettings, stats)
     }
     getType(): FileType {
         return this.settings.type
     }
-
+    serialize(): SerializedConversionFile {
+        return {
+            id: this.id,
+            finalName: this.finalName,
+            status: this.status,
+            settings: this.settings,
+            stats: this.stats,
+            path: this.file.path,
+        }
+    }
     disposeObjectUrl() {
         if (!this.obj) return
         URL.revokeObjectURL(this.obj)
@@ -159,7 +105,6 @@ function getFileType(file: File): FileType {
 
 function getDefaultSettings(type: FileType): LocalSettings {
     const base: BaseSettings = {
-        denoise: 0,
         upscaler: Upscaler.Waifu2x,
     }
     switch (type) {
@@ -170,6 +115,7 @@ function getDefaultSettings(type: FileType): LocalSettings {
                 quality: 100,
                 speed: 1,
                 cumulative: false,
+                transparency: true,
             }
         case FileType.Image:
             return {
@@ -180,7 +126,6 @@ function getDefaultSettings(type: FileType): LocalSettings {
             return {
                 ...base,
                 type: FileType.Video,
-                framerate: 30,
                 quality: 100,
                 speed: 1,
             }
@@ -225,10 +170,20 @@ function createConversionsStore() {
             return state
         })
     }
+    function updateStatus(idOrFile: string| ConversionFile, status: Status) {
+        update(state => {
+            const id = typeof idOrFile === "string" ? idOrFile : idOrFile.id
+            const file = state.files.find(file => file.id === id)
+            if (!file) return state
+            file.status = status
+            return state
+        })
+    }
     return {
         subscribe,
         add,
-        remove
+        remove,
+        updateStatus
     }
 }
 

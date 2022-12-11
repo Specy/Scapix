@@ -1,6 +1,7 @@
 import { browser } from "$app/environment"
+import type { SerializedSettings } from "$common/types/Files"
 import { createDebouncer } from "$lib/utils"
-import { get, writable } from "svelte/store"
+import { writable } from "svelte/store"
 
 
 export type SettingValue<T> = {
@@ -72,11 +73,19 @@ function createSettingsStore() {
             return settings
         })
     }
+    function serialize(): SerializedSettings {
+        return {
+            maxConcurrentOperations: current.maxConcurrentOperations.value,
+            maxConcurrentFrames: current.maxConcurrentFrames.value,
+            outputDirectory: current.outputDirectory.value
+        }
+    }
     if (browser) fetch()
     return {
         subscribe,
         setValue,
-        set
+        set,
+        serialize
     }
 }
 

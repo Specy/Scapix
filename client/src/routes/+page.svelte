@@ -1,17 +1,29 @@
 <script lang="ts">
 	import Button from '$cmp/buttons/Button.svelte';
-import ElementRow from '$cmp/ElementRow.svelte';
+	import ElementRow from '$cmp/ElementRow.svelte';
 	import GlobalsSelector from '$cmp/GlobalsSelector.svelte';
 	import DropZone from '$cmp/misc/DropZone.svelte';
-	import { conversionsStore, DenoiseLevel, ImageType, type GlobalSettings } from '$stores/conversionStore';
-
+	import { conversionsStore } from '$stores/conversionStore';
+	import { Upscaler, type GlobalSettings } from '$common/types/Files';
+	import { DenoiseLevel, ImageType } from '$common/types/Files';
 	import { fade, slide } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
+	import { onMount } from 'svelte';
+	import { settingsStore } from '$stores/settingsStore';
 	let globals:GlobalSettings = {
 		scale: 2,
 		denoise: DenoiseLevel.None,
 		imageType: ImageType.Drawing,
+		upscaler: Upscaler.Waifu2x
 	}
+	onMount(() => {
+		const id = window.api.onProcessStatusChange((file, status) => {
+			conversionsStore.updateStatus(file.id, status)
+		})
+		return () => {
+			window.api.removeOnProcessStatusChange(id)
+		}
+	})
 </script>
 
 <div class="page">
@@ -27,7 +39,15 @@ import ElementRow from '$cmp/ElementRow.svelte';
 
 	<div class="globals">
 		<GlobalsSelector  bind:globals/>
-		<Button style="width:100%">
+		<Button style="width:100%"
+			on:click={() => {
+				window.api.executeFiles(
+					$conversionsStore.files.map(el => el.serialize()), 
+					globals, 
+					settingsStore.serialize()
+				)
+			}}
+		>
 			Run all
 		</Button>
 	</div>
@@ -65,8 +85,8 @@ import ElementRow from '$cmp/ElementRow.svelte';
 			's e e e';
 		;
 		grid-template-rows: min-content;
-		grid-template-columns: min-content;
 		gap: 1rem;
+		grid-template-columns: min-content;
 		flex: 1;
 		padding: 1rem;
 	}
@@ -83,9 +103,11 @@ import ElementRow from '$cmp/ElementRow.svelte';
 		grid-area: e;
 		display: flex;
 		gap: 0.5rem;
-		overflow-y: auto;
-		overflow-x: hidden;
+		overflow-y: scroll;
+		padding-right: 0.4rem;
+    	margin-right: -0.65rem;
 		flex-direction: column;
+		max-height: calc(100vh - 15.4rem);
 		position: relative;
 	}
 

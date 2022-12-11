@@ -1,3 +1,5 @@
+import { DenoiseLevel } from "$common/types/Files";
+
 export function clamp(value: number, min: number, max: number): number {
     return Math.max(min, Math.min(max, value));
 }
@@ -37,6 +39,22 @@ export function toResourceUrl(path:string){
     return `resource://${path.replace(/\\/g, "/")}`
 }
 
+export function denoiseLevelToNumber(level: DenoiseLevel) {
+    switch (level) {
+        case DenoiseLevel.None:
+            return 0;
+        case DenoiseLevel.Low:
+            return 1;
+        case DenoiseLevel.Medium:
+            return 2;
+        case DenoiseLevel.High:
+            return 3;
+        default:
+            return 0;
+    }
+}
+
 export function delay(ms:number){
     return new Promise(resolve => setTimeout(resolve, ms))
 }
+
