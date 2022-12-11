@@ -28,18 +28,17 @@
         Local Settings
     </h3>
     <div class="options">
-
         <ElementSettingsRow 
-            title="Denoise level"
-            isDefault={ settings.denoise === undefined }
-            on:reset={() => resetProp("denoise") }
+            title="Upscaler type"
+            isDefault={ settings.upscaler === undefined }
+            on:reset={() => resetProp("upscaler") }
         >
-            <DenoiseLevelPicker
+            <UpscalerPicker 
                 style="width: 8rem"
                 on:change={(e) => {
-                    settings.denoise = e.detail
+                    settings.upscaler = e.detail
                 }}
-                value={settings.denoise ?? globals.denoise}
+                value={settings.upscaler ?? globals.upscaler}
             />
         </ElementSettingsRow>
         <ElementSettingsRow 
@@ -54,22 +53,21 @@
                 step={0.1}
             />
         </ElementSettingsRow>
-        <ElementSettingsRow 
-            title="Upscaler type"
-            isDefault={ settings.upscaler === undefined }
-            on:reset={() => resetProp("upscaler") }
-        >
-            <UpscalerPicker 
-                style="width: 8rem"
-                on:change={(e) => {
-                    settings.upscaler = e.detail
-                }}
-                value={settings.upscaler ?? globals.upscaler}
-            />
-        </ElementSettingsRow>
         {#if (settings.upscaler ?? globals.upscaler) === Upscaler.Waifu2x}
             <ElementSettingsRow 
-                
+                title="Denoise level"
+                isDefault={ settings.denoise === undefined }
+                on:reset={() => resetProp("denoise") }
+            >
+                <DenoiseLevelPicker
+                    style="width: 8rem"
+                    on:change={(e) => {
+                        settings.denoise = e.detail
+                    }}
+                    value={settings.denoise ?? globals.denoise}
+                />
+            </ElementSettingsRow>
+            <ElementSettingsRow 
                 title="Waifu2X model"
                 isDefault={ settings.waifu2xModel === undefined }
                 on:reset={() => resetProp("waifu2xModel") }
