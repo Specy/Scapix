@@ -6,13 +6,14 @@ import { writable } from "svelte/store"
 
 export type SettingValue<T> = {
     name: string
-    type: "boolean" | "number" | "string"
+    type: "boolean" | "number" | "string" | "object"
     value: T
 }
 export type SettingValues = {
     maxConcurrentOperations: SettingValue<number>
     maxConcurrentFrames: SettingValue<number>   
     outputDirectory: SettingValue<string>
+    waifuModels: SettingValue<string[]>
 }
 export type Settings = {
     meta: {
@@ -30,11 +31,12 @@ function createValue<T>(name: string, value: T) {
 const baseValues: SettingValues = {
     maxConcurrentOperations: createValue("Max concurrent operations", 4),
     maxConcurrentFrames: createValue("Max concurrent frames", 4),
-    outputDirectory: createValue("Output directory", "")
+    outputDirectory: createValue("Output directory", ""),
+    waifuModels: createValue("Waifu2x models", ["drawing"])
 }
 
 const debouncer = createDebouncer(1000)
-const CURRENT_VERSION = "1.0.1"
+const CURRENT_VERSION = "1.0.2"
 function createSettingsStore() {
     const { subscribe, update, set } = writable<SettingValues>(baseValues)
     let current = baseValues
@@ -54,7 +56,6 @@ function createSettingsStore() {
             localStorage.setItem("scapix_settings", JSON.stringify(toStore))
         })
     }
-
     function fetch() {
         try {
             const stored = JSON.parse(localStorage.getItem("scapix_settings") ?? "null") as Settings
@@ -80,12 +81,19 @@ function createSettingsStore() {
             outputDirectory: current.outputDirectory.value
         }
     }
+    function setModels(models: string[]) {
+        update(settings => {
+            settings.waifuModels.value = models
+            return settings
+        })
+    }
     if (browser) fetch()
     return {
         subscribe,
         setValue,
         set,
-        serialize
+        serialize,
+        setModels
     }
 }
 

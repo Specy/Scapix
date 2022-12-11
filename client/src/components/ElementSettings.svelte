@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { capitalize } from "$lib/utils";
-    import { FileType, type GlobalSettings, type LocalSettings } from "$common/types/Files";
+    import { FileType, Upscaler, type GlobalSettings, type LocalSettings } from "$common/types/Files";
 	import { slide } from "svelte/transition";
 	import DenoiseLevelPicker from "./DenoiseLevelPicker.svelte";
     import ElementSettingsRow from "./ElementSettingsRow.svelte";
     import NumberInput from "./inputs/NumberInput.svelte";
+	import UpscalerPicker from "./UpscalerPicker.svelte";
+	import Waifu2xModelPicker from "./Waifu2xModelPicker.svelte";
     export let settings:LocalSettings
     export let globals:GlobalSettings
 
@@ -52,6 +54,35 @@
                 step={0.1}
             />
         </ElementSettingsRow>
+        <ElementSettingsRow 
+            title="Upscaler type"
+            isDefault={ settings.upscaler === undefined }
+            on:reset={() => resetProp("upscaler") }
+        >
+            <UpscalerPicker 
+                style="width: 8rem"
+                on:change={(e) => {
+                    settings.upscaler = e.detail
+                }}
+                value={settings.upscaler ?? globals.upscaler}
+            />
+        </ElementSettingsRow>
+        {#if (settings.upscaler ?? globals.upscaler) === Upscaler.Waifu2x}
+            <ElementSettingsRow 
+                
+                title="Waifu2X model"
+                isDefault={ settings.waifu2xModel === undefined }
+                on:reset={() => resetProp("waifu2xModel") }
+            >
+                <Waifu2xModelPicker 
+                    style="width: 8rem"
+                    on:change={(e) => { 
+                        settings.waifu2xModel = e.detail
+                    }}
+                    value={settings.waifu2xModel ?? globals.waifu2xModel}
+                />
+            </ElementSettingsRow>
+        {/if}
     </div>
     {#if settings.type === FileType.Webp || settings.type === FileType.Gif || settings.type === FileType.Video}
         <h3>

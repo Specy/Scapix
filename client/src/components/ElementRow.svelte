@@ -33,6 +33,7 @@
 	function onNameChange(e: Event) {
 		element.finalName = (e.target as HTMLDivElement).innerText;
 	}
+
 	let status = element.status.status;
 	$: status = element.status.status;
 	$: scaleFactor = element.settings.scale ?? globals.scale;

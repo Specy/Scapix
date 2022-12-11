@@ -39,15 +39,11 @@ export enum DenoiseLevel {
     Medium = "medium",
     High = "high",
 }
-export enum ImageType {
-    Drawing = "drawing",
-    Photo = "photo",
-}
 
 export type GlobalSettings = {
     scale: number
     denoise: DenoiseLevel
-    imageType: ImageType
+    waifu2xModel: "drawing" | "photo" | string
     upscaler: Upscaler
 }
 
@@ -55,6 +51,7 @@ export type BaseSettings = {
     scale?: number
     denoise?: DenoiseLevel
     upscaler?: Upscaler
+    waifu2xModel?: "drawing" | "photo" | string
 }
 
 export type SerializedSettings = {

@@ -354,6 +354,11 @@
   "resolved" "https://registry.npmjs.org/electron-is-dev/-/electron-is-dev-1.2.0.tgz"
   "version" "1.2.0"
 
+"electron-log@^4.4.8":
+  "integrity" "sha512-QQ4GvrXO+HkgqqEOYbi+DHL7hj5JM+nHi/j+qrN9zeeXVKy8ZABgbu4CnG+BBqDZ2+tbeq9tUC4DZfIWFU5AZA=="
+  "resolved" "https://registry.npmjs.org/electron-log/-/electron-log-4.4.8.tgz"
+  "version" "4.4.8"
+
 "electron-reloader@^1.2.3":
   "integrity" "sha512-aDnACAzNg0QvQhzw7LYOx/nVS10mEtbuG6M0QQvNQcLnJEwFs6is+EGRCnM+KQlQ4KcTbdwnt07nd7ZjHpY4iw=="
   "resolved" "https://registry.npmjs.org/electron-reloader/-/electron-reloader-1.2.3.tgz"

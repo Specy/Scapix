@@ -4,6 +4,7 @@
 	let input: HTMLInputElement | null = null;
 	const dispatch = createEventDispatcher<{ drop: File[] }>();
 	let isDragging = false;
+	export let formats: string[] = []
 </script>
 
 <div
@@ -42,6 +43,13 @@
 			<slot />
 		{/if}
 	</button>
+	{#if formats.length > 0}
+		<div class="formats">
+			{#each formats as format}
+				<span class="format">{format}</span>
+			{/each}
+		</div>
+	{/if}
 </div>
 
 <style lang="scss">
@@ -54,9 +62,22 @@
 		color: var(--primary-text);
 		border: none;
 	}
-
+	.formats{
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		opacity: 0.7;
+		padding: 0.4rem 0.6rem;
+		gap: 0.5rem;
+		font-size: 0.6rem;
+		color: var(--primary-text);
+	}
 	.dropzone {
 		display: flex;
+		position: relative;
 		height: 10rem;
 		flex: 1;
 		box-shadow: inset 0 0 1.5rem 1rem var(--secondary);
@@ -64,6 +85,7 @@
 		overflow: hidden;
 		background-color: var(--primary);
 		transition: all 0.4s;
+		border: dashed 0.2rem var(--tertiary);
 	}
 	.isDragging {
 		background-color: var(--accent2);

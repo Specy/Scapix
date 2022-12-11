@@ -1,11 +1,12 @@
 <script lang="ts">
-	import { capitalize } from "$lib/utils";
-	import { ImageType , type GlobalSettings, } from "$common/types/Files";
+	import type { GlobalSettings } from "$common/types/Files";
+	import { fade } from "svelte/transition";
 	import DenoiseLevelPicker from "./DenoiseLevelPicker.svelte";
 	import NumberInput from "./inputs/NumberInput.svelte";
-	import Select from "./inputs/Select.svelte";
+	import UpscalerPicker from "./UpscalerPicker.svelte";
+	import Waifu2xModelPicker from "./Waifu2xModelPicker.svelte";
+    
     export let globals:GlobalSettings
-    const imageTypes = Object.values(ImageType)
 </script>
 
 
@@ -26,16 +27,22 @@
     </div>
     <div class="column">
         <div class="title">
-            Image type
+            Upscaler
         </div>
-        <Select 
-            bind:value={globals.imageType}
-        >
-            {#each imageTypes as type}
-                <option value={type}>{capitalize(type)}</option>
-            {/each}
-        </Select>
+        <UpscalerPicker 
+            bind:value={globals.upscaler}
+        />
     </div>
+    {#if globals.upscaler === "waifu2x"}
+        <div class="column" in:fade={{duration: 100}} out:fade={{duration: 100}}>
+            <div class="title">
+                Waifu2x model
+            </div>
+            <Waifu2xModelPicker 
+                bind:value={globals.waifu2xModel}
+            />
+        </div>
+    {/if}
 </div>
 
 <style lang="scss">

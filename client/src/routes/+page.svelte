@@ -1,20 +1,20 @@
 <script lang="ts">
 	import Button from '$cmp/buttons/Button.svelte';
-	import ElementRow from '$cmp/ElementRow.svelte';
 	import GlobalsSelector from '$cmp/GlobalsSelector.svelte';
 	import DropZone from '$cmp/misc/DropZone.svelte';
 	import { conversionsStore, type ConversionDiff } from '$stores/conversionStore';
 	import { Status, Upscaler, type GlobalSettings } from '$common/types/Files';
-	import { DenoiseLevel, ImageType } from '$common/types/Files';
+	import { DenoiseLevel } from '$common/types/Files';
 	import { fade, slide } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
 	import { onMount } from 'svelte';
 	import { settingsStore } from '$stores/settingsStore';
 	import ResultPreviewer from '$cmp/ResultPreviewer.svelte';
+	import ElementRow from '$cmp/ElementRow.svelte';
 	let globals:GlobalSettings = {
 		scale: 2,
 		denoise: DenoiseLevel.None,
-		imageType: ImageType.Drawing,
+		waifu2xModel: "drawing",
 		upscaler: Upscaler.Waifu2x
 	}
 	let floatingResult: ConversionDiff | undefined;
@@ -23,9 +23,13 @@
 		const id = window.api.onProcessStatusChange((file, status) => {
 			conversionsStore.updateStatus(file.id, status)
 		})
+		async function syncModels(){
+			const models = await window.api.getWaifuModels()
+			settingsStore.setModels(models)
+		}
+		syncModels()
 		function onKeyDown(e: KeyboardEvent){
 			const code = e.code;
-			console.log(code)
 			if(code === "Escape"){
 				floatingResult = undefined;
 			}
@@ -57,11 +61,19 @@
 	/>
 	<DropZone
 		style="grid-area: d;"
+		formats={["Images", "Videos", "Gifs", "Webp"]}
 		on:drop={(e) => {
 			conversionsStore.add(...e.detail);
 		}}
 	>
-		<div class="dropper">Click to select files or drag and drop files here</div>
+		<div class="dropper">
+			<div>
+				Drag and drop files here
+			</div>
+			<Button cssVar="tertiary">
+				Or select files
+			</Button>
+		</div>
 		<div slot="hover" class="dropper">Drop files here...</div>
 	</DropZone>
 
@@ -129,7 +141,10 @@
 		font-weight: bold;
 		height: 100%;
 		justify-content: center;
+		gap: 1rem;
+		flex-direction: column;
 		align-items: center;
+		pointer-events: none;
 	}
 	.elements {
 		grid-area: e;

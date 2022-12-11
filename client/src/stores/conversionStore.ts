@@ -73,7 +73,6 @@ export class ConversionFile {
         const type = getFileType(file)
         const stats = await ConversionFile.getFileStats(file, type)
         const baseSettings: LocalSettings = {
-            upscaler: Upscaler.Waifu2x,
             type
         }
         return new ConversionFile(file, baseSettings, stats)
@@ -111,9 +110,7 @@ function getFileType(file: File): FileType {
 }
 
 function getDefaultSettings(type: FileType): LocalSettings {
-    const base: BaseSettings = {
-        upscaler: Upscaler.Waifu2x,
-    }
+    const base: BaseSettings = {}
     switch (type) {
         case FileType.Gif:
             return {

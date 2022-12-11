@@ -4,7 +4,10 @@
   "description": "",
   "main": "electron/dist/main.js",
   "scripts": {
-    "start": "tsc && concurrently \"tsc -w \" \"cd client && npm run dev\" \"electron .\"",
+    "installDeps": "npm i && cd client && npm i",
+    "start": "tsc && concurrently \"tsc -w \" \" cd client && npm run dev\" \"electron .\"",
+    "start:electron": "tsc && electron .",
+    "start:client": "cd client && npm run dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,12 +21,13 @@
   },
   "homepage": "https://github.com/Specy/Scapix#readme",
   "dependencies": {
+    "electron-log": "^4.4.8",
     "waifu2x": "^1.1.5"
   },
   "devDependencies": {
-    "electron-reloader": "^1.2.3",
     "concurrently": "^7.6.0",
     "electron": "^22.0.0",
+    "electron-reloader": "^1.2.3",
     "typescript": "^4.9.3"
   }
 }

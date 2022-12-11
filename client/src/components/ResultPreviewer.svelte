@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { FileType, ImageType } from "$common/types/Files";
+	import { FileType } from "$common/types/Files";
 	import { toResourceUrl } from "$lib/utils";
 	import type { ConversionDiff } from "$stores/conversionStore";
 	import { createEventDispatcher } from "svelte";
