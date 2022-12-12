@@ -31,15 +31,9 @@ html {
 	flex-direction: column;
 	overflow-x: hidden;
 }
-body{
-	background-color: rgba(var(--RGB-primary,23, 26, 33), 0.99);
-	color: var(--primary-text);
-	border-radius: 0.4rem;
-	overflow: hidden;
-}
 a {
 	text-decoration: none;
-	color: inherit;
+	color: inherit;	
 }
 
 input:disabled {

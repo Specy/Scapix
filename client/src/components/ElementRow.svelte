@@ -3,6 +3,7 @@
 	import FaArrowRight from 'svelte-icons/fa/FaArrowRight.svelte'
 	import FaTrashAlt from 'svelte-icons/fa/FaTrashAlt.svelte'
 	import FaPlay from 'svelte-icons/fa/FaPlay.svelte'
+	import FaStop from 'svelte-icons/fa/FaStop.svelte'
 	import prettyBytes from 'pretty-bytes';
 	import { capitalize, clamp, toResourceUrl } from '$lib/utils';
 	import Icon from './layout/Icon.svelte';
@@ -132,11 +133,19 @@
 				style="--normal: rgba(var(--RGB-green), 0.1); --hover: rgba(var(--RGB-green), 0.5);"
 				class="action-button"
 				on:click={() => {
-					window.api.executeFiles([element.serialize()], globals, settingsStore.serialize())
+					if(status === Status.Converting) {
+						window.api.haltOne(element.serialize())
+					}else{
+						window.api.executeFiles([element.serialize()], globals, settingsStore.serialize())
+					}
 				}}
 			>
 				<Icon>
-					<FaPlay />
+					{#if status === Status.Converting}
+						<FaStop />
+					{:else}
+						<FaPlay />
+					{/if}
 				</Icon>
 			</button>
 			<button

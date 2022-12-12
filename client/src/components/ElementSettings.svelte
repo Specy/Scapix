@@ -29,7 +29,7 @@
     </h3>
     <div class="options">
         <ElementSettingsRow 
-            title="Upscaler type"
+            title="Upscaler"
             isDefault={ settings.upscaler === undefined }
             on:reset={() => resetProp("upscaler") }
         >

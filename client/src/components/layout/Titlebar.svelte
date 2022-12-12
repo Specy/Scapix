@@ -18,7 +18,15 @@
 
 <div class="bar">
 	<div class="content">
-		<div />
+		<button 
+			class="maximize"
+			on:dblclick={() => {
+				//this does not trigger
+				window.controls.toggleMaximize()
+			}}
+		>
+
+		</button>
 		<div class="controls">
 			<button class="control-button" on:click={() => window.controls.minimize()}>
 				<Icon size={0.9}>
@@ -70,8 +78,12 @@
 		display: flex;
 		flex-direction: row;
 		align-items: center;
-		-webkit-app-region: no-drag;
 		margin-left: auto;
+	}
+	.maximize{
+		display: flex;
+		flex: 1;
+		-webkit-app-region: drag;
 	}
 	.line {
 		padding-right: 0.4rem;
@@ -87,7 +99,7 @@
 	.bar {
 		display: flex;
 		flex-direction: column;
-		-webkit-app-region: drag;
+		
 		user-select: none;
 		width: 100%;
 	}

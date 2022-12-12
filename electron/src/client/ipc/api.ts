@@ -80,11 +80,11 @@ const api = {
     executeFiles: async (files: SerializedConversionFile[], globals: GlobalSettings, settings: SerializedSettings) => {
         return ipc.invoke("execute-files", files, globals, settings)
     },
-    stopAll: async () => {
-        return ipc.invoke("stop-all")
+    haltOne: async (idOrfile: SerializedConversionFile | string) => {
+        return ipc.invoke("halt-one-execution", idOrfile)
     },
-    stopOne: async (id: string) => {
-        return ipc.invoke("stop-one", id)
+    haltAll: async () => {
+        return ipc.invoke("halt-all-executions")
     },
     onProcessStatusChange: (callback: (file: SerializedConversionFile, status: StatusUpdate) => void) => {
         const listener = {

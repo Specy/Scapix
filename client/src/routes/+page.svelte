@@ -11,6 +11,9 @@
 	import { settingsStore } from '$stores/settingsStore';
 	import ResultPreviewer from '$cmp/ResultPreviewer.svelte';
 	import ElementRow from '$cmp/ElementRow.svelte';
+	import FaPlay from 'svelte-icons/fa/FaPlay.svelte';
+	import Icon from '$cmp/layout/Icon.svelte';
+	import FaStop from 'svelte-icons/fa/FaStop.svelte';
 	let globals:GlobalSettings = {
 		scale: 2,
 		denoise: DenoiseLevel.None,
@@ -18,7 +21,8 @@
 		upscaler: Upscaler.Waifu2x
 	}
 	let floatingResult: ConversionDiff | undefined;
-
+	let isProcessing = false;
+	$: isProcessing = $conversionsStore.files.some(el => el.status.status === Status.Converting)
 	onMount(() => {
 		const id = window.api.onProcessStatusChange((file, status) => {
 			conversionsStore.updateStatus(file.id, status)
@@ -79,16 +83,32 @@
 
 	<div class="globals">
 		<GlobalsSelector  bind:globals/>
-		<Button style="width:100%"
+		<Button 
+			style="width:100%; align-items: center; position: relative;"
+			cssVar={isProcessing ? "red" : "accent"}
 			on:click={() => {
-				window.api.executeFiles(
-					$conversionsStore.files.map(el => el.serialize()), 
-					globals, 
-					settingsStore.serialize()
-				)
+				if(isProcessing){
+					window.api.haltAll()
+				}else{
+					window.api.executeFiles(
+						$conversionsStore.files.map(el => el.serialize()), 
+						globals, 
+						settingsStore.serialize()
+					)
+				}
 			}}
-		>
-			Run all
+		>	
+			{#if isProcessing}
+				<Icon style="left: 0.6rem; position:absolute;">
+					<FaStop />
+				</Icon>	
+				Stop all
+			{:else}
+				<Icon style="left: 0.6rem; position:absolute;">
+					<FaPlay />
+				</Icon>	
+				Run all
+			{/if}
 		</Button>
 	</div>
 		<div class="elements">
