@@ -23,6 +23,18 @@
 				bind:value={$settingsStore.maxConcurrentOperations.value} 
 			/>
 		</SettingsRow>
+		<SettingsRow name={$settingsStore.saveInDatedFolder.name}>
+			<input 
+				type="checkbox" 
+				bind:checked={$settingsStore.saveInDatedFolder.value}
+			/>
+		</SettingsRow>
+		<SettingsRow name={$settingsStore.appendUpscaleSettingsToFileName.name}>
+			<input 
+				type="checkbox" 
+				bind:checked={$settingsStore.appendUpscaleSettingsToFileName.value}
+			/>
+		</SettingsRow>
 		<SettingsRow name={$settingsStore.outputDirectory.name}>
 			<div style="display: flex; flex-direction:column; gap: 0.4rem; flex: 1">
 

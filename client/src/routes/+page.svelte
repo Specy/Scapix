@@ -14,6 +14,7 @@
 	import FaPlay from 'svelte-icons/fa/FaPlay.svelte';
 	import Icon from '$cmp/layout/Icon.svelte';
 	import FaStop from 'svelte-icons/fa/FaStop.svelte';
+	import InfiniteScroll from "svelte-infinite-scroll";
 	let globals:GlobalSettings = {
 		scale: 2,
 		denoise: DenoiseLevel.None,
@@ -23,10 +24,14 @@
 	let floatingResult: ConversionDiff | undefined;
 	let isProcessing = false;
 	$: isProcessing = $conversionsStore.files.some(el => el.status.status === Status.Converting)
+	const perPage = 5;
+	let page = 1;
+	$: {
+		if(page * perPage > $conversionsStore.files.length){
+			page = Math.max(Math.ceil($conversionsStore.files.length / perPage), 1)
+		}
+	}
 	onMount(() => {
-		const id = window.api.onProcessStatusChange((file, status) => {
-			conversionsStore.updateStatus(file.id, status)
-		})
 		async function syncModels(){
 			const models = await window.api.getWaifuModels()
 			settingsStore.setModels(models)
@@ -47,9 +52,9 @@
 				}
 			}
 		}
+
 		window.addEventListener("keydown", onKeyDown)
 		return () => {
-			window.api.removeOnProcessStatusChange(id)
 			window.removeEventListener("keydown", onKeyDown)
 		}
 	})
@@ -82,9 +87,11 @@
 	</DropZone>
 
 	<div class="globals">
-		<GlobalsSelector  bind:globals/>
+		<GlobalsSelector  
+			bind:globals
+		/>
 		<Button 
-			style="width:100%; align-items: center; position: relative;"
+			style="width:100%; align-items: center; position: relative; margin-top: 0.4rem"
 			cssVar={isProcessing ? "red" : "accent"}
 			on:click={() => {
 				if(isProcessing){
@@ -120,7 +127,7 @@
 					No files selected, go add some!
 				</div>
 			{/if}
-			{#each $conversionsStore.files as el (el.id)}
+			{#each $conversionsStore.files.slice(0, perPage * page) as el (el.id)}
 				<div
 					animate:flip={{duration: 200}}
 					in:slide|local
@@ -136,6 +143,7 @@
 					/>
 				</div>
 			{/each}
+			<InfiniteScroll threshold={perPage} on:loadMore={() => page++} />
 		</div>
 </div>
 
@@ -152,6 +160,7 @@
 		grid-template-columns: min-content;
 		flex: 1;
 		padding: 1rem;
+		height: 100%;
 		position: relative;
 	}
 	.dropper {
@@ -174,7 +183,6 @@
 		padding-right: 0.4rem;
     	margin-right: -0.65rem;
 		flex-direction: column;
-		max-height: calc(100vh - 15.4rem);
 		position: relative;
 	}
 

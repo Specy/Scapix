@@ -58,6 +58,8 @@ export type SerializedSettings = {
     maxConcurrentOperations: number
     maxConcurrentFrames: number
     outputDirectory: string
+    saveInDatedFolder: boolean
+    appendUpscaleSettingsToFileName: boolean
 }
 export type LocalSettings = BaseSettings & ({
     type: FileType.Gif

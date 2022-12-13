@@ -25,6 +25,7 @@
     "waifu2x": "^1.1.5"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^6.0.4",
     "concurrently": "^7.6.0",
     "electron": "^22.0.0",
     "electron-reloader": "^1.2.3",

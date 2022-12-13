@@ -14,6 +14,8 @@ export type SettingValues = {
     maxConcurrentFrames: SettingValue<number>   
     outputDirectory: SettingValue<string>
     waifuModels: SettingValue<string[]>
+    saveInDatedFolder: SettingValue<boolean>
+    appendUpscaleSettingsToFileName: SettingValue<boolean>
 }
 export type Settings = {
     meta: {
@@ -32,11 +34,13 @@ const baseValues: SettingValues = {
     maxConcurrentOperations: createValue("Max concurrent operations", 4),
     maxConcurrentFrames: createValue("Max concurrent frames", 4),
     outputDirectory: createValue("Output directory", ""),
-    waifuModels: createValue("Waifu2x models", ["drawing"])
+    waifuModels: createValue("Waifu2x models", ["drawing"]),
+    saveInDatedFolder: createValue("Save in folders with dates", true),
+    appendUpscaleSettingsToFileName: createValue("Append upscale settings to the file name", true)
 }
 
 const debouncer = createDebouncer(1000)
-const CURRENT_VERSION = "1.0.2"
+const CURRENT_VERSION = "1.0.3"
 function createSettingsStore() {
     const { subscribe, update, set } = writable<SettingValues>(baseValues)
     let current = baseValues
@@ -78,7 +82,9 @@ function createSettingsStore() {
         return {
             maxConcurrentOperations: current.maxConcurrentOperations.value,
             maxConcurrentFrames: current.maxConcurrentFrames.value,
-            outputDirectory: current.outputDirectory.value
+            outputDirectory: current.outputDirectory.value,
+            saveInDatedFolder: current.saveInDatedFolder.value,
+            appendUpscaleSettingsToFileName: current.appendUpscaleSettingsToFileName.value
         }
     }
     function setModels(models: string[]) {

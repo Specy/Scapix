@@ -18,15 +18,7 @@
 
 <div class="bar">
 	<div class="content">
-		<button 
-			class="maximize"
-			on:dblclick={() => {
-				//this does not trigger
-				window.controls.toggleMaximize()
-			}}
-		>
 
-		</button>
 		<div class="controls">
 			<button class="control-button" on:click={() => window.controls.minimize()}>
 				<Icon size={0.9}>
@@ -50,11 +42,9 @@
 		</div>
 	</div>
 	<div class="line">
-		{#key $titleBarStore.barPosition}
-			<div class="line-inner" style={`--to: ${$titleBarStore.barPosition}%`}>
+		<div class="line-inner" style={`--to: ${$titleBarStore.barPosition}%`}>
 				<RgbLine height="0.3rem" style="border-top-right-radius: 0; transform: rotate(180deg)" />
-			</div>
-		{/key}
+		</div>
 	</div>
 </div>
 
@@ -80,11 +70,7 @@
 		align-items: center;
 		margin-left: auto;
 	}
-	.maximize{
-		display: flex;
-		flex: 1;
-		-webkit-app-region: drag;
-	}
+
 	.line {
 		padding-right: 0.4rem;
 		overflow: hidden;
@@ -92,23 +78,15 @@
 		margin-left: 3.6rem;
 	}
 	.line-inner {
-		width: 100%;
+		width: var(--to);
 		min-width: 1rem;
-        animation: forwards animate 0.4s;
+		transition: all 0.2s;
 	}
 	.bar {
 		display: flex;
 		flex-direction: column;
-		
 		user-select: none;
 		width: 100%;
 	}
-    @keyframes animate {
-        from {
-            width:1rem;
-        }
-        to {
-            width: var(--to);
-        }
-    }
+
 </style>

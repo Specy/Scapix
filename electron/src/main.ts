@@ -14,6 +14,8 @@ try {
 } catch (error) {
     console.log(error);
 }
+
+
 const isDev = !app.isPackaged
 const base = path.join(__dirname, "../");
 const paths = {
@@ -36,6 +38,7 @@ function loadSplash() {
         minWidth: 1280,
         minHeight: 720,
         center: true,
+        backgroundColor:"#171A21",
         title: "Loading Scapix...",
         icon: path.join(paths.electronStatic, "/favicon.ico"),
         frame: false,
@@ -57,11 +60,13 @@ function createWindow() {
         minWidth: 1280,
         minHeight: 720,
         title: "Scapix",
+        backgroundColor:"#171A21",
         center: true,
-        transparent: true,
-        frame: false,
+        //transparent: true,
+        //frame: false,
         icon: path.join(paths.electronStatic, "/favicon.ico"),
         show: false,
+        titleBarStyle: 'hidden',
         webPreferences: {
             preload: path.join(paths.electronClient, "/ipc/api.js")
         },
@@ -105,7 +110,7 @@ function finalizeSettings(settings: LocalSettings, globals: GlobalSettings, appS
     if(isWaifu2x && model !== "drawing"){
         final.modelDir = modelToPath(model);
     }
-    if(!isWaifu2x) final.upscaler = settings.upscaler ?? globals.upscaler
+    final.upscaler = settings.upscaler ?? globals.upscaler
     return final;
 }
 function modelToPath(model: string) {
@@ -154,21 +159,23 @@ function setUpIpc(win: BrowserWindow) {
         }
         pendingFiles.clear();
     })
-    ipc.handle("execute-files", (e, files: SerializedConversionFile[], globals: GlobalSettings, settings: SerializedSettings) => {
+    ipc.handle("execute-files", async (e, files: SerializedConversionFile[], globals: GlobalSettings, settings: SerializedSettings) => {
         pool.setCapacity(settings.maxConcurrentOperations);
         for( const file of files ){
             win.webContents.send("file-status-change", file, { status: Status.Waiting })
         }
         const out = settings.outputDirectory
+        const promises = [];
         for (const file of files) {
             const opts = finalizeSettings(file.settings, globals, settings)
             console.log(opts)
             pendingFiles.set(file.id, file);
-            pool.add(async () => {
+            promises.push(pool.add(async () => {
                 if(!pendingFiles.get(file.id)) return; //stop if file was cancelled
                 win.webContents.send("file-status-change", file, { status: Status.Converting })
                 try {
-                    const resultPath = path.join(out, file.finalName)
+                    const initialPath = path.join(out, file.finalName)
+                    const resultPath = finalizePath(initialPath, opts, settings)
                     switch (file.settings.type) {
                         case FileType.Image:
                             await Waifu2x.upscaleImage(
@@ -176,6 +183,7 @@ function setUpIpc(win: BrowserWindow) {
                                 resultPath,
                                 opts,
                                 (progress) => {
+                                    console.log(`${progress}%`)
                                     if(!pendingFiles.get(file.id)) return false; //stop if file was cancelled
                                     win.webContents.send("file-status-change", file, { status: Status.Converting, progress })
                                 }
@@ -187,6 +195,7 @@ function setUpIpc(win: BrowserWindow) {
                                 resultPath,
                                 {...opts, ffmpegPath: paths.ffmpeg},
                                 (currentFrame, totalFrames) => {
+                                    console.log(`frame: ${currentFrame}/${totalFrames}`)
                                     if(!pendingFiles.get(file.id)) return false; //stop if file was cancelled
                                     win.webContents.send("file-status-change", file, { status: Status.Converting, currentFrame, totalFrames })
                                 }
@@ -198,6 +207,7 @@ function setUpIpc(win: BrowserWindow) {
                                 resultPath, 
                                 opts,
                                 (currentFrame, totalFrames) => {
+                                    console.log(`frame: ${currentFrame}/${totalFrames}`)
                                     if(!pendingFiles.get(file.id)) return false; //stop if file was cancelled
                                     win.webContents.send("file-status-change", file, { status: Status.Converting, currentFrame, totalFrames })
                                 }
@@ -209,11 +219,13 @@ function setUpIpc(win: BrowserWindow) {
                                 resultPath, 
                                 opts,
                                 (currentFrame, totalFrames) => {
+                                    console.log(`frame: ${currentFrame}/${totalFrames}`)
                                     if(!pendingFiles.get(file.id)) return false; //stop if file was cancelled
                                     win.webContents.send("file-status-change", file, { status: Status.Converting, currentFrame, totalFrames })
                                 }
                             ); break;
                     }
+                    console.log("done", file)
                     if(!pendingFiles.get(file.id)) return console.log("file was cancelled", file);
                     win.webContents.send("file-status-change", file, { status: Status.Done, resultPath })
                     pendingFiles.delete(file.id);
@@ -222,13 +234,36 @@ function setUpIpc(win: BrowserWindow) {
                     console.error(e);
                     return;
                 }
-                flashFrame(win, 3000);   
-            })
+            }))
         }
+        await Promise.all(promises);
+        flashFrame(win, 3000);   
     })
     win.on("maximize", () => win.webContents.send("maximize-change", true))
     win.on("unmaximize", () => win.webContents.send("maximize-change", false))
+
 }
+
+
+type PathOptions = {
+    saveInDatedFolder: boolean
+    appendUpscaleSettingsToFileName: boolean
+}
+function finalizePath(base: string, upscaleSettings: Waifu2xOptions , opts: PathOptions){
+    //finalizes the path to the output file
+    //Ex: "C:\Users\user\Downloads\image.png" -> "C:\Users\user\Downloads\{folder}\image.{options}.png"
+    const { saveInDatedFolder, appendUpscaleSettingsToFileName } = opts;
+    const date = new Date();
+    const dateStr = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    const suffix = `${upscaleSettings.upscaler}-${upscaleSettings.scale}x_${upscaleSettings.noise}`;
+    const ext = path.extname(base);
+    const name = path.basename(base, ext);
+    const dir = path.dirname(base);
+    const outDir = saveInDatedFolder ? path.join(dir, dateStr) : dir;
+    const outName = appendUpscaleSettingsToFileName ? `${name}.${suffix}` : name;
+    return path.join(outDir, outName + ext);
+}
+
 
 let lastTimeout: NodeJS.Timeout;
 function flashFrame(win: BrowserWindow, duration: number = 1000) {
@@ -236,7 +271,6 @@ function flashFrame(win: BrowserWindow, duration: number = 1000) {
     clearTimeout(lastTimeout);
     lastTimeout = setTimeout(() => win.flashFrame(false), duration);
 }
-
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit()
 })

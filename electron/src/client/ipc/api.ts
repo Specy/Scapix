@@ -4,26 +4,26 @@ type EventListener = {
     id: string,
     callback: (...args: any[]) => void
 }
-class EventListeners{
+class EventListeners {
     private listeners = new Map<string, EventListener[]>();
-    static generateId(){
+    static generateId() {
         return Math.random().toString(36).substring(2, 9);
     }
-    addListener(event: string, listener: EventListener){
-        if(!this.listeners.has(event)){
+    addListener(event: string, listener: EventListener) {
+        if (!this.listeners.has(event)) {
             this.listeners.set(event, []);
         }
         this.listeners.get(event)?.push(listener);
     }
-    removeListener(event: string, listener: EventListener | string| Function){
-        if(!this.listeners.has(event)) return;
+    removeListener(event: string, listener: EventListener | string | Function) {
+        if (!this.listeners.has(event)) return;
         const listeners = this.listeners.get(event)!;
         const index = listeners.findIndex((l) => {
-            if(typeof listener === "string") return l.id === listener;
-            if(typeof listener === "function") return l.callback === listener;
+            if (typeof listener === "string") return l.id === listener;
+            if (typeof listener === "function") return l.callback === listener;
             return l.id === listener.id;
         });
-        if(index < 0) return;
+        if (index < 0) return;
         return listeners.splice(index, 1)[0];
     }
 }
@@ -45,7 +45,7 @@ const controls = {
     addOnMaximizationChange: (callback: (isMaximized: boolean) => void) => {
         const id = EventListeners.generateId();
         const listener = {
-            id, 
+            id,
             callback: (e: any, data: any) => {
                 callback(data);
             }
@@ -56,12 +56,14 @@ const controls = {
     },
     removeOnMaximizationChange: (id: string) => {
         const listener = eventListeners.removeListener("maximize-change", id);
-        if(!listener) return;
+        if (!listener) return;
         ipc.removeListener("maximize-change", listener.callback);
     }
 }
 export type Controls = typeof controls;
 contextBridge.exposeInMainWorld("controls", controls)
+
+
 
 
 const api = {
@@ -97,7 +99,7 @@ const api = {
     },
     removeOnProcessStatusChange: (id: string) => {
         const listener = eventListeners.removeListener("file-status-change", id);
-        if(!listener) return;
+        if (!listener) return;
         ipc.removeListener("file-status-change", listener.callback);
     }
 }

@@ -37,6 +37,7 @@
 		"pretty-bytes": "^6.0.0",
 		"sass": "^1.56.1",
 		"svelte-body": "^1.3.6",
-		"svelte-icons": "^2.1.0"
+		"svelte-icons": "^2.1.0",
+		"svelte-infinite-scroll": "^2.0.1"
 	}
 }

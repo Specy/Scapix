@@ -7,6 +7,7 @@
 	let timeout: Timer
 	let timeout2: Timer
 	function handleProgress(s: string) {
+		return //ignored
 		if (s === 'started') {
 			clearTimeout(timeout2)
 			titleBarStore.setBarPosition(0)
@@ -16,9 +17,10 @@
 		}
 		if (s === 'ended') {
 			clearTimeout(timeout)
-			titleBarStore.setBarPosition(100)
+			titleBarStore.setBarPosition(0)
 			timeout = setTimeout(() => {
-			}, 200)
+				titleBarStore.setBarPosition(100)
+			}, 100)
 		}
 	}
 

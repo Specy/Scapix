@@ -49,7 +49,11 @@
 >
 	<div class="el-background">
 		{#if [FileType.Image, FileType.Gif, FileType.Webp].includes(type)}
-			<div class="el-background-image" style={`background-image: url(${path}`} />
+			<div 
+				class="el-background-image" 
+				style={`background-image: url(${path}`} 
+				class:gif={type === FileType.Gif}
+			/>
 		{:else if type === FileType.Video}
 			<video 
 				src={path} 
@@ -61,7 +65,10 @@
 		{:else}
 			{element.file.type}
 		{/if}
-		<div class="el-mask" />
+		<div 
+			class="el-mask" 
+			class:gif={type === FileType.Gif}
+		/>
 	</div>
     <div 
 		class="row-content"
@@ -198,6 +205,9 @@
 		width: 100%;
 		background-size: cover;
 		background-position: center;
+		&.gif{
+			filter: none;
+		}
 	}
 	.el-background-video{
 		width: 100%;
@@ -229,6 +239,10 @@
 		height: 100%;
         background: rgb(var(--RGB-secondary));
         background: linear-gradient(90deg, rgba(var(--RGB-secondary), 0.6001751042) 0%, rgba(var(--RGB-secondary), 0.8994748241) 30%, rgba(var(--RGB-secondary), 0.99) 60%);
+		&.gif{
+			background: linear-gradient(90deg, rgba(var(--RGB-secondary), 0.8001751042) 0%, rgba(var(--RGB-secondary), 0.9094748241) 30%, rgba(var(--RGB-secondary), 0.99) 60%);
+
+		}
 	}
     .row-content{
         display: flex;   

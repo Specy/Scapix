@@ -5,7 +5,8 @@
 	import NumberInput from "./inputs/NumberInput.svelte";
 	import UpscalerPicker from "./UpscalerPicker.svelte";
 	import Waifu2xModelPicker from "./Waifu2xModelPicker.svelte";
-    
+
+
     export let globals:GlobalSettings
 </script>
 
