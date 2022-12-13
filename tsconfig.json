@@ -100,6 +100,7 @@
   "exclude": [
     "client",
     "node_modules",
-    "electron/dist"
+    "electron/dist",
+    "out"
   ]
 }

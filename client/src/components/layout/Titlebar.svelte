@@ -18,7 +18,6 @@
 
 <div class="bar">
 	<div class="content">
-
 		<div class="controls">
 			<button class="control-button" on:click={() => window.controls.minimize()}>
 				<Icon size={0.9}>
@@ -63,12 +62,14 @@
 	.content {
 		display: flex;
 		min-height: 1.4rem;
+		-webkit-app-region: drag;
 	}
 	.controls {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
 		margin-left: auto;
+		-webkit-app-region: no-drag;
 	}
 
 	.line {

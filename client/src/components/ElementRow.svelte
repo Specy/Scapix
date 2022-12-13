@@ -114,11 +114,10 @@
 				/>
 			{/if}
 		</div>
-
 		<div class="actions">
 			<ResultDisplayer 
 				status={element.status}
-				on:showError={(e) => toast.error(e.detail)}
+				on:showError={(e) => toast.error(e.detail, 10000)}
 				on:showResult={result => {
 					dispatcher('showResult', {
 						original: element,

@@ -5,6 +5,10 @@ const config = {
 	server: {
 		port: 3123,
 	},
+	preview:{
+		port: 3124,
+		strictPort: true,
+	},
 	resolve: {
 		alias: {
 			$cmp: resolve('./src/components/'),

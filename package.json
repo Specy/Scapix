@@ -1,14 +1,19 @@
 {
   "name": "scapix",
-  "version": "1.0.0",
-  "description": "",
+  "version": "2.0.0",
+  "description": "An app to upscale images and videos using waifu2x and real-esrgan",
   "main": "electron/dist/main.js",
   "scripts": {
     "installDeps": "npm i && cd client && npm i",
-    "start": "tsc && concurrently \"tsc -w \" \" cd client && npm run dev\" \"electron .\"",
-    "start:electron": "tsc && electron .",
-    "start:client": "cd client && npm run dev",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc && cd client && npm run build && cd .. && electron-forge make",
+    "electron": "concurrently \"npm run start:electron\" \"npm run start:client\"",
+    "start": "electron-forge start",
+    "dev:electron": "tsc && electron .",
+    "dev:client": "cd client && npm run dev",
+    "start:electron": "electron .",
+    "start:client": "cd client && npm run preview",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "repository": {
     "type": "git",
@@ -22,10 +27,16 @@
   "homepage": "https://github.com/Specy/Scapix#readme",
   "dependencies": {
     "electron-log": "^4.4.8",
+    "electron-serve": "^1.1.0",
+    "electron-squirrel-startup": "^1.0.0",
     "waifu2x": "^1.1.5"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.4",
+    "@electron-forge/maker-deb": "^6.0.4",
+    "@electron-forge/maker-rpm": "^6.0.4",
+    "@electron-forge/maker-squirrel": "^6.0.4",
+    "@electron-forge/maker-zip": "^6.0.4",
     "concurrently": "^7.6.0",
     "electron": "^22.0.0",
     "electron-reloader": "^1.2.3",
