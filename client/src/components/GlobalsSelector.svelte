@@ -5,11 +5,8 @@
 	import NumberInput from "./inputs/NumberInput.svelte";
 	import UpscalerPicker from "./UpscalerPicker.svelte";
 	import Waifu2xModelPicker from "./Waifu2xModelPicker.svelte";
-
-
     export let globals:GlobalSettings
 </script>
-
 
 <div class="content">
     <div class="column">
@@ -35,7 +32,7 @@
         />
     </div>
     {#if globals.upscaler === "waifu2x"}
-        <div class="column" in:fade={{duration: 100}} out:fade={{duration: 100}}>
+        <div class="column">
             <div class="title">
                 Waifu2x model
             </div>

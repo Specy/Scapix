@@ -11,8 +11,8 @@
     <div class="section"> 
         There are two kinds of upscalers:
         <ul>
-            <li><b>Waifu2X</b>: More settings to choose from but flightly worse overall for drawings, can be extended with your own custom models</li>
-            <li><b>Real Esrgan</b>: Less settings but better for drawings, can only work with scales between 2 and 4</li>
+            <li><b>Waifu2X</b>: More settings to choose from but slightly worse overall for drawings, can be extended with your own custom models, mainly uses GPU</li>
+            <li><b>Real Esrgan</b>: Less settings but better for drawings, can only work with scales between 2 and 4. It is slower than waifu2x, mainly uses CPU</li>
         </ul>
     </div>
     <Title noMargin>
@@ -24,7 +24,13 @@
             <li>
                 <b>Model</b>: Different kinds of models give different results for a given input, the default models are 
                 "Drawings" for drawings and anime, and "Photo" for realistic images.
-                You can upload your own model to use in the app by adding a folder in the models folder in the root of the app.
+                You can upload your own model to use in the app by adding a folder in the 
+                <a
+                    class="external-link"
+                    on:click={() => window.api.openDir("./models")}
+                >
+                    models folder 
+                </a> in the root of the app.
             </li>
             <li>
                 <b>Scale</b>: The scale to which the image will be upscaled, the default is 2x. 
@@ -78,6 +84,11 @@
         margin-bottom: 2rem;
         max-width: 45rem;
     }
+    .external-link{
+		color: var(--accent);
+		display: inline-block;
+		cursor: pointer;
+	}
     ul{
         padding: 0.4rem;
         padding-left: 1.2rem;

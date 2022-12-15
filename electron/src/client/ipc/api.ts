@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer as ipc } from "electron";
-import { GlobalSettings, SerializedConversionFile, SerializedSettings, Status, StatusUpdate } from "../../common/types/Files";
+import { GlobalSettings, SerializedConversionFile, SerializedSettings, StatusUpdate } from "../../common/types/Files";
 type EventListener = {
     id: string,
     callback: (...args: any[]) => void
@@ -84,6 +84,12 @@ const api = {
     },
     haltOne: async (idOrfile: SerializedConversionFile | string) => {
         return ipc.invoke("halt-one-execution", idOrfile)
+    },
+    checkUpdate: async () => {
+        return ipc.invoke("check-update") as Promise<string | null>
+    },
+    openDir: async (dir: string) => {
+        return ipc.invoke("open-dir", dir)
     },
     haltAll: async () => {
         return ipc.invoke("halt-all-executions")

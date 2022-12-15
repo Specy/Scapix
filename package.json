@@ -26,16 +26,22 @@
   },
   "homepage": "https://github.com/Specy/Scapix#readme",
   "dependencies": {
+    "@types/semver": "^7.3.13",
     "electron-log": "^4.4.8",
     "electron-serve": "^1.1.0",
     "electron-squirrel-startup": "^1.0.0",
+    "node-fetch": "^3.3.0",
+    "semver": "^7.3.8",
+    "undici": "^5.14.0",
     "waifu2x": "^1.1.5"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.4",
     "@electron-forge/maker-deb": "^6.0.4",
+    "@electron-forge/maker-dmg": "^6.0.4",
     "@electron-forge/maker-rpm": "^6.0.4",
     "@electron-forge/maker-squirrel": "^6.0.4",
+    "@electron-forge/maker-wix": "^6.0.4",
     "@electron-forge/maker-zip": "^6.0.4",
     "concurrently": "^7.6.0",
     "electron": "^22.0.0",

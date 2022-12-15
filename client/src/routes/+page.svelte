@@ -14,13 +14,7 @@
 	import FaPlay from 'svelte-icons/fa/FaPlay.svelte';
 	import Icon from '$cmp/layout/Icon.svelte';
 	import FaStop from 'svelte-icons/fa/FaStop.svelte';
-	import InfiniteScroll from "svelte-infinite-scroll";
-	let globals:GlobalSettings = {
-		scale: 2,
-		denoise: DenoiseLevel.None,
-		waifu2xModel: "drawing",
-		upscaler: Upscaler.Waifu2x
-	}
+	import InfiniteScroll from "svelte-infinite-scroll"; 
 	let floatingResult: ConversionDiff | undefined;
 	let isProcessing = false;
 	$: isProcessing = $conversionsStore.files.some(el => el.status.status === Status.Converting)
@@ -59,9 +53,17 @@
 		}
 	})
 </script>
+<script context="module" lang="ts">
+    import { writable } from "svelte/store";
+    export const globals = writable<GlobalSettings>({
+		scale: 2,
+		denoise: DenoiseLevel.None,
+		waifu2xModel: "drawing",
+		upscaler: Upscaler.Waifu2x
+	})
+</script>
 
 <div class="page">
-
 	<ResultPreviewer 
 		diff={floatingResult}
 		on:close={() => {
@@ -88,8 +90,17 @@
 
 	<div class="globals">
 		<GlobalsSelector  
-			bind:globals
+			bind:globals={$globals}
 		/>
+		<Button
+			style="width:100%; margin-top: 0.4rem"
+			cssVar="tertiary"
+			on:click={() => {
+				window.api.openDir($settingsStore.outputDirectory.value)
+			}}
+		>
+			Open results folder
+		</Button>
 		<Button 
 			style="width:100%; align-items: center; position: relative; margin-top: 0.4rem"
 			cssVar={isProcessing ? "red" : "accent"}
@@ -99,7 +110,7 @@
 				}else{
 					window.api.executeFiles(
 						$conversionsStore.files.map(el => el.serialize()), 
-						globals, 
+						$globals, 
 						settingsStore.serialize()
 					)
 				}
@@ -135,7 +146,7 @@
 				>
 					<ElementRow 
 						element={el} 
-						{globals}
+						globals={$globals}
 						on:delete={() => conversionsStore.remove(el)}
 						on:showResult={(data) => {
 							floatingResult = data.detail;

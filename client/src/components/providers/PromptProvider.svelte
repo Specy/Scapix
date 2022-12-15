@@ -37,7 +37,7 @@
 				<Button on:click={() => Prompt.answer((false))} cssVar='secondary'>
 					Cancel
 				</Button>
-				<Button on:click={() => Prompt.answer((true))} cssVar='accent2'>
+				<Button on:click={() => Prompt.answer((true))} cssVar='green'>
 					Yes
 				</Button>
 			{/if}
@@ -55,9 +55,10 @@
 		max-height: 10rem;
 		width: 20rem;
 		color: var(--primary-text);
-		backdrop-filter: blur(3px);
+		backdrop-filter: blur(4px);
 		border-radius: 0.5rem;
 		background-color: rgba(var(--RGB-secondary), 0.8);
+		border: solid 0.15rem var(--tertiary);
 		box-shadow: 0 3px 10px rgb(0 0 0 / 20%);
 		z-index: 20;
         padding: 0.5rem;

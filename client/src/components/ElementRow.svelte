@@ -251,6 +251,7 @@
 		justify-content: space-between;
 		outline-offset: -0.2rem;
         padding: 0.4rem;
+		gap: 0.4rem;
         z-index: 10;
     }
 	.stats{

@@ -8,7 +8,14 @@ import Waifu2x from "waifu2x";
 import fs from "fs/promises"
 import serve from "electron-serve";
 import { Waifu2xOptions } from "waifu2x";
+import { request } from "undici";
+import semver from "semver";
 const ffmpeg = os.platform() === 'win32' ? 'ffmpeg.exe' : 'ffmpeg';
+try{
+    if (require('electron-squirrel-startup')) app.quit();
+}catch(e){
+    console.error(e)
+}
 try {
     require('electron-reloader')(module)
 } catch (e) {
@@ -19,6 +26,7 @@ try {
 const isDev = !app.isPackaged
 const base = path.join(__dirname, "../");
 const paths = {
+    root: path.join(base, "../"),
     svelteDist: path.join(base, "../client/build"),
     electronDist: path.join(base, "/dist"),
     electronClient: path.join(base, "/dist/client"),
@@ -135,6 +143,15 @@ function setUpIpc(win: BrowserWindow) {
             win.maximize();
         }
     })
+    ipc.handle("check-update", async () => {
+        const version = app.getVersion()
+        const remote = await request("https://raw.githubusercontent.com/Specy/Scapix/main/package.json").then(r => r.body.json()) as {version: string}
+        const remoteVersion = remote?.version
+        if(semver.gt(remoteVersion, version)){
+            return "https://github.com/Specy/Scapix/releases/latest"
+        }
+        return null;
+    })
     ipc.handle("get-waifu-models", async () => {
         const models = await fs.readdir(paths.models)
         models.unshift("drawing")
@@ -146,6 +163,13 @@ function setUpIpc(win: BrowserWindow) {
         })
         return result.filePaths[0];
     })
+    ipc.handle("open-dir", (e, dir: string) => {
+        const isRelative = !path.isAbsolute(dir);
+        if (isRelative) {
+            dir = path.join(paths.root, dir);
+        }
+        shell.openPath(dir);   
+    })
     ipc.on("goto-external", (e, url) => {
         shell.openExternal(url);
     })
@@ -154,6 +178,7 @@ function setUpIpc(win: BrowserWindow) {
         const file = pendingFiles.get(id);
         pendingFiles.delete(id);
         if (file) {
+            console.log("Halted", file);
             win.webContents.send("file-status-change", file, { status: Status.Idle })
         }
     })
@@ -161,6 +186,7 @@ function setUpIpc(win: BrowserWindow) {
         for (const file of pendingFiles.values()) {
             win.webContents.send("file-status-change", file, { status: Status.Idle })
         }
+        console.log("Halted all executions");
         pendingFiles.clear();
     })
     ipc.handle("execute-files", async (e, files: SerializedConversionFile[], globals: GlobalSettings, settings: SerializedSettings) => {
@@ -188,7 +214,10 @@ function setUpIpc(win: BrowserWindow) {
                                 opts,
                                 (progress) => {
                                     console.log(`${progress}%`)
-                                    if (!pendingFiles.get(file.id)) return false; //stop if file was cancelled
+                                    if (!pendingFiles.get(file.id)) {
+                                        console.log("cancelled", file)
+                                        return true;
+                                    }
                                     win.webContents.send("file-status-change", file, { status: Status.Converting, progress })
                                 }
                             ); break;
@@ -200,7 +229,10 @@ function setUpIpc(win: BrowserWindow) {
                                 { ...opts, ffmpegPath: paths.ffmpeg },
                                 (currentFrame, totalFrames) => {
                                     console.log(`frame: ${currentFrame}/${totalFrames}`)
-                                    if (!pendingFiles.get(file.id)) return false; //stop if file was cancelled
+                                    if (!pendingFiles.get(file.id)) {
+                                        console.log("cancelled", file)
+                                        return true;
+                                    }
                                     win.webContents.send("file-status-change", file, { status: Status.Converting, currentFrame, totalFrames })
                                 }
                             ); break;
@@ -212,7 +244,11 @@ function setUpIpc(win: BrowserWindow) {
                                 opts,
                                 (currentFrame, totalFrames) => {
                                     console.log(`frame: ${currentFrame}/${totalFrames}`)
-                                    if (!pendingFiles.get(file.id)) return false; //stop if file was cancelled
+                                     //stop if file was cancelled
+                                    if (!pendingFiles.get(file.id)) {
+                                        console.log("cancelled", file)
+                                        return true;
+                                    }
                                     win.webContents.send("file-status-change", file, { status: Status.Converting, currentFrame, totalFrames })
                                 }
                             ); break;
@@ -224,7 +260,10 @@ function setUpIpc(win: BrowserWindow) {
                                 opts,
                                 (currentFrame, totalFrames) => {
                                     console.log(`frame: ${currentFrame}/${totalFrames}`)
-                                    if (!pendingFiles.get(file.id)) return false; //stop if file was cancelled
+                                    if (!pendingFiles.get(file.id)) {
+                                        console.log("cancelled", file)
+                                        return true;
+                                    }
                                     win.webContents.send("file-status-change", file, { status: Status.Converting, currentFrame, totalFrames })
                                 }
                             ); break;

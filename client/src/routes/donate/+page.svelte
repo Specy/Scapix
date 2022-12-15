@@ -12,12 +12,12 @@
     <div class="content">
         <div>
 			If you like this app, please consider donating to help support the development.
-			<div 
+			<a 
 				on:click={() => window.api.gotoExternal("https://specy.app")}
 				class="external-link"
 			>
 				Visit my website for more apps 
-			</div>
+			</a>
 		</div>
         <div class="links">
             <button class="link" alt="Kofi" on:click={() => window.api.gotoExternal("https://ko-fi.com/specy ")}>

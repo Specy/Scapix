@@ -18,7 +18,17 @@
 	import type { ConversionFile } from '$stores/conversionStore';
 	import { conversionsStore } from '$stores/conversionStore'
 	import { titleBarStore } from '$stores/titleBarStore';
+	import { Prompt } from '$stores/promptStore';
 	let maximized = false;
+
+	async function checkUpdate(){
+		const needsUpdate = await window.api.checkUpdate()
+		if(needsUpdate){
+			const update = await Prompt.confirm("There is an update available, do you want to go to the update page?")
+			if(!update) return;
+			window.api.gotoExternal(needsUpdate)
+		}
+	}
 	onMount(() => {
 		const idMaximization = window.controls.addOnMaximizationChange((isMaximized) => {
 			maximized = isMaximized;
@@ -26,6 +36,7 @@
 		const idStatusChange = window.api.onProcessStatusChange((file, status) => {
 			conversionsStore.updateStatus(file.id, status)
 		})
+		checkUpdate()
 		return () => {
 			window.controls.removeOnMaximizationChange(idMaximization)
 			window.api.removeOnProcessStatusChange(idStatusChange)

@@ -3,6 +3,7 @@
 	import { fly } from 'svelte/transition'
 	import Icon from '$cmp/layout/Icon.svelte'
 	import FaTimes from 'svelte-icons/fa/FaTimes.svelte'
+	import Button from '$cmp/buttons/Button.svelte';
 </script>
 
 <slot />
@@ -13,9 +14,11 @@
 				<div>
 					{$toast.title}
 				</div>
-				<Icon on:click={toast.closeToast}>
-					<FaTimes />
-				</Icon>
+				<Button on:click={toast.closeToast} style="padding: 0;">
+					<Icon>
+						<FaTimes />
+					</Icon>
+				</Button>
 			</div>
 			<div class="toast-text">
 				{$toast.message}
