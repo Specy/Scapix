@@ -10,7 +10,7 @@ import serve from "electron-serve";
 import { Waifu2xOptions } from "waifu2x";
 import { request } from "undici";
 import semver from "semver";
-const ffmpeg = os.platform() === 'win32' ? 'ffmpeg.exe' : 'ffmpeg';
+import ffmpeg from "@ffmpeg-installer/ffmpeg"
 try{
     if (require('electron-squirrel-startup')) app.quit();
 }catch(e){
@@ -22,17 +22,16 @@ try {
     console.error(e)
 }
 
-
 const isDev = !app.isPackaged
-const base = path.join(__dirname, "../");
+const root = app.getAppPath()
 const paths = {
-    root: path.join(base, "../"),
-    svelteDist: path.join(base, "../client/build"),
-    electronDist: path.join(base, "/dist"),
-    electronClient: path.join(base, "/dist/client"),
-    electronStatic: path.join(base, "/static"),
-    models: path.join(base, "../models/"),
-    ffmpeg: path.join(base, "../ffmpeg/", ffmpeg),
+    root,
+    svelteDist: path.join(root, "/client/build"),
+    electronDist: path.join(root, "/electron/dist"),
+    electronClient: path.join(root, "/electron/dist/client"),
+    electronStatic: path.join(root, "/electron/static"),
+    models: path.join(root, "/models"),
+    ffmpeg: ffmpeg.path
 }
 
 
@@ -67,13 +66,11 @@ function createWindow() {
     const win = new BrowserWindow({
         width: 1280,
         height: 720,
-        minWidth: 1280,
+        minWidth: 720,
         minHeight: 720,
         title: "Scapix",
         backgroundColor: "#171A21",
         center: true,
-        //transparent: true,
-        //frame: false,
         icon: path.join(paths.electronStatic, "/favicon.ico"),
         show: false,
         titleBarStyle: 'hidden',

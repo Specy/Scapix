@@ -10,7 +10,7 @@
 
 
     export let diff:ConversionDiff|undefined;
-    let showingOriginal = false;
+    export let showingOriginal = false;
     const dispatcher = createEventDispatcher<{
         close: undefined;
     }>();   

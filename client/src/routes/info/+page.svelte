@@ -1,10 +1,33 @@
 <script>
 	import Title from "$cmp/layout/Title.svelte";
+	import FaArrowRight from "svelte-icons/fa/FaArrowRight.svelte";
+	import FaArrowLeft from "svelte-icons/fa/FaArrowLeft.svelte";
+	import FaArrowUp from "svelte-icons/fa/FaArrowUp.svelte";
+	import FaArrowDown from "svelte-icons/fa/FaArrowDown.svelte";
 
 </script>
 
 
 <div class="page">
+    <Title noMargin>
+        Shortcuts
+    </Title>
+    <div class="section" style="gap: 1rem; display:flex; flex-direction:column">
+        <div class="shortcut">
+            <div class="icon">
+                <FaArrowLeft />
+                <FaArrowRight />
+            </div>
+            Toggle between upscaled and not upscaled in the image/video preview
+        </div>
+        <div class="shortcut">
+            <div class="icon">
+                <FaArrowUp />
+                <FaArrowDown />
+            </div>
+            Go to the previous/next upscaled image/video
+        </div>
+    </div>
     <Title noMargin>
         Upscalers
     </Title>
@@ -64,7 +87,7 @@
     <Title noMargin>
         Local and global settings
     </Title>
-    <div>
+    <div class="section">
         You can set default settings that will be used by all images/videos that you select, you can then override those
         individually for each image/video.
     </div>
@@ -78,6 +101,16 @@
         line-height: 1.5rem;
         overflow-y: auto;
         gap: 1rem;
+    }
+    .icon{
+        height: 1.5rem;
+        display: flex;
+        gap: 0.8rem;
+    }
+    .shortcut{
+        display:flex;
+        align-items: center;
+        gap: 0.8rem;
     }
     .section{
         padding-left: 1rem;

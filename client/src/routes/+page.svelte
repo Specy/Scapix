@@ -17,6 +17,7 @@
 	import InfiniteScroll from "svelte-infinite-scroll"; 
 	let floatingResult: ConversionDiff | undefined;
 	let isProcessing = false;
+	let showingOriginal = false;
 	$: isProcessing = $conversionsStore.files.some(el => el.status.status === Status.Converting)
 	const perPage = 5;
 	let page = 1;
@@ -45,6 +46,9 @@
 					}
 				}
 			}
+			if((code === "ArrowLeft" || code === "ArrowRight") && floatingResult){
+				showingOriginal = !showingOriginal;
+			}
 		}
 
 		window.addEventListener("keydown", onKeyDown)
@@ -65,6 +69,7 @@
 
 <div class="page">
 	<ResultPreviewer 
+		bind:showingOriginal
 		diff={floatingResult}
 		on:close={() => {
 			floatingResult = undefined;
@@ -213,7 +218,6 @@
 		display: flex;
 		flex-direction: column;
 		flex: 1;
-		min-width: 15rem;
 		background-color: var(--secondary);
 		border-radius: 0.6rem;
 		padding: 0.8rem;

@@ -4,6 +4,7 @@
 	import FaTrashAlt from 'svelte-icons/fa/FaTrashAlt.svelte'
 	import FaPlay from 'svelte-icons/fa/FaPlay.svelte'
 	import FaStop from 'svelte-icons/fa/FaStop.svelte'
+	import FaEdit from 'svelte-icons/fa/FaEdit.svelte'
 	import prettyBytes from 'pretty-bytes';
 	import { capitalize, clamp, toResourceUrl } from '$lib/utils';
 	import Icon from './layout/Icon.svelte';
@@ -22,7 +23,7 @@
 	let scaleFactor = globals.scale;
 	let videoRef: HTMLVideoElement;
 	let settingsOpen = false;
-
+	let nameRef: HTMLDivElement;
 	const dispatcher = createEventDispatcher<{
 		delete: undefined; 
 		showResult: ConversionDiff
@@ -76,8 +77,18 @@
 		class:done={status === Status.Done}
 	>
 		<div class="stats">
-			<div class="file-name" contenteditable="true" on:input={onNameChange}>
-				{element.finalName}
+			<div class="file-name" >
+				<div 
+					contenteditable="true" 
+					spellcheck="false"
+					on:input={onNameChange} 
+					class="content-editable-name"
+				>
+					{element.finalName}
+				</div>
+				<button class="rename">
+					<FaEdit />
+				</button>
 			</div>
 			<div style="margin-top: auto; display:flex">
 				<div style="margin-right: 0.8rem">
@@ -114,7 +125,7 @@
 				/>
 			{/if}
 		</div>
-		<div class="actions">
+		<div style="display: flex; align-items: center; justify-content: center;">
 			<ResultDisplayer 
 				status={element.status}
 				on:showError={(e) => toast.error(e.detail, 10000)}
@@ -125,6 +136,9 @@
 					})
 				}}
 			/>
+
+		</div>
+		<div class="actions">
 			<button 
 				style="--normal: rgba(var(--RGB-tertiary), 0.4); --hover: rgba(var(--RGB-tertiary), 0.8);"
 				class="action-button"
@@ -267,12 +281,34 @@
 		gap: 0.4rem;
 	}
 	.file-name{
-		font-size: 1.2rem;
-		font-weight: 500;
-		overflow: hidden;
-		max-width: 20rem;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+		display: flex;
+		gap: 0.2rem;
+		.rename{
+			display: none;
+			align-items: center;
+			padding: 0.2rem;
+			background-color: transparent;
+			color: var(--secondary-text);
+			justify-content: center;
+			width: 1.5rem;
+			pointer-events: none;
+		}
+		.content-editable-name{
+			font-weight: 500;
+			font-size: 1.2rem;
+			max-width: 18.5rem;
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+
+		}
+		.content-editable-name:focus{
+			overflow: unset;
+			white-space: normal;
+		}
+		.content-editable-name:hover + .rename{
+			display: flex;
+		}
 	}
 	.sizes-stats{
 		display: flex;
@@ -284,5 +320,13 @@
 	}
 	.done{
 		outline: solid 0.2rem var(--green);
+	}
+	@media screen and (max-width: 850px){
+		.actions{
+			flex-direction: column;
+		}
+		.stats{
+			max-width: 16rem;
+		}
 	}
 </style>

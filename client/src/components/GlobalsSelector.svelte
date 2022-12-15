@@ -11,27 +11,27 @@
 <div class="content">
     <div class="column">
         <div class="title">
-            Scale
-        </div>
-        <NumberInput bind:value={globals.scale} step={0.1}/>
-    </div>
-    <div class="column">
-        <div class="title">
-            Denoise
-        </div>
-        <DenoiseLevelPicker 
-            bind:value={globals.denoise}
-        />
-    </div>
-    <div class="column">
-        <div class="title">
             Upscaler
         </div>
         <UpscalerPicker 
             bind:value={globals.upscaler}
         />
     </div>
+    <div class="column">
+        <div class="title">
+            Scale
+        </div>
+        <NumberInput bind:value={globals.scale} step={0.1}/>
+    </div>
     {#if globals.upscaler === "waifu2x"}
+        <div class="column">
+            <div class="title">
+                Denoise
+            </div>
+            <DenoiseLevelPicker 
+                bind:value={globals.denoise}
+            />
+        </div>
         <div class="column">
             <div class="title">
                 Waifu2x model

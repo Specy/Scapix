@@ -13,7 +13,8 @@
     "start:electron": "electron .",
     "start:client": "cd client && npm run preview",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "electron-forge make",
+    "ci": "npm run installDeps && npm run build"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,7 @@
   },
   "homepage": "https://github.com/Specy/Scapix#readme",
   "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@types/semver": "^7.3.13",
     "electron-log": "^4.4.8",
     "electron-serve": "^1.1.0",
