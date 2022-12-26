@@ -1,4 +1,5 @@
-# Scapix - A denoiser app
+[![Downloads](https://img.shields.io/github/downloads/Specy-wot/Scapix/total.svg?style=for-the-badge)](https://github.com/Specy-wot/Scapix/releases)
+# Welcome to Scapix
 Scapix is an app developed with sveltekit, electron, waifu2x and esrgan.
 It's made to denoise/upscale images, gifs, videos locally on your computer.
 
@@ -22,7 +23,6 @@ For more info, check the info page in the app.
 # Donate
 
 If you like this app and the work i do, please consider donating to support the development, through [ko-fi](https://ko-fi.com/specy) or [paypal](https://paypal.me/specyDev)
-
 
 
 # Building

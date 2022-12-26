@@ -3,7 +3,13 @@ const path = require('path');
 module.exports = {
   packagerConfig: {
     name: "Scapix",
-    icon: path.join(__dirname, "/electron/static/icons/icon")
+    icon: path.join(__dirname, "/electron/static/icons/icon"),
+    ignore: [
+      /^\/out\//g,
+      /^\/results\//g,
+      /^\/logs\//g,
+      /^\/docs\//g 
+    ]
   },
   rebuildConfig: {},
   makers: [
@@ -11,8 +17,8 @@ module.exports = {
       name: '@electron-forge/maker-squirrel',
       config: {
         //TODO change this when deploying
-        iconUrl: 'https://raw.githubusercontent.com/Specy/Scapix/rewrite/electron/static/icons/icon.ico',
-        setupIcon: path.join(__dirname, "/icon.ico") ,
+        iconUrl: 'https://raw.githubusercontent.com/Specy/Scapix/main/electron/static/icons/icon.ico',
+        setupIcon: path.join(__dirname, "/electron/static/icons/icon.ico") ,
         loadingGif: path.join(__dirname, '/electron/static/loading.gif'),
         skipUpdateIcon: true,
         setupExe: 'ScapixSetup.exe',
@@ -22,7 +28,7 @@ module.exports = {
       name: '@electron-forge/maker-deb',
       config: {
         options: {
-          icon:  path.join(__dirname, '/electron/static/icons/512x512.png'),
+          icon:  path.join(__dirname, '/electron/static/icons/icon@2x.png'),
         },
       },
     },

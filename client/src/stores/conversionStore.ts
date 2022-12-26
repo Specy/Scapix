@@ -111,8 +111,9 @@ async function getFileType(file: File): Promise<FileType> {
     if (type === "video") return FileType.Video
     return FileType.Unknown
 }
-function isAnimatedWebp(buffer: ArrayBuffer) {
-    const header = String.fromCharCode(...new Uint8Array(buffer, 0, 60))
+//https://developers.google.com/speed/webp/docs/riff_container#extended_file_format
+function isAnimatedWebp(buffer: ArrayBuffer) { //not the most accurate way to check, but it works
+    const header = String.fromCharCode(...new Uint8Array(buffer, 0, 256))
     return header.includes("ANIM")
 }
 
