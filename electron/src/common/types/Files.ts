@@ -3,6 +3,7 @@ export enum FileType {
     Video = "video",
     Gif = "gif",
     Webp = "webp",
+    WebpAnimated = "webp-animated",
     Unknown = "unknown"
 }
 
@@ -68,13 +69,13 @@ export type LocalSettings = BaseSettings & ({
     cumulative?: boolean
     transparency?: boolean
 } | {
-    type: FileType.Image
+    type: FileType.Image | FileType.Webp
 } | {
     type: FileType.Video
     quality?: number
     speed?: number
 } | {
-    type: FileType.Webp
+    type: FileType.WebpAnimated
     quality?: number
     speed?: number
 } | {

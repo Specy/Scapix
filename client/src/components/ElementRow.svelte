@@ -49,11 +49,11 @@
 	on:focus={() => videoRef?.play()}
 >
 	<div class="el-background">
-		{#if [FileType.Image, FileType.Gif, FileType.Webp].includes(type)}
+		{#if [FileType.Image, FileType.Gif, FileType.Webp, FileType.WebpAnimated].includes(type)}
 			<div 
 				class="el-background-image" 
 				style={`background-image: url(${path}`} 
-				class:gif={type === FileType.Gif}
+				class:noAnimate={type === FileType.Gif || type === FileType.WebpAnimated}
 			/>
 		{:else if type === FileType.Video}
 			<video 
@@ -64,7 +64,7 @@
 				class="el-background-video"
 			/>
 		{:else}
-			{element.file.type}
+			{element.file.type} - {type}
 		{/if}
 		<div 
 			class="el-mask" 
@@ -218,7 +218,7 @@
 		width: 100%;
 		background-size: cover;
 		background-position: center;
-		&.gif{
+		&.noAnimate{
 			filter: none;
 		}
 	}

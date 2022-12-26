@@ -202,6 +202,7 @@ function setUpIpc(win: BrowserWindow) {
                     const initialPath = path.join(out, file.finalName)
                     const resultPath = finalizePath(initialPath, opts, settings)
                     switch (file.settings.type) {
+                        case FileType.Webp:
                         case FileType.Image:
                             await Waifu2x.upscaleImage(
                                 file.path,
@@ -247,7 +248,7 @@ function setUpIpc(win: BrowserWindow) {
                                     win.webContents.send("file-status-change", file, { status: Status.Converting, currentFrame, totalFrames })
                                 }
                             ); break;
-                        case FileType.Webp:
+                        case FileType.WebpAnimated:
                             //TODO add progress
                             await Waifu2x.upscaleAnimatedWebp(
                                 file.path,

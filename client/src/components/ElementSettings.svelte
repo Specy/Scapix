@@ -82,7 +82,7 @@
             </ElementSettingsRow>
         {/if}
     </div>
-    {#if settings.type === FileType.Webp || settings.type === FileType.Gif || settings.type === FileType.Video}
+    {#if settings.type === FileType.WebpAnimated || settings.type === FileType.Gif || settings.type === FileType.Video}
         <h3>
             {capitalize(settings.type)} Settings
         </h3>

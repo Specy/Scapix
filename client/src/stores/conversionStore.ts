@@ -70,7 +70,7 @@ export class ConversionFile {
 
     }
     static async from(file: File): Promise<ConversionFile> {
-        const type = getFileType(file)
+        const type = await getFileType(file)
         const stats = await ConversionFile.getFileStats(file, type)
         const baseSettings: LocalSettings = {
             type
@@ -98,68 +98,34 @@ export class ConversionFile {
 
 }
 
-function getFileType(file: File): FileType {
+async function getFileType(file: File): Promise<FileType> {
     const [type, subtype] = file.type.split("/")
     if (type === "image") {
         if (subtype === "gif") return FileType.Gif
-        if (subtype === "webp") return FileType.Webp
+        if (subtype === "webp") {
+            const buffer = await file.arrayBuffer()
+            return isAnimatedWebp(buffer) ? FileType.WebpAnimated : FileType.Webp
+        }
         return FileType.Image
     }
     if (type === "video") return FileType.Video
     return FileType.Unknown
 }
-
-function getDefaultSettings(type: FileType): LocalSettings {
-    const base: BaseSettings = {}
-    switch (type) {
-        case FileType.Gif:
-            return {
-                ...base,
-                type: FileType.Gif,
-                quality: 100,
-                speed: 1,
-                cumulative: false,
-                transparency: true,
-            }
-        case FileType.Image:
-            return {
-                ...base,
-                type: FileType.Image,
-            }
-        case FileType.Video:
-            return {
-                ...base,
-                type: FileType.Video,
-                quality: 100,
-                speed: 1,
-            }
-        case FileType.Webp:
-            return {
-                ...base,
-                type: FileType.Webp,
-                quality: 100,
-                speed: 1,
-            }
-        default:
-            return {
-                ...base,
-                type: FileType.Unknown,
-            }
-    }
+function isAnimatedWebp(buffer: ArrayBuffer) {
+    const header = String.fromCharCode(...new Uint8Array(buffer, 0, 60))
+    return header.includes("ANIM")
 }
+
 
 interface ConversionStore {
     files: ConversionFile[]
 }
 
-
-
-
 function createConversionsStore() {
     const { subscribe, set, update } = writable<ConversionStore>({
         files: [],
     });
-    let current = get({subscribe})
+    let current = get({ subscribe })
     subscribe(value => current = value)
     async function add(...files: File[]) {
         const parsed = await Promise.all(files.map(file => ConversionFile.from(file)))
@@ -188,9 +154,9 @@ function createConversionsStore() {
         const id = typeof idOrFile === "string" ? idOrFile : idOrFile.id
         const currentIndex = current.files.findIndex(file => file.id === id)
         if (currentIndex === -1) return null
-        if(direction === "next") {
+        if (direction === "next") {
             return current.files.slice(currentIndex + 1).find(file => file.status.status === Status.Done)
-        }else{
+        } else {
             return current.files.slice(0, currentIndex).reverse().find(file => file.status.status === Status.Done)
         }
     }
