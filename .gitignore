@@ -10,6 +10,8 @@ yarn.lock
 # testing
 /coverage
 /electron/results/*
+/results
+/results/*
 # production
 /build
 /out
