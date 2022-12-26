@@ -1,7 +1,6 @@
 import { app, BrowserWindow, ipcMain as ipc, protocol, dialog, shell } from "electron";
 import url from "url";
 import path from "path";
-import os from "os";
 import { AsyncSemaphore } from "./utils";
 import { DenoiseLevel, FileType, GlobalSettings, LocalSettings, SerializedConversionFile, SerializedSettings, Status, Upscaler } from "./common/types/Files";
 import Waifu2x from "waifu2x";
@@ -11,7 +10,12 @@ import { Waifu2xOptions } from "waifu2x";
 import { request } from "undici";
 import semver from "semver";
 import ffmpeg from "@ffmpeg-installer/ffmpeg"
+import log from "electron-log";
+const isDev = !app.isPackaged
+const root = app.getAppPath()
 try{
+    log.transports.file.resolvePath = () => path.join(root, 'logs/main.log');
+    Object.assign(console, log.functions)
     if (require('electron-squirrel-startup')) app.quit();
 }catch(e){
     console.error(e)
@@ -22,8 +26,6 @@ try {
     console.error(e)
 }
 
-const isDev = !app.isPackaged
-const root = app.getAppPath()
 const paths = {
     root,
     svelteDist: path.join(root, "/client/build"),
@@ -49,7 +51,7 @@ function loadSplash() {
         center: true,
         backgroundColor: "#171A21",
         title: "Loading Scapix...",
-        icon: path.join(paths.electronStatic, "/favicon.ico"),
+        icon: path.join(paths.electronStatic, "/icons/512x512.png") ,
         frame: false,
     })
     splash.loadURL(
@@ -63,6 +65,7 @@ function loadSplash() {
 
 let hasLoaded = false;
 function createWindow() {
+    console.log(path.join(paths.electronStatic, "/icons/512x512.png"))
     const win = new BrowserWindow({
         width: 1280,
         height: 720,
@@ -71,7 +74,7 @@ function createWindow() {
         title: "Scapix",
         backgroundColor: "#171A21",
         center: true,
-        icon: path.join(paths.electronStatic, "/favicon.ico"),
+        icon: path.join(paths.electronStatic, "/icons/512x512.png"),
         show: false,
         titleBarStyle: 'hidden',
         webPreferences: {
@@ -93,6 +96,7 @@ function createWindow() {
     win.webContents.on('did-finish-load', () => {
         splash?.close();
         win.show();
+        win.setIcon(path.join(paths.electronStatic, "/icons/512x512.png"))
         hasLoaded = true;
         setTimeout(() => {
             win.setAlwaysOnTop(false)
@@ -223,7 +227,7 @@ function setUpIpc(win: BrowserWindow) {
                             await Waifu2x.upscaleVideo(
                                 file.path,
                                 resultPath,
-                                { ...opts, ffmpegPath: paths.ffmpeg },
+                                { ...opts, ffmpegPath: paths.ffmpeg, noResume: true },
                                 (currentFrame, totalFrames) => {
                                     console.log(`frame: ${currentFrame}/${totalFrames}`)
                                     if (!pendingFiles.get(file.id)) {
@@ -238,7 +242,7 @@ function setUpIpc(win: BrowserWindow) {
                             await Waifu2x.upscaleGIF(
                                 file.path,
                                 resultPath,
-                                opts,
+                                {...opts, noResume: true },
                                 (currentFrame, totalFrames) => {
                                     console.log(`frame: ${currentFrame}/${totalFrames}`)
                                      //stop if file was cancelled
@@ -254,7 +258,7 @@ function setUpIpc(win: BrowserWindow) {
                             await Waifu2x.upscaleAnimatedWebp(
                                 file.path,
                                 resultPath,
-                                opts,
+                                {...opts, noResume: true },
                                 (currentFrame, totalFrames) => {
                                     console.log(`frame: ${currentFrame}/${totalFrames}`)
                                     if (!pendingFiles.get(file.id)) {

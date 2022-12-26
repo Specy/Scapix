@@ -13,6 +13,7 @@ yarn.lock
 # production
 /build
 /out
+/logs
 electron/dist
 /dist
 /scapix-win32-x64
