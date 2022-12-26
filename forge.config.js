@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = {
   packagerConfig: {
     name: "Scapix",
-    icon: path.resolve(__dirname, "/electron/static/icons")  //TODO change this when not using windows
+    icon: path.join(__dirname, "/electron/static/icons/icon")
   },
   rebuildConfig: {},
   makers: [
@@ -12,8 +12,8 @@ module.exports = {
       config: {
         //TODO change this when deploying
         iconUrl: 'https://raw.githubusercontent.com/Specy/Scapix/rewrite/electron/static/icons/icon.ico',
-        setupIcon: path.resolve(__dirname, "icon.ico") ,
-        loadingGif: path.resolve(__dirname, '/electron/static/loading.gif'),
+        setupIcon: path.join(__dirname, "/icon.ico") ,
+        loadingGif: path.join(__dirname, '/electron/static/loading.gif'),
         skipUpdateIcon: true,
         setupExe: 'ScapixSetup.exe',
       },
@@ -22,7 +22,7 @@ module.exports = {
       name: '@electron-forge/maker-deb',
       config: {
         options: {
-          icon:  path.resolve(__dirname,  '/electron/static/icons/512x512.png'),
+          icon:  path.join(__dirname, '/electron/static/icons/512x512.png'),
         },
       },
     },

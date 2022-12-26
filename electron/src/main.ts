@@ -13,18 +13,16 @@ import ffmpeg from "@ffmpeg-installer/ffmpeg"
 import log from "electron-log";
 const isDev = !app.isPackaged
 const root = app.getAppPath()
-try{
+try {
     log.transports.file.resolvePath = () => path.join(root, 'logs/main.log');
     Object.assign(console, log.functions)
     if (require('electron-squirrel-startup')) app.quit();
-}catch(e){
-    console.error(e)
-}
-try {
-    require('electron-reloader')(module)
 } catch (e) {
     console.error(e)
 }
+try {
+    //require('electron-reloader')(module)
+} catch (e) { }
 
 const paths = {
     root,
@@ -37,7 +35,7 @@ const paths = {
 }
 
 
-const loadURL = serve({directory: paths.svelteDist});
+const loadURL = serve({ directory: paths.svelteDist });
 
 const pool = new AsyncSemaphore(2);
 let splash: BrowserWindow | undefined
@@ -51,7 +49,7 @@ function loadSplash() {
         center: true,
         backgroundColor: "#171A21",
         title: "Loading Scapix...",
-        icon: path.join(paths.electronStatic, "/icons/512x512.png") ,
+        icon: path.join(paths.electronStatic, "/icons/icon@2x.png"),
         frame: false,
     })
     splash.loadURL(
@@ -65,7 +63,7 @@ function loadSplash() {
 
 let hasLoaded = false;
 function createWindow() {
-    console.log(path.join(paths.electronStatic, "/icons/512x512.png"))
+    console.log(path.join(paths.electronStatic, "/icons/icon@2x.png"))
     const win = new BrowserWindow({
         width: 1280,
         height: 720,
@@ -74,17 +72,17 @@ function createWindow() {
         title: "Scapix",
         backgroundColor: "#171A21",
         center: true,
-        icon: path.join(paths.electronStatic, "/icons/512x512.png"),
+        icon: path.join(paths.electronStatic, "/icons/icon@2x.png"),
         show: false,
         titleBarStyle: 'hidden',
         webPreferences: {
             preload: path.join(paths.electronClient, "/ipc/api.js")
         },
     });
-    function load(){
-        if(isDev) {
+    function load() {
+        if (isDev) {
             win.loadURL("http://localhost:3123")
-        }else{
+        } else {
             loadURL(win);
         }
     }
@@ -96,7 +94,6 @@ function createWindow() {
     win.webContents.on('did-finish-load', () => {
         splash?.close();
         win.show();
-        win.setIcon(path.join(paths.electronStatic, "/icons/512x512.png"))
         hasLoaded = true;
         setTimeout(() => {
             win.setAlwaysOnTop(false)
@@ -146,9 +143,9 @@ function setUpIpc(win: BrowserWindow) {
     })
     ipc.handle("check-update", async () => {
         const version = app.getVersion()
-        const remote = await request("https://raw.githubusercontent.com/Specy/Scapix/main/package.json").then(r => r.body.json()) as {version: string}
+        const remote = await request("https://raw.githubusercontent.com/Specy/Scapix/main/package.json").then(r => r.body.json()) as { version: string }
         const remoteVersion = remote?.version
-        if(semver.gt(remoteVersion, version)){
+        if (semver.gt(remoteVersion, version)) {
             return "https://github.com/Specy/Scapix/releases/latest"
         }
         return null;
@@ -165,11 +162,8 @@ function setUpIpc(win: BrowserWindow) {
         return result.filePaths[0];
     })
     ipc.handle("open-dir", (e, dir: string) => {
-        const isRelative = !path.isAbsolute(dir);
-        if (isRelative) {
-            dir = path.join(paths.root, dir);
-        }
-        shell.openPath(dir);   
+        console.log(path.resolve(dir))
+        shell.openPath(path.resolve(dir));
     })
     ipc.on("goto-external", (e, url) => {
         shell.openExternal(url);
@@ -242,10 +236,10 @@ function setUpIpc(win: BrowserWindow) {
                             await Waifu2x.upscaleGIF(
                                 file.path,
                                 resultPath,
-                                {...opts, noResume: true },
+                                { ...opts, noResume: true },
                                 (currentFrame, totalFrames) => {
                                     console.log(`frame: ${currentFrame}/${totalFrames}`)
-                                     //stop if file was cancelled
+                                    //stop if file was cancelled
                                     if (!pendingFiles.get(file.id)) {
                                         console.log("cancelled", file)
                                         return true;
@@ -258,7 +252,7 @@ function setUpIpc(win: BrowserWindow) {
                             await Waifu2x.upscaleAnimatedWebp(
                                 file.path,
                                 resultPath,
-                                {...opts, noResume: true },
+                                { ...opts, noResume: true },
                                 (currentFrame, totalFrames) => {
                                     console.log(`frame: ${currentFrame}/${totalFrames}`)
                                     if (!pendingFiles.get(file.id)) {
@@ -296,6 +290,7 @@ type PathOptions = {
 function finalizePath(base: string, upscaleSettings: Waifu2xOptions, opts: PathOptions) {
     //finalizes the path to the output file
     //Ex: "C:\Users\user\Downloads\image.png" -> "C:\Users\user\Downloads\{folder}\image.{options}.png"
+    base = path.resolve(base)
     const { saveInDatedFolder, appendUpscaleSettingsToFileName } = opts;
     const date = new Date();
     const dateStr = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
@@ -305,6 +300,7 @@ function finalizePath(base: string, upscaleSettings: Waifu2xOptions, opts: PathO
     const dir = path.dirname(base);
     const outDir = saveInDatedFolder ? path.join(dir, dateStr) : dir;
     const outName = appendUpscaleSettingsToFileName ? `${name}.${suffix}` : name;
+    console.log(path.join(outDir, outName + ext))
     return path.join(outDir, outName + ext);
 }
 

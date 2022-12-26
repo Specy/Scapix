@@ -1,6 +1,6 @@
 {
   "name": "scapix",
-  "version": "2.0.1",
+  "version": "2.0.0",
   "description": "An app to upscale images and videos using waifu2x and real-esrgan",
   "main": "electron/dist/main.js",
   "build": {
@@ -10,6 +10,7 @@
   "scripts": {
     "installDeps": "npm i && cd client && npm i",
     "build": "tsc && cd client && npm run build && cd .. && electron-forge make",
+    "build:debug": "set DEBUG=electron-forge:* && npm run build",
     "electron": "concurrently \"npm run start:electron\" \"npm run start:client\"",
     "start": "electron-forge start",
     "dev:electron": "tsc && electron .",

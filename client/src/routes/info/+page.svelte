@@ -4,7 +4,7 @@
 	import FaArrowLeft from "svelte-icons/fa/FaArrowLeft.svelte";
 	import FaArrowUp from "svelte-icons/fa/FaArrowUp.svelte";
 	import FaArrowDown from "svelte-icons/fa/FaArrowDown.svelte";
-
+    import Button from "$cmp/buttons/Button.svelte";
 </script>
 
 
@@ -91,6 +91,9 @@
         You can set default settings that will be used by all images/videos that you select, you can then override those
         individually for each image/video.
     </div>
+    <Button on:click={() => window.api.openDir("./logs")} style="margin-top: 1rem">
+        View app logs
+    </Button>
 </div>
 
 <style>

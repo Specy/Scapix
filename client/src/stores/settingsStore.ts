@@ -33,14 +33,14 @@ function createValue<T>(name: string, value: T) {
 const baseValues: SettingValues = {
     maxConcurrentOperations: createValue("Max concurrent operations", 4),
     maxConcurrentFrames: createValue("Max concurrent frames", 4),
-    outputDirectory: createValue("Output directory", "./"),
+    outputDirectory: createValue("Output directory", "./results/"),
     waifuModels: createValue("Waifu2x models", ["drawing"]),
     saveInDatedFolder: createValue("Save in folders with dates", true),
     appendUpscaleSettingsToFileName: createValue("Append upscale settings to the file name", true)
 }
 
 const debouncer = createDebouncer(1000)
-const CURRENT_VERSION = "1.0.3"
+const CURRENT_VERSION = "1.0.4"
 function createSettingsStore() {
     const { subscribe, update, set } = writable<SettingValues>(baseValues)
     let current = baseValues
