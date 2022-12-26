@@ -1,70 +1,42 @@
 [![Downloads](https://img.shields.io/github/downloads/Specy-wot/Scapix/total.svg?style=for-the-badge)](https://github.com/Specy-wot/Scapix/releases)
-## ⚠️ Warning, the app is being rewritten, you can look at the progress in the `rewrite` branch
+
 # Welcome to Scapix
-Scapix is an image,gif and video upscaling and denoiser app developed with electron, react, waifu2x and ffmpeg.<br>
-**Warning**, the code for this is pretty bad, i'd have to rewrite it from scratch to make it a bit better
+Scapix is an app developed with sveltekit, electron, waifu2x and esrgan.
+It's made to denoise/upscale images, gifs, videos locally on your computer.
 
-<img src="https://cdn.discordapp.com/attachments/466748625138089994/805395009120632863/1.PNG" width=400>
-<img src="https://cdn.discordapp.com/attachments/466748625138089994/805395008144277544/2.PNG" width=400>
+![Preview image](./docs/screenshot.png)
 
-# Installation (Windows)
+# Installation
 
-Head over to the releases on github to download the latest version of Scapix.
-After downloading the ScapixSetup.exe, run it and it will install the program, once done you should be able to find the executable on the desktop.
-The Setup takes 5/10 seconds to open, wait untill it opens, if you run it again it will error out. 
+## Windows 
+Simply download the latest release from the [releases page](https://github.com/Specy/Scapix/releases/latest), download the installer and run it.
 
-# Other OS
+## Other OS
+Currently the app is not pre bundled for other OSses but it should be possible to compile it manually, this will take +-10 minutes, look for the [building section](#building) for more info.
 
-I do not own other OS to test things out so i'm not 100% sure how things are going to work but to make it work for other OS you should be able to just clone the repo, replace the ffmpeg bin to the one for your OS and then go to node_modules/waifu2x/waifu2x and download or build the correct files for your OS from [here](https://github.com/DeadSix27/waifu2x-converter-cpp) and replace the windows one.
-Then follow the building steps to create the executable
 # Usage
+Once ran the app, you can import images to upload, set the different options and click on the `run all` button to upscale all the images at once, or individually on each image by pressing the play button.
 
-Drag and drop your files or select them in the upper part of the page, then chose your denoise and upscale options, once you are ready, press the "Run all" button.
+You can apply global settings that will be used as the default if specific ones aren't set, but you can also override those in each image individually.
 
-Now the images will be in a pending state waiting for the previous one to be processed, there are 4 status colors: <br> <br>
-White/Black (dark mode) = idle <br>
-Yellow = pending <br>
-Green = finished <br>
-Red = error <br>
+For more info, check the info page in the app.
 
-You can read the output information clicking the "i" icon on the right of the image after it finished processing
+# Donate
 
-You can also view the difference between original and upscaled images by clicking the "eye" icon
+If you like this app and the work i do, please consider donating to support the development, through [ko-fi](https://ko-fi.com/specy) or [paypal](https://paypal.me/specyDev)
 
-# Building from source
 
-If you want to build the app you have to follow those building steps:
-Firstly clone the repo and install all modules with `npm i`, then continue with the steps below.
-After finishing your changes you have to close the dev server and run:
+# Building
+Once cloned the repo, install the dependencies with `npm installDeps` command, this will install the dependencies for both electron and the client
 
-1)
-```
-npm run deploy-step1
-```
-This ^ will create the react bundle in ./bundle (time ~= 2min)
+Afterwards, you can run `npm run build` or `npm run build:debug` to build the app, the debug version will show some additional logs in the console.
 
-2)
-```
-npm run deploy-step2
-```
-This ^ will create the electron package (time ~= 10min)
-
-3)
-You should now go to
-```
-./scapix-win32-x64/resources/app/node_modules/
-```
-And delete the .cache file, reason being that the packaged file exceeds window's max directory length of 260 characters
-
-4)
-```
-npm run deploy-step3
-```
-This ^ will run the build.js file which will create the setup of the application that can then be used to install the program. (time ~= 20min)
+# Local development
+To run the app locally in dev mode, install the dependencies with `npm installDeps` and in one terminal run `npm run dev:electron` and in another `npm run dev:client` to start the electron app and the client respectively. Whenever you make changes to the electron, you must restart the server (to improve). The client will hot reload on changes.
 
 
 # Credits 
 
-[Waifu2x module](https://github.com/Tenpi/waifu2x) <br>
-[Waifu2x Models](https://github.com/nagadomi/waifu2x) <br>
-[ffmpeg](https://github.com/FFmpeg/FFmpeg) <br> 
+[Waifu2x module](https://github.com/Tenpi/waifu2x)
+[Waifu2x Models](https://github.com/nagadomi/waifu2x)
+[ffmpeg](https://github.com/FFmpeg/FFmpeg) 

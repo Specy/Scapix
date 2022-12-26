@@ -1,77 +1,58 @@
 {
   "name": "scapix",
-  "description": "An image, gif, video upscaling and denoiser app",
-  "author": "Specy",
+  "version": "2.0.0",
+  "description": "An app to upscale images and videos using waifu2x and real-esrgan",
+  "main": "electron/dist/main.js",
   "build": {
     "appId": "com.specy.scapix",
-    "icon": "./icon.png",
-    "files": [
-      "build/**/*",
-      "!/packaged",
-      "!/scapix-win32-x64"
-    ]
-  },
-  "homepage": "./",
-  "version": "1.5.0",
-  "private": true,
-  "main": "./electron/electron.js",
-  "dependencies": {
-    "@material-ui/core": "^4.11.2",
-    "@material-ui/icons": "^4.11.2",
-    "@testing-library/jest-dom": "^5.11.9",
-    "@testing-library/react": "^11.2.3",
-    "@testing-library/user-event": "^12.6.2",
-    "electron-is-dev": "^1.2.0",
-    "electron-squirrel-startup": "^1.0.0",
-    "is-video": "^1.0.1",
-    "open-file-explorer": "^1.0.2",
-    "pretty-bytes": "^5.5.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
-    "react-dropzone": "^11.2.4",
-    "sanitize-filename": "^1.6.3",
-    "semaphore": "^1.1.0",
-    "waifu2x": "^0.6.8",
-    "web-vitals": "^0.2.4"
-  },
-  "devDependencies": {
-    "concurrently": "^5.3.0",
-    "electron": "^11.2.1",
-    "electron-packager": "^15.2.0",
-    "electron-winstaller": "^4.0.1",
-    "react-scripts": "4.0.1",
-    "wait-on": "^5.2.1"
+    "icon": "./electron/static/icons/512x512.png"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "react-build": "react-scripts build",
-    "react-test": "react-scripts test",
-    "react-eject": "react-scripts eject",
-    "setup": "node build.js",
-    "custom-build": "electron-packager . --icon=icon.ico --overwrite=true",
-    "electron-react-release": "npm run react-bulid && electron-builder --publish=always",
-    "electron-react-build": "npm react-bulid && electron-builder",
-    "electron-react": "concurrently \"npm start\" \"wait-on http://localhost:3000 && electron .\"",
-    "deploy-step1": "react-scripts build",
-    "deploy-step2": "electron-packager . --icon=icon.ico --overwrite=true",
-    "deploy-step3": "node build.js"
+    "installDeps": "npm i && cd client && npm i",
+    "build": "tsc && cd client && npm run build && cd .. && electron-forge make",
+    "build:debug": "set DEBUG=electron-forge:* && npm run build",
+    "electron": "concurrently \"npm run start:electron\" \"npm run start:client\"",
+    "start": "electron-forge start",
+    "dev:electron": "tsc && electron .",
+    "dev:client": "cd client && npm run dev",
+    "start:electron": "electron .",
+    "start:client": "cd client && npm run preview",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "ci": "npm run installDeps && npm run build"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Specy/Scapix.git"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "author": "specy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Specy/Scapix/issues"
+  },
+  "config": { "forge": "./forge.config.js" },
+  "homepage": "https://github.com/Specy/Scapix#readme",
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@types/semver": "^7.3.13",
+    "electron-log": "^4.4.8",
+    "electron-serve": "^1.1.0",
+    "electron-squirrel-startup": "^1.0.0",
+    "semver": "^7.3.8",
+    "undici": "^5.14.0",
+    "waifu2x": "^1.1.6"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.4",
+    "@electron-forge/maker-deb": "^6.0.4",
+    "@electron-forge/maker-dmg": "^6.0.4",
+    "@electron-forge/maker-rpm": "^6.0.4",
+    "@electron-forge/maker-squirrel": "^6.0.4",
+    "@electron-forge/maker-wix": "^6.0.4",
+    "@electron-forge/maker-zip": "^6.0.4",
+    "concurrently": "^7.6.0",
+    "electron": "^22.0.0",
+    "electron-reloader": "^1.2.3",
+    "typescript": "^4.9.3"
   }
 }
