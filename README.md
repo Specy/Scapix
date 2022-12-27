@@ -27,12 +27,12 @@ If you like this app and the work i do, please consider donating to support the 
 
 
 # Building
-Once cloned the repo, install the dependencies with `npm installDeps` command, this will install the dependencies for both electron and the client
+Once cloned the repo, install the dependencies with `npm run installDeps` command, this will install the dependencies for both electron and the client
 
 Afterwards, you can run `npm run build` or `npm run build:debug` to build the app, the debug version will show some additional logs in the console.
 
 # Local development
-To run the app locally in dev mode, install the dependencies with `npm installDeps` and in one terminal run `npm run dev:electron` and in another `npm run dev:client` to start the electron app and the client respectively. Whenever you make changes to the electron, you must restart the server (to improve). The client will hot reload on changes.
+To run the app locally in dev mode, install the dependencies with `npm run installDeps` and in one terminal run `npm run dev:electron` and in another `npm run dev:client` to start the electron app and the client respectively. Whenever you make changes to the electron, you must restart the server (to improve). The client will hot reload on changes.
 
 
 # Credits 
