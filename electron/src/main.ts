@@ -163,7 +163,12 @@ function setUpIpc(win: BrowserWindow) {
     })
     ipc.handle("open-dir", (e, dir: string) => {
         console.log(path.resolve(dir))
-        shell.openPath(path.resolve(dir));
+        const isRelative = !path.isAbsolute(dir);
+        if (isRelative) {
+            shell.openPath(path.resolve(path.join(paths.root, dir)));
+        }else{
+            shell.openPath(path.resolve(dir));
+        }
     })
     ipc.on("goto-external", (e, url) => {
         shell.openExternal(url);
@@ -183,6 +188,7 @@ function setUpIpc(win: BrowserWindow) {
         }
         console.log("Halted all executions");
         pendingFiles.clear();
+        Waifu2x.processes.forEach(p => p.kill("SIGINT"))
     })
     ipc.handle("execute-files", async (e, files: SerializedConversionFile[], globals: GlobalSettings, settings: SerializedSettings) => {
         pool.setCapacity(settings.maxConcurrentOperations);
@@ -313,6 +319,7 @@ function flashFrame(win: BrowserWindow, duration: number = 1000) {
     lastTimeout = setTimeout(() => win.flashFrame(false), duration);
 }
 app.on('window-all-closed', () => {
+    Waifu2x.processes.forEach(p => p.kill("SIGINT"));
     if (process.platform !== 'darwin') app.quit()
 })
 app.whenReady().then(() => {
