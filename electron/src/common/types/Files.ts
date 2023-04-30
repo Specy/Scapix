@@ -7,7 +7,7 @@ export enum FileType {
     Unknown = "unknown"
 }
 
-export enum Upscaler {
+export enum UpscalerName {
     Waifu2x = "waifu2x",
     RealESRGAN = "real-esrgan",
 }
@@ -45,13 +45,13 @@ export type GlobalSettings = {
     scale: number
     denoise: DenoiseLevel
     waifu2xModel: "drawing" | "photo" | string
-    upscaler: Upscaler
+    upscaler: UpscalerName
 }
 
 export type BaseSettings = {
     scale?: number
     denoise?: DenoiseLevel
-    upscaler?: Upscaler
+    upscaler?: UpscalerName
     waifu2xModel?: "drawing" | "photo" | string
 }
 

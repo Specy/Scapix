@@ -30,7 +30,9 @@
   "bugs": {
     "url": "https://github.com/Specy/Scapix/issues"
   },
-  "config": { "forge": "./forge.config.js" },
+  "config": {
+    "forge": "./forge.config.js"
+  },
   "homepage": "https://github.com/Specy/Scapix#readme",
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
@@ -39,6 +41,7 @@
     "electron-serve": "^1.1.0",
     "electron-squirrel-startup": "^1.0.0",
     "semver": "^7.5.0",
+    "ts-results": "^3.3.0",
     "undici": "^5.22.0",
     "waifu2x": "^1.1.7"
   },

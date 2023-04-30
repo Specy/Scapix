@@ -1,8 +1,8 @@
 import { app, BrowserWindow, ipcMain as ipc, protocol, dialog, shell } from "electron";
 import url from "url";
 import path from "path";
-import { AsyncSemaphore } from "./utils";
-import { DenoiseLevel, FileType, GlobalSettings, LocalSettings, SerializedConversionFile, SerializedSettings, Status, Upscaler } from "./common/types/Files";
+import { AsyncSemaphore, PATHS, ROOT_PATH } from "./utils";
+import { DenoiseLevel, FileType, GlobalSettings, LocalSettings, SerializedConversionFile, SerializedSettings, Status, UpscalerName } from "./common/types/Files";
 import Waifu2x from "waifu2x";
 import fs from "fs/promises"
 import serve from "electron-serve";
@@ -12,9 +12,10 @@ import semver from "semver";
 import ffmpeg from "@ffmpeg-installer/ffmpeg"
 import log from "electron-log";
 const isDev = !app.isPackaged
-const root = app.getAppPath()
+
+
 try {
-    log.transports.file.resolvePath = () => path.join(root, 'logs/main.log');
+    log.transports.file.resolvePath = () => path.join(ROOT_PATH, 'logs/main.log');
     Object.assign(console, log.functions)
     if (require('electron-squirrel-startup')) app.quit();
 } catch (e) {
@@ -24,18 +25,9 @@ try {
     //require('electron-reloader')(module)
 } catch (e) { }
 
-const paths = {
-    root,
-    svelteDist: path.join(root, "/client/build"),
-    electronDist: path.join(root, "/electron/dist"),
-    electronClient: path.join(root, "/electron/dist/client"),
-    electronStatic: path.join(root, "/electron/static"),
-    models: path.join(root, "/models"),
-    ffmpeg: ffmpeg.path
-}
 
 
-const loadURL = serve({ directory: paths.svelteDist });
+const loadURL = serve({ directory: PATHS.svelteDist });
 
 const pool = new AsyncSemaphore(2);
 let splash: BrowserWindow | undefined
@@ -49,11 +41,11 @@ function loadSplash() {
         center: true,
         backgroundColor: "#171A21",
         title: "Loading Scapix...",
-        icon: path.join(paths.electronStatic, "/icons/icon@2x.png"),
+        icon: path.join(PATHS.electronStatic, "/icons/icon@2x.png"),
         frame: false,
     })
     splash.loadURL(
-        `file://${path.join(paths.electronStatic, "/splash.html")}`
+        `file://${path.join(PATHS.electronStatic, "/splash.html")}`
     )
     splash.on('closed', () => (splash = undefined));
     splash.webContents.on('did-finish-load', () => {
@@ -63,7 +55,7 @@ function loadSplash() {
 
 let hasLoaded = false;
 function createWindow() {
-    console.log(path.join(paths.electronStatic, "/icons/icon@2x.png"))
+    console.log(path.join(PATHS.electronStatic, "/icons/icon@2x.png"))
     const win = new BrowserWindow({
         width: 1280,
         height: 720,
@@ -72,11 +64,11 @@ function createWindow() {
         title: "Scapix",
         backgroundColor: "#171A21",
         center: true,
-        icon: path.join(paths.electronStatic, "/icons/icon@2x.png"),
+        icon: path.join(PATHS.electronStatic, "/icons/icon@2x.png"),
         show: false,
         titleBarStyle: 'hidden',
         webPreferences: {
-            preload: path.join(paths.electronClient, "/ipc/api.js")
+            preload: path.join(PATHS.electronClient, "/ipc/api.js")
         },
     });
     function load() {
@@ -115,7 +107,7 @@ function finalizeSettings(settings: LocalSettings, globals: GlobalSettings, appS
     final.scale = final.scale ?? globals.scale;
     final.noise = denoiseLevelToNumber(settings.denoise ?? globals.denoise);
     final.parallelFrames = appSettings.maxConcurrentFrames;
-    const isWaifu2x = (settings.upscaler ?? globals.upscaler) === Upscaler.Waifu2x;
+    const isWaifu2x = (settings.upscaler ?? globals.upscaler) === UpscalerName.Waifu2x;
     const model = settings.waifu2xModel ?? globals.waifu2xModel;
     if (isWaifu2x && model !== "drawing") {
         final.modelDir = modelToPath(model);
@@ -124,7 +116,7 @@ function finalizeSettings(settings: LocalSettings, globals: GlobalSettings, appS
     return final;
 }
 function modelToPath(model: string) {
-    return path.join(paths.models, model);
+    return path.join(PATHS.models, model);
 }
 
 function setUpIpc(win: BrowserWindow) {
@@ -151,7 +143,7 @@ function setUpIpc(win: BrowserWindow) {
         return null;
     })
     ipc.handle("get-waifu-models", async () => {
-        const models = await fs.readdir(paths.models)
+        const models = await fs.readdir(PATHS.models)
         models.unshift("drawing")
         return models;
     })
@@ -165,7 +157,7 @@ function setUpIpc(win: BrowserWindow) {
         console.log(path.resolve(dir))
         const isRelative = !path.isAbsolute(dir);
         if (isRelative) {
-            shell.openPath(path.resolve(path.join(paths.root, dir)));
+            shell.openPath(path.resolve(path.join(PATHS.root, dir)));
         }else{
             shell.openPath(path.resolve(dir));
         }
@@ -228,7 +220,7 @@ function setUpIpc(win: BrowserWindow) {
                             await Waifu2x.upscaleVideo(
                                 file.path,
                                 resultPath,
-                                { ...opts, ffmpegPath: paths.ffmpeg, noResume: true },
+                                { ...opts, ffmpegPath: PATHS.ffmpeg, noResume: true },
                                 (currentFrame, totalFrames) => {
                                     console.log(`frame: ${currentFrame}/${totalFrames}`)
                                     if (!pendingFiles.get(file.id)) {

@@ -1,4 +1,7 @@
+import { app } from "electron";
+import ffmpeg from "@ffmpeg-installer/ffmpeg"
 
+import path from "path";
 
 
 export type AsyncCallback<T> = () => Promise<T>;
@@ -49,3 +52,14 @@ export class AsyncSemaphore {
     }
 }
 
+export const ROOT_PATH = app.getAppPath()
+
+export const PATHS = {
+    root: ROOT_PATH,
+    svelteDist: path.join(ROOT_PATH, "/client/build"),
+    electronDist: path.join(ROOT_PATH, "/electron/dist"),
+    electronClient: path.join(ROOT_PATH, "/electron/dist/client"),
+    electronStatic: path.join(ROOT_PATH, "/electron/static"),
+    models: path.join(ROOT_PATH, "/models"),
+    ffmpeg: ffmpeg.path
+}
