@@ -12,7 +12,7 @@ const config = {
 	resolve: {
 		alias: {
 			$cmp: resolve('./src/components/'),
-			$sec: resolve('./src/'),
+			$src: resolve('./src/'),
 			$stores: resolve('./src/stores/'),
 			$utils: resolve('./src/utils/'),
 			$common: resolve('../electron/src/common/')

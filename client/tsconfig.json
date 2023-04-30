@@ -19,11 +19,10 @@
 			"$stores/*" : ["src/stores/*"],
 			"$utils": ["src/utils/"],
 			"$utils/*": ["src/utils/*"],
-			"$common/*": ["../electron/src/common/*"],
 			"$common": ["../electron/src/common/"],
-		},
+			"$common/*": ["../electron/src/common/*"],
+		}
 	},
-
 	"exclude": ["node_modules"],
 	// Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
 	//
