@@ -154,7 +154,7 @@ function createConversionsStore() {
     function getNextValid(idOrFile: string | ConversionFile, direction: "next" | "previous" = "next") {
         const id = typeof idOrFile === "string" ? idOrFile : idOrFile.id
         const currentIndex = current.files.findIndex(file => file.id === id)
-        if (currentIndex === -1) return null
+        if (currentIndex === -1) return undefined
         if (direction === "next") {
             return current.files.slice(currentIndex + 1).find(file => file.status.status === Status.Done)
         } else {

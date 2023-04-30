@@ -12,7 +12,7 @@
 	import Button from '$cmp/buttons/Button.svelte';
 	import GlobalsSelector from '$cmp/GlobalsSelector.svelte';
 	import DropZone from '$cmp/misc/DropZone.svelte';
-	import { conversionsStore, type ConversionDiff } from '$stores/conversionStore';
+	import { conversionsStore, type ConversionDiff, ConversionFile } from '$stores/conversionStore';
 	import { Status, Upscaler, type GlobalSettings } from '$common/types/Files';
 	import { DenoiseLevel } from '$common/types/Files';
 	import { fade, slide } from 'svelte/transition';
@@ -36,6 +36,16 @@
 			page = Math.max(Math.ceil($conversionsStore.files.length / perPage), 1);
 		}
 	}
+	function setFloatingResult(result: ConversionFile | undefined) {
+		if(!result) return
+		if (result.status.status === Status.Done) {
+			floatingResult = {
+				original: result,
+				converted: result.status.resultPath
+			};
+		}
+	}
+
 	onMount(() => {
 		async function syncModels() {
 			const models = await window.api.getWaifuModels();
@@ -52,12 +62,7 @@
 					floatingResult?.original,
 					code === 'ArrowDown' ? 'next' : 'previous'
 				);
-				if (next && next.status.status === Status.Done) {
-					floatingResult = {
-						original: next,
-						converted: next.status.resultPath
-					};
-				}
+				setFloatingResult(next);
 			}
 			if ((code === 'ArrowLeft' || code === 'ArrowRight') && floatingResult) {
 				showingOriginal = !showingOriginal;
@@ -75,6 +80,10 @@
 	<ResultPreviewer
 		bind:showingOriginal
 		diff={floatingResult}
+		next={floatingResult && conversionsStore.getNextValid(floatingResult.original, 'next')}
+		previous={floatingResult && conversionsStore.getNextValid(floatingResult.original, 'previous')}
+		on:onNext={(e) => setFloatingResult(e.detail)}
+		on:onPrevious={(e) => setFloatingResult(e.detail)}
 		on:close={() => {
 			floatingResult = undefined;
 		}}

@@ -13,7 +13,7 @@
         dispatcher("change", (e.target as HTMLSelectElement).value)
     }
 
-    $: if(!formats.includes(value)){
+    $: if(force && !formats.includes(value)){
         value = formats[0]
         dispatcher("change", value)
     }
