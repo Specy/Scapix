@@ -2,7 +2,7 @@ import { app } from "electron";
 import ffmpeg from "@ffmpeg-installer/ffmpeg"
 
 import path from "path";
-import { DenoiseLevel } from "common/types/Files";
+import { DenoiseLevel } from "./common/types/Files";
 
 
 export type AsyncCallback<T> = () => Promise<T>;

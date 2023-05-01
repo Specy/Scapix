@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer as ipc } from "electron";
 import { GlobalSettings, SerializedConversionFile, SerializedSettings, StatusUpdate } from "../../common/types/Files";
+import { AppSchema } from "upscalers/upscalers.interface";
 type EventListener = {
     id: string,
     callback: (...args: any[]) => void
@@ -84,6 +85,9 @@ const api = {
     },
     haltOne: async (idOrfile: SerializedConversionFile | string) => {
         return ipc.invoke("halt-one-execution", idOrfile)
+    },
+    getUpscalersSchema: async () => {
+        return ipc.invoke("get-upscalers-schema") as Promise<AppSchema>
     },
     checkUpdate: async () => {
         return ipc.invoke("check-update") as Promise<string | null>

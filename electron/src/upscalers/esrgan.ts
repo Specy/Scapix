@@ -1,4 +1,4 @@
-import { FunctionMiddleware, PATHS, denoiseLevelToNumber, modelToPath } from "utils";
+import { FunctionMiddleware, PATHS, denoiseLevelToNumber, modelToPath } from "../utils";
 import { ConcreteOptionsOf, Progress, Upscaler, UpscalerResult, UpscalerSchema, defaultUpscalerOptions } from "./upscalers.interface";
 import { Ok, Err } from "ts-results/result";
 import Waifu2x, { Waifu2xGIFOptions, Waifu2xOptions, Waifu2xVideoOptions } from "waifu2x";

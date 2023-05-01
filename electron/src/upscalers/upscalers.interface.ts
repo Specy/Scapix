@@ -1,13 +1,15 @@
-import { DenoiseLevel } from "common/types/Files"
+import { DenoiseLevel } from "../common/types/Files"
 import { waifu2xSchema } from "./waifu2x"
 import { Ok, Result, Err } from "ts-results"
 import { esrganSchema } from "./esrgan"
 
 
-const schema = {
+export const schema = {
     waifu2x: waifu2xSchema,
     esrgan: esrganSchema
 } satisfies RecordSchema
+export type AppSchema = typeof schema
+export type AppUpscaleSettings = UpscaleSettings<AppSchema>
 
 export const defaultUpscalerOptions = {
     scale: {
@@ -135,8 +137,6 @@ export type UpscalerSchema = {
     opts: UpscalerSchemaOptions
 }
 
-
-
 type RecordSchema = Record<string, UpscalerSchema>
 
 type UpscalerName = keyof typeof schema
@@ -159,6 +159,17 @@ export type ConcreteOptionsOf<T extends UpscalerSchema, F extends FileTypes> = {
     [K in keyof UpscalerOptionsOf<T['opts'],F>]: ConcreteSchema<UpscalerOptionsOf<T['opts'],F>[K]>
 }
 
+export type UpscaleSettings<T extends Record<string, UpscalerSchema>> = {
+    [K in keyof T]: {
+        upscaler: K
+        opts: {
+            [K2 in FileTypes]: {
+                type: K2
+                values: ConcreteOptionsOf<T[K], K2>
+            }
+        }[FileTypes]
+    }
+}[keyof T]
 
 export interface Upscaler<T extends UpscalerSchema> {
     schema: T

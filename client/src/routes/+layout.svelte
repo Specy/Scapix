@@ -19,6 +19,7 @@
 	import { conversionsStore } from '$stores/conversionStore'
 	import { titleBarStore } from '$stores/titleBarStore';
 	import { Prompt } from '$stores/promptStore';
+	import { schemaStore } from '$stores/schemaStore';
 	let maximized = false;
 
 	async function checkUpdate(){
@@ -29,6 +30,12 @@
 			window.api.gotoExternal(needsUpdate)
 		}
 	}
+	async function init(){
+		checkUpdate()
+		const schema = await window.api.getUpscalersSchema()
+		schemaStore.setSchema(schema)
+	}
+
 	onMount(() => {
 		const idMaximization = window.controls.addOnMaximizationChange((isMaximized) => {
 			maximized = isMaximized;
@@ -36,7 +43,7 @@
 		const idStatusChange = window.api.onProcessStatusChange((file, status) => {
 			conversionsStore.updateStatus(file.id, status)
 		})
-		checkUpdate()
+		init()
 		return () => {
 			window.controls.removeOnMaximizationChange(idMaximization)
 			window.api.removeOnProcessStatusChange(idStatusChange)

@@ -1,3 +1,9 @@
+import type { AppSchema, ConcreteOptionsOf, FileTypes, UpscalerSchema, AppUpscaleSettings } from "upscalers/upscalers.interface"
+
+export {
+    AppSchema,
+    AppUpscaleSettings
+}
 export enum FileType {
     Image = "image",
     Video = "video",
@@ -82,13 +88,16 @@ export type LocalSettings = BaseSettings & ({
     type: FileType.Unknown
 })
 
+
+
+
 export type Stats = {
     size: number
     width: number
     height: number
 }
 
-export interface SerializedConversionFile{
+export interface SerializedConversionFile {
     id: string
     finalName: string
     status: StatusUpdate

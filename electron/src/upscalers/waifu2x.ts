@@ -1,7 +1,7 @@
 import { Upscaler, UpscalerSchema, defaultUpscalerOptions, ConcreteOptionsOf, UpscalerResult, Progress } from "./upscalers.interface";
 import Waifu2x, { Waifu2xGIFOptions, Waifu2xOptions, Waifu2xVideoOptions } from "waifu2x";
 import { Ok, Err } from "ts-results/result";
-import { FunctionMiddleware, PATHS, denoiseLevelToNumber, modelToPath } from "utils";
+import { FunctionMiddleware, PATHS, denoiseLevelToNumber, modelToPath } from "../utils";
 export const waifu2xSchema = {
     opts: {
         all: {

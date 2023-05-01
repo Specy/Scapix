@@ -9,8 +9,8 @@ import serve from "electron-serve";
 import { Waifu2xOptions } from "waifu2x";
 import { request } from "undici";
 import semver from "semver";
-import ffmpeg from "@ffmpeg-installer/ffmpeg"
 import log from "electron-log";
+import { AppSchema, schema } from "./upscalers/upscalers.interface";
 const isDev = !app.isPackaged
 
 
@@ -165,6 +165,9 @@ function setUpIpc(win: BrowserWindow) {
     ipc.on("goto-external", (e, url) => {
         shell.openExternal(url);
     })
+    ipc.handle("get-upscalers-schema", () => {
+        return schema as AppSchema;
+    })
     ipc.handle("halt-one-execution", (e, idOrFile: string | SerializedConversionFile) => {
         const id = typeof idOrFile === "string" ? idOrFile : idOrFile.id;
         const file = pendingFiles.get(id);
@@ -278,7 +281,6 @@ function setUpIpc(win: BrowserWindow) {
     })
     win.on("maximize", () => win.webContents.send("maximize-change", true))
     win.on("unmaximize", () => win.webContents.send("maximize-change", false))
-
 }
 
 
