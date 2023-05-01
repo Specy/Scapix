@@ -1,6 +1,6 @@
 import { toResourceUrl } from "$lib/utils";
 import { get, writable } from "svelte/store";
-import { FileType, Upscaler, Status, type StatusUpdate } from "$common/types/Files"
+import { FileType, Status, UpscalerName, type StatusUpdate } from "$common/types/Files"
 import type { LocalSettings, SerializedConversionFile, Stats, BaseSettings } from "$common/types/Files"
 
 export type ConversionDiff = {
@@ -24,7 +24,7 @@ export class ConversionFile {
 
     settings: LocalSettings = {
         type: FileType.Unknown,
-        upscaler: Upscaler.Waifu2x,
+        upscaler: UpscalerName.Waifu2x,
     }
 
     constructor(file: File, settings?: LocalSettings, stats?: Stats) {

@@ -4,7 +4,7 @@
 		scale: 2,
 		denoise: DenoiseLevel.None,
 		waifu2xModel: 'drawing',
-		upscaler: Upscaler.Waifu2x
+		upscaler: UpscalerName.Waifu2x
 	});
 </script>
 
@@ -13,7 +13,7 @@
 	import GlobalsSelector from '$cmp/GlobalsSelector.svelte';
 	import DropZone from '$cmp/misc/DropZone.svelte';
 	import { conversionsStore, type ConversionDiff, ConversionFile } from '$stores/conversionStore';
-	import { Status, Upscaler, type GlobalSettings } from '$common/types/Files';
+	import { Status, UpscalerName, type GlobalSettings } from '$common/types/Files';
 	import { DenoiseLevel } from '$common/types/Files';
 	import { fade, slide } from 'svelte/transition';
 	import { flip } from 'svelte/animate';

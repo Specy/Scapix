@@ -2,6 +2,7 @@ import { app } from "electron";
 import ffmpeg from "@ffmpeg-installer/ffmpeg"
 
 import path from "path";
+import { DenoiseLevel } from "common/types/Files";
 
 
 export type AsyncCallback<T> = () => Promise<T>;
@@ -62,4 +63,37 @@ export const PATHS = {
     electronStatic: path.join(ROOT_PATH, "/electron/static"),
     models: path.join(ROOT_PATH, "/models"),
     ffmpeg: ffmpeg.path
+}
+
+
+
+export function denoiseLevelToNumber(level: DenoiseLevel) {
+    switch (level) {
+        case DenoiseLevel.None: return 0;
+        case DenoiseLevel.Low: return 1;
+        case DenoiseLevel.Medium: return 2;
+        case DenoiseLevel.High: return 3;
+        default: return 0;
+    }
+}
+
+
+export function modelToPath(model: string) {
+    return path.join(PATHS.models, model);
+}
+
+export class FunctionMiddleware<T extends unknown[], R> {
+    private _destination: ((...args: T) => R)
+    constructor(defaultDestination: (...args: T) => R) {
+        this._destination = defaultDestination
+    }
+    origin() {
+        return this.handle
+    }
+    private handle = (...args: T) => {
+        return this._destination(...args)
+    }
+    destination(callback: (...args: T) => R) {
+        this._destination = callback
+    }
 }

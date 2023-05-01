@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { capitalize } from "$lib/utils";
-    import { FileType, Upscaler, type GlobalSettings, type LocalSettings } from "$common/types/Files";
+    import { FileType, UpscalerName, type GlobalSettings, type LocalSettings } from "$common/types/Files";
 	import { slide } from "svelte/transition";
 	import DenoiseLevelPicker from "./DenoiseLevelPicker.svelte";
     import ElementSettingsRow from "./ElementSettingsRow.svelte";
@@ -53,7 +53,7 @@
                 step={0.1}
             />
         </ElementSettingsRow>
-        {#if (settings.upscaler ?? globals.upscaler) === Upscaler.Waifu2x}
+        {#if (settings.upscaler ?? globals.upscaler) === UpscalerName.Waifu2x}
             <ElementSettingsRow 
                 title="Denoise level"
                 isDefault={ settings.denoise === undefined }

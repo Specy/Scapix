@@ -1,50 +1,13 @@
 import { DenoiseLevel } from "common/types/Files"
 import { waifu2xSchema } from "./waifu2x"
 import { Ok, Result, Err } from "ts-results"
+import { esrganSchema } from "./esrgan"
 
-export interface UpscalerResult {
-    onProgress: (progress: Progress) => void
-    cancel(): void
-    result(): Promise<Result<string, string>>
-}
-export type SchemaList<T> = {
-    type: "list"
-    default: T
-    items: T[]
-}
-export type SchemaNumber = {
-    type: "number"
-    default: number
-}
-export type SchemaBoolean = {
-    type: "boolean"
-    default: boolean
-}
-export type SchemaString = {
-    type: "string"
-    default: string
-}
-export type SchemaType = {
-    hidden?: boolean
-} & (SchemaList<any> | SchemaNumber | SchemaBoolean | SchemaString)
 
-type Progress = {
-    type: "interval"
-    current: number
-    total: number
-} | {
-    type: "progress"
-    progress: number
-} 
-export type UpscalerSchema = {
-    image: Record<string, SchemaType>
-    video: Record<string, SchemaType>
-    gif: Record<string, SchemaType>
-    webp: Record<string, SchemaType>
-    webpAnimated: Record<string, SchemaType>
-    all: Record<string, SchemaType>
-}
-
+const schema = {
+    waifu2x: waifu2xSchema,
+    esrgan: esrganSchema
+} satisfies RecordSchema
 
 export const defaultUpscalerOptions = {
     scale: {
@@ -57,46 +20,6 @@ export const defaultUpscalerOptions = {
         items: Object.values(DenoiseLevel)
     }
 } satisfies Record<string, SchemaType>
-
-
-type RecordSchema = Record<string, UpscalerSchema>
-
-const schema = {
-    waifu2x: waifu2xSchema
-} satisfies RecordSchema
-
-type UpscalerName = keyof typeof schema
-export type Schemas = typeof schema
-export type Upscalers = keyof Schemas
-export type FileTypes = Exclude<keyof Schemas[Upscalers], "all">
-export type UpscalerOptionsOf<T extends UpscalerSchema, F extends FileTypes> = T["all"] & T[F]
-
-export type ConcreteSchema<T extends SchemaType> = T extends SchemaList<infer U>
-    ? U
-    : T extends SchemaNumber
-    ? number
-    : T extends SchemaBoolean
-    ? boolean
-    : T extends SchemaString
-    ? string
-    : never
-
-export type ConcreteOptionsOf<T extends UpscalerSchema, F extends FileTypes> = {
-    [K in keyof UpscalerOptionsOf<T,F>]: ConcreteSchema<UpscalerOptionsOf<T,F>[K]>
-}
-
-
-export interface Upscaler<T extends UpscalerSchema> {
-    schema: T
-    name: UpscalerName
-    upscaleImage(from: string, to: string, options: ConcreteOptionsOf<T, "image">): Promise<UpscalerResult>
-    upscaleVideo(from: string, to: string, options: ConcreteOptionsOf<T, "video">): Promise<UpscalerResult>
-    upscaleGif(from: string, to: string, options: ConcreteOptionsOf<T, "gif">): Promise<UpscalerResult>
-    upscaleWebp(from: string, to: string, options: ConcreteOptionsOf<T, "webp">): Promise<UpscalerResult>
-    upscaleWebpAnimated(from: string, to: string, options: ConcreteOptionsOf<T, "webpAnimated">): Promise<UpscalerResult>
-}
-
-
 
 
 class UpscalerHandler {
@@ -160,3 +83,89 @@ class UpscalerHandler {
 
 
 export const upscalerHandler = new UpscalerHandler()
+
+
+
+
+
+export interface UpscalerResult {
+    onProgress: (callback: (progress: Progress) => void) => void
+    cancel(): void
+    result(): Promise<Result<string, string>>
+}
+export type SchemaList<T> = {
+    type: "list"
+    default: T
+    items: T[]
+}
+export type SchemaNumber = {
+    type: "number"
+    default: number
+}
+export type SchemaBoolean = {
+    type: "boolean"
+    default: boolean
+}
+export type SchemaString = {
+    type: "string"
+    default: string
+}
+export type SchemaType = {
+    hidden?: boolean
+} & (SchemaList<any> | SchemaNumber | SchemaBoolean | SchemaString)
+
+export type Progress = {
+    type: "interval"
+    current: number
+    total: number
+} | {
+    type: "progress"
+    progress: number
+} 
+type UpscalerSchemaOptions = {
+    image: Record<string, SchemaType>
+    video: Record<string, SchemaType>
+    gif: Record<string, SchemaType>
+    webp: Record<string, SchemaType>
+    webpAnimated: Record<string, SchemaType>
+    all: Record<string, SchemaType>
+}
+
+export type UpscalerSchema = {
+    opts: UpscalerSchemaOptions
+}
+
+
+
+type RecordSchema = Record<string, UpscalerSchema>
+
+type UpscalerName = keyof typeof schema
+export type Schemas = typeof schema
+export type Upscalers = keyof Schemas
+export type FileTypes = Exclude<keyof Schemas[Upscalers]['opts'], "all">
+export type UpscalerOptionsOf<T extends UpscalerSchemaOptions, F extends FileTypes> = T["all"] & T[F]
+
+export type ConcreteSchema<T extends SchemaType> = T extends SchemaList<infer U>
+    ? U
+    : T extends SchemaNumber
+    ? number
+    : T extends SchemaBoolean
+    ? boolean
+    : T extends SchemaString
+    ? string
+    : never
+
+export type ConcreteOptionsOf<T extends UpscalerSchema, F extends FileTypes> = {
+    [K in keyof UpscalerOptionsOf<T['opts'],F>]: ConcreteSchema<UpscalerOptionsOf<T['opts'],F>[K]>
+}
+
+
+export interface Upscaler<T extends UpscalerSchema> {
+    schema: T
+    name: UpscalerName
+    upscaleImage(from: string, to: string, options: ConcreteOptionsOf<T, "image">): Promise<UpscalerResult>
+    upscaleVideo(from: string, to: string, options: ConcreteOptionsOf<T, "video">): Promise<UpscalerResult>
+    upscaleGif(from: string, to: string, options: ConcreteOptionsOf<T, "gif">): Promise<UpscalerResult>
+    upscaleWebp(from: string, to: string, options: ConcreteOptionsOf<T, "webp">): Promise<UpscalerResult>
+    upscaleWebpAnimated(from: string, to: string, options: ConcreteOptionsOf<T, "webpAnimated">): Promise<UpscalerResult>
+}

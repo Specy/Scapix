@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { Upscaler } from "$common/types/Files";
+	import { UpscalerName } from "$common/types/Files";
 	import { capitalize } from "$lib/utils";
 	import { createEventDispatcher } from "svelte";
 	import Select from "./inputs/Select.svelte";
     export let style = ""
-    export let value:Upscaler
-    const values = Object.values(Upscaler)
-    const dispatcher = createEventDispatcher<{change: Upscaler}>()
+    export let value:UpscalerName
+    const values = Object.values(UpscalerName)
+    const dispatcher = createEventDispatcher<{change: UpscalerName}>()
 </script>
 
 
