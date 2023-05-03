@@ -3,6 +3,7 @@ import Waifu2x, { Waifu2xGIFOptions, Waifu2xOptions, Waifu2xVideoOptions } from 
 import { Ok, Err } from "ts-results/result";
 import { FunctionMiddleware, PATHS, denoiseLevelToNumber, modelToPath } from "../utils";
 import { defaultUpscalerOptions } from "./default";
+import fs from "fs/promises"
 export const waifu2xSchema = {
     opts: {
         all: {
@@ -89,7 +90,10 @@ export class Waifu2xUpscaler implements Upscaler<Waifu2xSchema> {
     name = 'waifu2x' as const
     schema = waifu2xSchema
 
-    public getSchema() {
+    public async getSchema() {
+        const folders = (await fs.readdir(PATHS.waifu2xModels, { withFileTypes: true })).filter(e => e.isDirectory()).map(e => e.name)
+        const set = new Set([...this.schema.opts.all.model.items, ...folders])
+        this.schema.opts.all.model.items = Array.from(set.values())
         return Promise.resolve(this.schema)
     }
     async dispose(): Promise<void> {
