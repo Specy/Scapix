@@ -26,6 +26,13 @@ export const waifu2xSchema = {
                 default: 1,
                 increment: 0.1,
                 min: 0.1,
+            },
+            parallelFrames: {
+                type: "number",
+                default: 1,
+                hidden: true,
+                increment: 1,
+                min: 1,
             }
         },
         video: {
@@ -66,6 +73,13 @@ export const waifu2xSchema = {
                 increment: 0.1,
                 min: 0.1,
             },
+            parallelFrames: {
+                type: "number",
+                default: 1,
+                hidden: true,
+                increment: 1,
+                min: 1,
+            }
         }
     }
 } satisfies UpscalerSchema
@@ -170,6 +184,7 @@ export class Waifu2xUpscaler implements Upscaler<Waifu2xSchema> {
                     const result = await promise;
                     return Ok(result);
                 } catch (e) {
+                    
                     return Err("Error upscaling: " + e)
                 }
             }
@@ -182,6 +197,7 @@ export class Waifu2xUpscaler implements Upscaler<Waifu2xSchema> {
             scale: options.scale,
             noise: denoiseLevelToNumber(options.denoise),
             modelDir: options.model !== "drawing" ? modelToPath(options.model) : undefined,
+            parallelFrames: options.parallelFrames,
             quality: options.quality,
             speed: options.speed,
         } satisfies Waifu2xGIFOptions
@@ -208,7 +224,6 @@ export class Waifu2xUpscaler implements Upscaler<Waifu2xSchema> {
                         current,
                         total
                     })
-                    console.log(state.halted)
 
                     return state.halted;
                 })

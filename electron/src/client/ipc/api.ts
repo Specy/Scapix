@@ -55,6 +55,23 @@ const controls = {
         ipc.on("maximize-change", listener.callback);
         return id;
     },
+    addOnLog: (callback: (type: "error" | "log" | "warn", message: string, timeout?: number) => void) => {
+        const id = EventListeners.generateId()
+        const listener = {
+            id, 
+            callback: (e: any, data: any) => {
+                const {type, message, timeout} = data
+                callback(type, message, timeout)
+            }
+        }
+        eventListeners.addListener("log", listener)
+        ipc.on("log-to-renderer", listener.callback)
+    },
+    removeOnLog: (id: string) => {
+        const listener = eventListeners.removeListener("log-to-renderer", id);
+        if (!listener) return;
+        ipc.removeListener("log-to-renderer", listener.callback);
+    },
     removeOnMaximizationChange: (id: string) => {
         const listener = eventListeners.removeListener("maximize-change", id);
         if (!listener) return;

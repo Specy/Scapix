@@ -41,6 +41,7 @@
 		});
 		observer.observe(wrapper);
 	}
+	$:console.log(diff?.original.settings)
 </script>
 
 <svelte:window
@@ -64,7 +65,7 @@
 		style="--thumb-position: {thumbPosition}px;"
 	>
 		<div class="blur-filter" />
-		{#if diff.original.settings.type === "video"}
+		{#if diff.original.settings.opts.type === "video"}
 			<video
 				src={toResourceUrl(showingOriginal ? diff.original.file.path : diff.converted)}
 				class="element"

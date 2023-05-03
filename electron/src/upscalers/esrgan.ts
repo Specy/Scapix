@@ -22,6 +22,13 @@ export const esrganSchema = {
                 default: 1,
                 increment: 0.1,
                 min: 0.1,
+            },
+            parallelFrames: {
+                type: "number",
+                default: 1,
+                hidden: true,
+                increment: 1,
+                min: 1,
             }
         },
         video: {
@@ -62,6 +69,13 @@ export const esrganSchema = {
                 increment: 0.1,
                 min: 0.1,
             },
+            parallelFrames: {
+                type: "number",
+                default: 1,
+                hidden: true,
+                increment: 1,
+                min: 1,
+            }
         }
     }
 } satisfies UpscalerSchema

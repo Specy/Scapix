@@ -1,6 +1,7 @@
 import { Waifu2xUpscaler } from "./waifu2x"
 import { Ok, Result, Err } from "ts-results"
 import { EsrganUpscaler } from "./esrgan"
+import { SerializedSettings } from "common/types/Files"
 
 
 export const UPSCALERS = {
@@ -29,7 +30,7 @@ class UpscalerHandler {
         return Ok(Object.fromEntries(schemas) as AppSchema)
     }
 
-    mergeSettings(global: GlobalSettings, settings: OptionalUpscaleSettings) {
+    mergeSettings(global: GlobalSettings, settings: OptionalUpscaleSettings, generalSettings: SerializedSettings) {
         const upscalerResult = this.getUpscaler((settings.upscaler ?? global.upscaler) as UpscalerName)
         if (!upscalerResult.ok) return upscalerResult
         const upscaler = upscalerResult.val
@@ -38,11 +39,16 @@ class UpscalerHandler {
             ...schema.opts.all,
             ...schema.opts[settings.opts.type]
         }
-        const merged = { 
+        const merged = {
             ...settings.opts.values,
             scale: settings.opts.values.scale ?? global.scale,
             denoise: settings.opts.values.denoise ?? global.denoise,
             upscaler: upscaler.name
+        }
+        // @ts-ignore
+        if (schemaType['parallelFrames'] !== undefined) {
+            // @ts-ignore
+            merged['parallelFrames'] = generalSettings.maxConcurrentFrames
         }
         for (const [key, value] of Object.entries(global)) {
             // @ts-ignore
@@ -51,6 +57,7 @@ class UpscalerHandler {
                 merged[key] = value
             }
         }
+
         return Ok(merged)
     }
     getUpscaler<T extends UpscalerName>(name: T): Result<Upscaler<AppSchema[T]>, string> {
@@ -61,7 +68,7 @@ class UpscalerHandler {
             return Err(`Upscaler ${name} not found`)
         }
     }
-    async dispose(){
+    async dispose() {
         for (const upscaler of this.upscalers.values()) {
             await upscaler.dispose()
         }

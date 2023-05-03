@@ -112,6 +112,11 @@ type PendingUpscale = {
     result?: UpscalerResult
 }
 
+function sendLog(type: "error" | "warn" | "log", message: string, timeout = 5000) {
+    ipc.emit("log-to-renderer", { type, message, timeout })
+}
+
+
 function setUpIpc(win: BrowserWindow) {
     //all files that are either being converted or are queued to be converted
     const pendingFiles = new Map<string, PendingUpscale>();
@@ -166,21 +171,22 @@ function setUpIpc(win: BrowserWindow) {
         const file = pendingFiles.get(id);
         pendingFiles.delete(id);
         if (file) {
-            console.log("Halted", file);
+            console.log("Halted", file.file);
             file.result?.cancel()
             win.webContents.send("file-status-change", file.file, { status: Status.Idle })
         }
     })
     ipc.handle("halt-all-executions", () => {
-        for (const file of pendingFiles.values()) {
-            win.webContents.send("file-status-change", file.file, { status: Status.Idle })
-        }
-        console.log("Halted all executions");
         const files = pendingFiles.values();
-        pendingFiles.clear();
         for (const file of files) {
-            file.result?.cancel()
+            win.webContents.send("file-status-change", file.file, { status: Status.Idle })
+            if (file.result) {
+                console.log("Canceling: ", file.file.path)
+                file.result.cancel()
+            }
         }
+        pendingFiles.clear();
+        console.log("Halted all executions");
         Waifu2x.processes.forEach(p => p.kill("SIGINT"))
     })
     ipc.handle("execute-files", async (e, files: SerializedConversionFile[], globals: GlobalSettings, settings: SerializedSettings) => {
@@ -196,7 +202,8 @@ function setUpIpc(win: BrowserWindow) {
                 if (!pendingFiles.get(file.id)) return; //stop if file was cancelled
                 win.webContents.send("file-status-change", file, { status: Status.Converting })
                 try {
-                    const options = upscalerHandler.mergeSettings(globals, file.settings).unwrap()
+                    const options = upscalerHandler.mergeSettings(globals, file.settings, settings).unwrap()
+                    console.log(`Upscaling file: "${file.path}" with options:`, options)
                     const initialPath = path.join(out, file.finalName)
                     const resultPath = finalizePath(initialPath, options, settings)
                     const result = await upscalerHandler.upscale(options.upscaler, file.type, initialPath, resultPath, options).unwrap()
@@ -205,7 +212,7 @@ function setUpIpc(win: BrowserWindow) {
                         result
                     });
                     result.onProgress((progress) => {
-                        if(!pendingFiles.get(file.id)) return console.log("file was cancelled", file)
+                        if (!pendingFiles.get(file.id)) return console.log("file was cancelled", file)
                         if (progress.type === "progress") {
                             win.webContents.send("file-status-change", file, {
                                 status: Status.Converting,
@@ -220,8 +227,8 @@ function setUpIpc(win: BrowserWindow) {
                         }
                     })
                     const finalPath = (await result.result()).unwrap()
-                    console.log("done", file)
-                    if (!pendingFiles.get(file.id)) return console.log("file was cancelled", file);
+                    console.log(`Finished upscale of: "${file.path}"`)
+                    if (!pendingFiles.get(file.id)) return console.warn(`File "${file.path}" was cancelled`)
                     win.webContents.send("file-status-change", file, { status: Status.Done, resultPath: finalPath })
                     pendingFiles.delete(file.id);
                 } catch (e) {
@@ -233,7 +240,7 @@ function setUpIpc(win: BrowserWindow) {
             promises.push(el);
         }
         await Promise.all(promises);
-        flashFrame(win, 3000);
+        flashFrame(win, 3000); 
     })
     win.on("maximize", () => win.webContents.send("maximize-change", true))
     win.on("unmaximize", () => win.webContents.send("maximize-change", false))
@@ -257,7 +264,6 @@ function finalizePath(base: string, upscaleSettings: { scale: number, upscaler: 
     const dir = path.dirname(base);
     const outDir = saveInDatedFolder ? path.join(dir, dateStr) : dir;
     const outName = appendUpscaleSettingsToFileName ? `${name}.${suffix}` : name;
-    console.log(path.join(outDir, outName + ext))
     return path.join(outDir, outName + ext);
 }
 
@@ -277,8 +283,8 @@ function disposeAndQuit() {
     app.quit()
 }
 process.on('SIGINT', disposeAndQuit)
-process.on('SIGTERM',  disposeAndQuit)
-process.on('SIGQUIT',  disposeAndQuit)
+process.on('SIGTERM', disposeAndQuit)
+process.on('SIGQUIT', disposeAndQuit)
 app.whenReady().then(() => {
     loadSplash()
     createWindow()
