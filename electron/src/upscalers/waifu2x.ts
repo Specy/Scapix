@@ -1,6 +1,6 @@
 import type { Upscaler, UpscalerSchema, ConcreteOptionsOf, UpscalerResult, Progress } from "./upscalers.interface";
 import Waifu2x, { Waifu2xGIFOptions, Waifu2xOptions, Waifu2xVideoOptions } from "waifu2x";
-import { Ok, Err } from "ts-results/result";
+import { Ok, Err } from "oxide.ts";
 import { FunctionMiddleware, PATHS, denoiseLevelToNumber, modelToPath } from "../utils";
 import { defaultUpscalerOptions } from "./default";
 import fs from "fs/promises"

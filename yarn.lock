@@ -2487,6 +2487,11 @@
     "strip-ansi" "^6.0.0"
     "wcwidth" "^1.0.1"
 
+"oxide.ts@^1.1.0":
+  "integrity" "sha512-+MkqFRQVHEe/x4/cJ6KuYz2m2VpnoBi7aKLbttGYTxmpNZalQ2RbKH2HxyfsTqXJhjh9DYxulPWfQV/hWMmzCg=="
+  "resolved" "https://registry.npmjs.org/oxide.ts/-/oxide.ts-1.1.0.tgz"
+  "version" "1.1.0"
+
 "p-cancelable@^2.0.0":
   "integrity" "sha512-BZOr3nRQHOntUjTrH8+Lh54smKHoHyur8We1V8DSMVrl5A2malOOwuJRnKRDjSnkoeBh4at6BwEnb5I7Jl31wg=="
   "resolved" "https://registry.npmjs.org/p-cancelable/-/p-cancelable-2.1.1.tgz"
@@ -3297,11 +3302,6 @@
   "version" "1.0.0"
   dependencies:
     "escape-string-regexp" "^1.0.2"
-
-"ts-results@^3.3.0":
-  "integrity" "sha512-FWqxGX2NHp5oCyaMd96o2y2uMQmSu8Dey6kvyuFdRJ2AzfmWo3kWa4UsPlCGlfQ/qu03m09ZZtppMoY8EMHuiA=="
-  "resolved" "https://registry.npmjs.org/ts-results/-/ts-results-3.3.0.tgz"
-  "version" "3.3.0"
 
 "tslib@^2.1.0":
   "integrity" "sha512-tGyy4dAjRIEwI7BzsB0lynWgOpfqjUdq91XXAlIWD2OwKBH7oCl/GZG/HT4BOHrTlPMOASlMQ7veyTqpmRcrNA=="

@@ -15,9 +15,9 @@
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^2.0.1",
-		"@sveltejs/kit": "^1.15.9",
-		"@typescript-eslint/eslint-plugin": "^5.59.1",
-		"@typescript-eslint/parser": "^5.59.1",
+		"@sveltejs/kit": "^1.15.10",
+		"@typescript-eslint/eslint-plugin": "^5.59.2",
+		"@typescript-eslint/parser": "^5.59.2",
 		"eslint": "^8.39.0",
 		"eslint-config-prettier": "^8.8.0",
 		"eslint-plugin-svelte3": "^4.0.0",
@@ -28,7 +28,7 @@
 		"svelte-preprocess": "^5.0.3",
 		"tslib": "^2.5.0",
 		"typescript": "^5.0.4",
-		"vite": "^4.3.3"
+		"vite": "^4.3.4"
 	},
 	"dependencies": {
 		"@ctrl/tinycolor": "^3.6.0",

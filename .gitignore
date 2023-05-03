@@ -19,6 +19,7 @@ yarn.lock
 electron/dist
 /dist
 /scapix-win32-x64
+tsconfig.tsbuildinfo
 test.js
 /packaged
 # misc
