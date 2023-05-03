@@ -1,32 +1,59 @@
-import { DenoiseLevel } from "../common/types/Files"
-import { waifu2xSchema } from "./waifu2x"
+import { Waifu2xUpscaler } from "./waifu2x"
 import { Ok, Result, Err } from "ts-results"
-import { esrganSchema } from "./esrgan"
+import { EsrganUpscaler } from "./esrgan"
 
 
-export const schema = {
-    waifu2x: waifu2xSchema,
-    esrgan: esrganSchema
-} satisfies RecordSchema
-export type AppSchema = typeof schema
-export type AppUpscaleSettings = UpscaleSettings<AppSchema>
+export const UPSCALERS = {
+    waifu2x: new Waifu2xUpscaler(),
+    esrgan: new EsrganUpscaler()
+} as const
 
-export const defaultUpscalerOptions = {
-    scale: {
-        type: "number",
-        default: 2,
-    },
-    denoise: {
-        type: "list",
-        default: DenoiseLevel.None,
-        items: Object.values(DenoiseLevel)
-    }
-} satisfies Record<string, SchemaType>
+
 
 
 class UpscalerHandler {
-    private upscalers: Map<Upscalers, Upscaler<any>> = new Map()
-    getUpscaler<T extends Upscalers>(name: T): Result<Upscaler<Schemas[T]>, string> {
+    private upscalers: Map<UpscalerName, Upscaler<any>> = new Map()
+
+    constructor() {
+        this.upscalers.set("waifu2x", new Waifu2xUpscaler())
+        this.upscalers.set("esrgan", new EsrganUpscaler())
+    }
+
+
+    async getSchemas(): Promise<Result<AppSchema, string>> {
+        const schemas = new Map<UpscalerName, UpscalerSchema>()
+        for (const [name, upscaler] of this.upscalers) {
+            const schema = await upscaler.getSchema()
+            schemas.set(name, schema)
+        }
+        return Ok(Object.fromEntries(schemas) as AppSchema)
+    }
+
+    mergeSettings(global: GlobalSettings, settings: OptionalUpscaleSettings) {
+        const upscalerResult = this.getUpscaler((settings.upscaler ?? global.upscaler) as UpscalerName)
+        if (!upscalerResult.ok) return upscalerResult
+        const upscaler = upscalerResult.val
+        const schema = upscaler.schema
+        const schemaType = {
+            ...schema.opts.all,
+            ...schema.opts[settings.opts.type]
+        }
+        const merged = { 
+            ...settings.opts.values,
+            scale: settings.opts.values.scale ?? global.scale,
+            denoise: settings.opts.values.denoise ?? global.denoise,
+            upscaler: upscaler.name
+        }
+        for (const [key, value] of Object.entries(global)) {
+            // @ts-ignore
+            if (schemaType[key] && merged[key] === undefined) {
+                // @ts-ignore
+                merged[key] = value
+            }
+        }
+        return Ok(merged)
+    }
+    getUpscaler<T extends UpscalerName>(name: T): Result<Upscaler<AppSchema[T]>, string> {
         const upscaler = this.upscalers.get(name)
         if (upscaler) {
             return Ok(upscaler)
@@ -34,48 +61,53 @@ class UpscalerHandler {
             return Err(`Upscaler ${name} not found`)
         }
     }
-    upscale<T extends Upscalers>(name: T, type: FileTypes, from: string, to: string, options: ConcreteOptionsOf<Schemas[T], FileTypes>): Result<Promise<UpscalerResult>, string> {
+    async dispose(){
+        for (const upscaler of this.upscalers.values()) {
+            await upscaler.dispose()
+        }
+    }
+    upscale<T extends UpscalerName, F extends FileTypes>(name: T, type: F, from: string, to: string, options: ConcreteOptionsOf<AppSchema[T], F>): Result<Promise<UpscalerResult>, string> {
         switch (type) {
             case "image":
-                return this.upscaleImage(name, from, to, options as ConcreteOptionsOf<Schemas[T], "image">)
+                return this.upscaleImage(name, from, to, options as ConcreteOptionsOf<AppSchema[T], "image">)
             case "video":
-                return this.upscaleVideo(name, from, to, options as ConcreteOptionsOf<Schemas[T], "video">)
+                return this.upscaleVideo(name, from, to, options as ConcreteOptionsOf<AppSchema[T], "video">)
             case "gif":
-                return this.upscaleGif(name, from, to, options as ConcreteOptionsOf<Schemas[T], "gif">)
+                return this.upscaleGif(name, from, to, options as ConcreteOptionsOf<AppSchema[T], "gif">)
             case "webp":
-                return this.upscaleWebp(name, from, to, options as ConcreteOptionsOf<Schemas[T], "webp">)
+                return this.upscaleWebp(name, from, to, options as ConcreteOptionsOf<AppSchema[T], "webp">)
             case "webpAnimated":
-                return this.upscaleWebpAnimated(name, from, to, options as ConcreteOptionsOf<Schemas[T], "webpAnimated">)
+                return this.upscaleWebpAnimated(name, from, to, options as ConcreteOptionsOf<AppSchema[T], "webpAnimated">)
 
             default:
                 return Err(`Upscaler ${name} does not support ${type}`)
         }
     }
-    upscaleVideo<T extends Upscalers>(name: T, from: string, to: string, options: ConcreteOptionsOf<Schemas[T], "video">): Result<Promise<UpscalerResult>, string> {
+    upscaleVideo<T extends UpscalerName>(name: T, from: string, to: string, options: ConcreteOptionsOf<AppSchema[T], "video">): Result<Promise<UpscalerResult>, string> {
         const upscalerResult = this.getUpscaler(name)
         if (!upscalerResult.ok) return upscalerResult
         const upscaler = upscalerResult.val
         return Ok(upscaler.upscaleVideo(from, to, options))
     }
-    upscaleImage<T extends Upscalers>(name: T, from: string, to: string, options: ConcreteOptionsOf<Schemas[T], "image">): Result<Promise<UpscalerResult>, string> {
+    upscaleImage<T extends UpscalerName>(name: T, from: string, to: string, options: ConcreteOptionsOf<AppSchema[T], "image">): Result<Promise<UpscalerResult>, string> {
         const upscalerResult = this.getUpscaler(name)
         if (!upscalerResult.ok) return upscalerResult
         const upscaler = upscalerResult.val
         return Ok(upscaler.upscaleImage(from, to, options))
     }
-    upscaleGif<T extends Upscalers>(name: T, from: string, to: string, options: ConcreteOptionsOf<Schemas[T], "gif">): Result<Promise<UpscalerResult>, string> {
+    upscaleGif<T extends UpscalerName>(name: T, from: string, to: string, options: ConcreteOptionsOf<AppSchema[T], "gif">): Result<Promise<UpscalerResult>, string> {
         const upscalerResult = this.getUpscaler(name)
         if (!upscalerResult.ok) return upscalerResult
         const upscaler = upscalerResult.val
         return Ok(upscaler.upscaleGif(from, to, options))
     }
-    upscaleWebp<T extends Upscalers>(name: T, from: string, to: string, options: ConcreteOptionsOf<Schemas[T], "webp">): Result<Promise<UpscalerResult>, string> {
+    upscaleWebp<T extends UpscalerName>(name: T, from: string, to: string, options: ConcreteOptionsOf<AppSchema[T], "webp">): Result<Promise<UpscalerResult>, string> {
         const upscalerResult = this.getUpscaler(name)
         if (!upscalerResult.ok) return upscalerResult
         const upscaler = upscalerResult.val
         return Ok(upscaler.upscaleWebp(from, to, options))
     }
-    upscaleWebpAnimated<T extends Upscalers>(name: T, from: string, to: string, options: ConcreteOptionsOf<Schemas[T], "webpAnimated">): Result<Promise<UpscalerResult>, string> {
+    upscaleWebpAnimated<T extends UpscalerName>(name: T, from: string, to: string, options: ConcreteOptionsOf<AppSchema[T], "webpAnimated">): Result<Promise<UpscalerResult>, string> {
         const upscalerResult = this.getUpscaler(name)
         if (!upscalerResult.ok) return upscalerResult
         const upscaler = upscalerResult.val
@@ -85,8 +117,6 @@ class UpscalerHandler {
 
 
 export const upscalerHandler = new UpscalerHandler()
-
-
 
 
 
@@ -103,6 +133,9 @@ export type SchemaList<T> = {
 export type SchemaNumber = {
     type: "number"
     default: number
+    increment?: number
+    min?: number
+    max?: number
 }
 export type SchemaBoolean = {
     type: "boolean"
@@ -116,6 +149,8 @@ export type SchemaType = {
     hidden?: boolean
 } & (SchemaList<any> | SchemaNumber | SchemaBoolean | SchemaString)
 
+
+
 export type Progress = {
     type: "interval"
     current: number
@@ -123,7 +158,7 @@ export type Progress = {
 } | {
     type: "progress"
     progress: number
-} 
+}
 type UpscalerSchemaOptions = {
     image: Record<string, SchemaType>
     video: Record<string, SchemaType>
@@ -137,12 +172,20 @@ export type UpscalerSchema = {
     opts: UpscalerSchemaOptions
 }
 
-type RecordSchema = Record<string, UpscalerSchema>
+export type UpscalerName = keyof typeof UPSCALERS
+type MergedSchema<T extends UpscalerSchema> = {
+    opts: {
+        [K in keyof T['opts']]: T['opts'][K] & T['opts']["all"]
+    }
+}
 
-type UpscalerName = keyof typeof schema
-export type Schemas = typeof schema
-export type Upscalers = keyof Schemas
-export type FileTypes = Exclude<keyof Schemas[Upscalers]['opts'], "all">
+export type AppSchema = {
+    [key in UpscalerName]: MergedSchema<typeof UPSCALERS[key]['schema']>
+}
+
+export type AppUpscaleSettings = UpscaleSettings<AppSchema>
+
+export type FileTypes = keyof AppSchema[UpscalerName]['opts']
 export type UpscalerOptionsOf<T extends UpscalerSchemaOptions, F extends FileTypes> = T["all"] & T[F]
 
 export type ConcreteSchema<T extends SchemaType> = T extends SchemaList<infer U>
@@ -156,24 +199,44 @@ export type ConcreteSchema<T extends SchemaType> = T extends SchemaList<infer U>
     : never
 
 export type ConcreteOptionsOf<T extends UpscalerSchema, F extends FileTypes> = {
-    [K in keyof UpscalerOptionsOf<T['opts'],F>]: ConcreteSchema<UpscalerOptionsOf<T['opts'],F>[K]>
+    [K in keyof UpscalerOptionsOf<T['opts'], F>]: ConcreteSchema<UpscalerOptionsOf<T['opts'], F>[K]>
 }
-
+export type OptionalSettings<T extends (UpscalerName | undefined), F extends FileTypes> =
+    T extends UpscalerName ?
+    {
+        upscaler: T
+        opts: {
+            [K2 in FileTypes]: {
+                type: K2
+                values: Partial<ConcreteOptionsOf<AppSchema[T], K2>>
+            }
+        }[F]
+    } : {
+        upscaler: undefined
+        opts: {
+            type: F
+            values: Partial<ConcreteOptionsOf<AppSchema[UpscalerName], 'all'>>
+        }
+    }
+export type GlobalSettings = ConcreteOptionsOf<AppSchema[UpscalerName], 'all'> & { upscaler: UpscalerName }
+export type OptionalUpscaleSettings = OptionalSettings<UpscalerName | undefined, FileTypes>
 export type UpscaleSettings<T extends Record<string, UpscalerSchema>> = {
     [K in keyof T]: {
         upscaler: K
         opts: {
             [K2 in FileTypes]: {
                 type: K2
-                values: ConcreteOptionsOf<T[K], K2>
+                values: ConcreteOptionsOf<T[K], K2> & ConcreteOptionsOf<T[K], "all">
             }
         }[FileTypes]
     }
 }[keyof T]
 
 export interface Upscaler<T extends UpscalerSchema> {
-    schema: T
     name: UpscalerName
+    schema: T
+    dispose(): Promise<void>
+    getSchema(): Promise<UpscalerSchema>
     upscaleImage(from: string, to: string, options: ConcreteOptionsOf<T, "image">): Promise<UpscalerResult>
     upscaleVideo(from: string, to: string, options: ConcreteOptionsOf<T, "video">): Promise<UpscalerResult>
     upscaleGif(from: string, to: string, options: ConcreteOptionsOf<T, "gif">): Promise<UpscalerResult>

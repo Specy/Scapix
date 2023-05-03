@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { FileType, Status, type GlobalSettings } from '$common/types/Files';
+	import { type FileTypes, Status } from '$common/types/Files';
 	import FaArrowRight from 'svelte-icons/fa/FaArrowRight.svelte';
 	import FaTrashAlt from 'svelte-icons/fa/FaTrashAlt.svelte';
 	import FaPlay from 'svelte-icons/fa/FaPlay.svelte';
@@ -10,18 +10,22 @@
 	import Icon from './layout/Icon.svelte';
 	import FaCog from 'svelte-icons/fa/FaCog.svelte';
 	import { createEventDispatcher } from 'svelte';
-	import ElementSettings from './ElementSettings.svelte';
 	import type { ConversionDiff, ConversionFile } from '$stores/conversionStore';
 	import { settingsStore } from '$stores/settingsStore';
 	import StatusBar from './StatusBar.svelte';
 	import ResultDisplayer from './ResultDisplayer.svelte';
 	import { toast } from '$stores/toastStore';
 	import FormatPicker from './FormatPicker.svelte';
-	export let element: ConversionFile;
-	export let globals: GlobalSettings;
+	import Select from './inputs/Select.svelte';
+	import { createDerivedSchemaStore, schemaStore } from '$stores/schemaStore';
+	import { slide } from 'svelte/transition';
+	import SettingsRenderer from './Settings/SettingsRenderer.svelte';
+	import ElementSettingsRow from './Settings/ElementSettingsRow.svelte';
+
+	export let element: ConversionFile<FileTypes>;
 	let type = element.getType();
 	let path = toResourceUrl(element.file.path);
-	let scaleFactor = globals.scale;
+	let scaleFactor = 2;
 	let videoRef: HTMLVideoElement;
 	let settingsOpen = false;
 	let fileFormat = (/[^./\\]*$/.exec(element.finalName) || [''])[0];
@@ -33,13 +37,23 @@
 		type = element.getType();
 		path = toResourceUrl(element.file.path);
 	}
+
+	let status = element.status.status;
+	let upscaler = element.settings.upscaler ?? $schemaStore.currentUpscaler;
+	let schema = createDerivedSchemaStore(upscaler, type);
+	$: fileFormat = (/[^./\\]*$/.exec(element.finalName) || [''])[0];
+	$: status = element.status.status;
+	$: scaleFactor = element.settings.opts.values.scale ?? $schemaStore.currentGlobalSettings!.scale;
+	$: {
+		if (element.settings.upscaler !== upscaler) {
+			let newUpscaler = element.settings.upscaler ?? $schemaStore.currentUpscaler;
+			upscaler = newUpscaler;
+			schema = createDerivedSchemaStore(newUpscaler, type);
+		}
+	}
 	function onNameChange(e: Event) {
 		element.finalName = (e.target as HTMLDivElement).innerText;
 	}
-	$: fileFormat = (/[^./\\]*$/.exec(element.finalName) || [''])[0];
-	let status = element.status.status;
-	$: status = element.status.status;
-	$: scaleFactor = element.settings.scale ?? globals.scale;
 </script>
 
 <div
@@ -50,18 +64,18 @@
 	on:focus={() => videoRef?.play()}
 >
 	<div class="el-background">
-		{#if [FileType.Image, FileType.Gif, FileType.Webp, FileType.WebpAnimated].includes(type)}
+		{#if ['image', 'gif', 'webp', 'webpAnimated'].includes(type)}
 			<div
 				class="el-background-image"
 				style={`background-image: url(${path}`}
-				class:noAnimate={type === FileType.Gif || type === FileType.WebpAnimated}
+				class:noAnimate={type === 'gif' || type === 'webpAnimated'}
 			/>
-		{:else if type === FileType.Video}
+		{:else if type === 'video'}
 			<video src={path} muted bind:this={videoRef} loop class="el-background-video" />
 		{:else}
 			{element.file.type} - {type}
 		{/if}
-		<div class="el-mask" class:gif={type === FileType.Gif} />
+		<div class="el-mask" class:gif={type === 'gif'} />
 	</div>
 	<div
 		class="row-content"
@@ -78,7 +92,7 @@
 				>
 					{element.finalName.replace(/.[^./\\]*$/, '')}
 				</div>
-				{#if [FileType.Image, FileType.Webp].includes(type)}
+				{#if ['image', 'webp'].includes(type)}
 					<FormatPicker
 						formats={['png', 'webp', 'jpg', 'jpeg']}
 						force
@@ -101,7 +115,7 @@
 					{prettyBytes(element.stats.size)}
 				</div>
 				<div>
-					{capitalize(element.settings.type)}
+					{capitalize(type)}
 				</div>
 			</div>
 			<div class="sizes-stats">
@@ -134,7 +148,10 @@
 		<div style="display: flex; align-items: center; justify-content: center;">
 			<ResultDisplayer
 				status={element.status}
-				on:showError={(e) => toast.error(e.detail, 10000)}
+				on:showError={(e) => {
+					toast.error(e.detail, 10000);
+					console.error(e.detail);
+				}}
 				on:showResult={(result) => {
 					dispatcher('showResult', {
 						original: element,
@@ -161,7 +178,11 @@
 					if (status === Status.Converting) {
 						window.api.haltOne(element.serialize());
 					} else {
-						window.api.executeFiles([element.serialize()], globals, settingsStore.serialize());
+						window.api.executeFiles(
+							[element.serialize()],
+							schemaStore.getSerializedGlobalSettings(),
+							settingsStore.serialize()
+						);
 					}
 				}}
 			>
@@ -186,12 +207,67 @@
 			</button>
 		</div>
 	</div>
-	{#if settingsOpen}
-		<ElementSettings {globals} bind:settings={element.settings} />
+	{#if settingsOpen && $schemaStore.currentGlobalSettings}
+		<div class="settings" transition:slide={{ duration: 200 }}>
+			<div class="options">
+				<ElementSettingsRow
+					isDefault={element.settings.upscaler === undefined}
+					on:reset={() => {
+						element.settings.upscaler = undefined;
+					}}
+					title="Upscaler"
+				>
+					<Select
+						style="width: 8rem"
+						on:change={(e) => {
+							element.settings.upscaler = e.target.value;
+						}}
+						value={element.settings.upscaler ?? $schemaStore.currentUpscaler}
+					>
+						{#each Object.keys($schemaStore.schema) as name}
+							<option value={name}>{capitalize(name)}</option>
+						{/each}
+					</Select>
+				</ElementSettingsRow>
+				<SettingsRenderer
+					schema={$schema}
+					options={element.settings.opts.values}
+					inputStyle="width: 8rem"
+					globalValues={$schemaStore.currentGlobalSettings}
+					on:reset={(e) => {
+						const { key } = e.detail;
+						delete element.settings.opts.values[key];
+						element = element; // force update
+					}}
+					on:change={(e) => {
+						const { key, value } = e.detail;
+						element.settings.opts.values[key] = value;
+					}}
+				/>
+			</div>
+		</div>
 	{/if}
 </div>
 
 <style lang="scss">
+	.settings {
+		z-index: 10;
+		padding: 1rem;
+		margin: 0.5rem;
+		border-radius: 0.3rem;
+		background-color: rgba(var(--RGB-secondary), 0.5);
+		gap: 0.4rem;
+		display: flex;
+		flex-direction: column;
+	}
+	.options {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		align-items: center;
+		row-gap: 0.4rem;
+		column-gap: 2rem;
+		margin-left: 0.8rem;
+	}
 	.el-row {
 		display: flex;
 		flex-direction: column;

@@ -1,9 +1,8 @@
 <script lang="ts">
 	import type { GlobalSettings } from "$common/types/Files";
-	import { fade } from "svelte/transition";
-	import DenoiseLevelPicker from "./DenoiseLevelPicker.svelte";
+	import DenoiseLevelPicker from "./Settings/DenoiseLevelPicker.svelte";
 	import NumberInput from "./inputs/NumberInput.svelte";
-	import UpscalerPicker from "./UpscalerPicker.svelte";
+	import UpscalerPicker from "./Settings/UpscalerPicker.svelte";
 	import Waifu2xModelPicker from "./Waifu2xModelPicker.svelte";
     export let globals:GlobalSettings
 </script>

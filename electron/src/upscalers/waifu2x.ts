@@ -1,40 +1,53 @@
-import { Upscaler, UpscalerSchema, defaultUpscalerOptions, ConcreteOptionsOf, UpscalerResult, Progress } from "./upscalers.interface";
+import type { Upscaler, UpscalerSchema, ConcreteOptionsOf, UpscalerResult, Progress } from "./upscalers.interface";
 import Waifu2x, { Waifu2xGIFOptions, Waifu2xOptions, Waifu2xVideoOptions } from "waifu2x";
 import { Ok, Err } from "ts-results/result";
 import { FunctionMiddleware, PATHS, denoiseLevelToNumber, modelToPath } from "../utils";
+import { defaultUpscalerOptions } from "./default";
 export const waifu2xSchema = {
     opts: {
         all: {
             ...defaultUpscalerOptions,
             model: {
                 type: "list",
-                default: "photo",
-                items: ["photo", "drawing"]
+                default: "drawing",
+                items: ["drawing", "photo"]
             }
         },
         gif: {
             quality: {
                 type: "number",
-                default: 100,
+                default: 0,
+                increment: 1,
+                min: 0,
+                max: 51,
             },
             speed: {
                 type: "number",
                 default: 1,
+                increment: 0.1,
+                min: 0.1,
             }
         },
         video: {
             quality: {
                 type: "number",
-                default: 100,
+                default: 0,
+                increment: 1,
+                max: 51,
+                min: 0,
             },
             speed: {
                 type: "number",
                 default: 1,
+                increment: 0.1,
+                min: 0.1,
             },
             parallelFrames: {
                 type: "number",
                 default: 1,
                 hidden: true,
+                increment: 1,
+                min: 1,
             }
         },
         image: {},
@@ -42,27 +55,39 @@ export const waifu2xSchema = {
         webpAnimated: {
             quality: {
                 type: "number",
-                default: 100,
+                default: 0,
+                increment: 1,
+                min: 0,
+                max: 51,
             },
             speed: {
                 type: "number",
                 default: 1,
+                increment: 0.1,
+                min: 0.1,
             },
         }
     }
 } satisfies UpscalerSchema
+
 type Waifu2xSchema = typeof waifu2xSchema
-class Waifu2xUpscaler implements Upscaler<Waifu2xSchema> {
+export class Waifu2xUpscaler implements Upscaler<Waifu2xSchema> {
     name = 'waifu2x' as const
     schema = waifu2xSchema
 
-
+    public getSchema() {
+        return Promise.resolve(this.schema)
+    }
+    async dispose(): Promise<void> {
+        Waifu2x.processes.forEach(p => p.kill("SIGINT"));
+        Waifu2x.processes = [];
+    }
     async upscaleImage(from: string, to: string, options: ConcreteOptionsOf<Waifu2xSchema, "image">): Promise<UpscalerResult> {
         const finalOptions = {
             upscaler: "waifu2x",
             scale: options.scale,
             noise: denoiseLevelToNumber(options.denoise),
-            modelDir: modelToPath(options.model),
+            modelDir: options.model !== "drawing" ? modelToPath(options.model) : undefined,
         } satisfies Waifu2xOptions
         const state = {
             halted: false,
@@ -100,7 +125,6 @@ class Waifu2xUpscaler implements Upscaler<Waifu2xSchema> {
                     return Err("Error upscaling: " + e)
                 }
             }
-
         } satisfies UpscalerResult
     }
     async upscaleVideo(from: string, to: string, options: ConcreteOptionsOf<Waifu2xSchema, "video">): Promise<UpscalerResult> {
@@ -108,7 +132,7 @@ class Waifu2xUpscaler implements Upscaler<Waifu2xSchema> {
             upscaler: "waifu2x",
             scale: options.scale,
             noise: denoiseLevelToNumber(options.denoise),
-            modelDir: modelToPath(options.model),
+            modelDir: options.model !== "drawing" ? modelToPath(options.model) : undefined,
             parallelFrames: options.parallelFrames,
             quality: options.quality,
             speed: options.speed,
@@ -134,7 +158,7 @@ class Waifu2xUpscaler implements Upscaler<Waifu2xSchema> {
             onProgress: (callback: (progress: Progress) => void) => {
                 middleware.destination((current, total) => {
                     callback({
-                        type:"interval",
+                        type: "interval",
                         current,
                         total
                     })
@@ -145,7 +169,7 @@ class Waifu2xUpscaler implements Upscaler<Waifu2xSchema> {
                 try {
                     const result = await promise;
                     return Ok(result);
-                }catch (e) {
+                } catch (e) {
                     return Err("Error upscaling: " + e)
                 }
             }
@@ -157,7 +181,7 @@ class Waifu2xUpscaler implements Upscaler<Waifu2xSchema> {
             upscaler: "waifu2x",
             scale: options.scale,
             noise: denoiseLevelToNumber(options.denoise),
-            modelDir: modelToPath(options.model),
+            modelDir: options.model !== "drawing" ? modelToPath(options.model) : undefined,
             quality: options.quality,
             speed: options.speed,
         } satisfies Waifu2xGIFOptions
@@ -180,10 +204,12 @@ class Waifu2xUpscaler implements Upscaler<Waifu2xSchema> {
             onProgress: (callback: (progress: Progress) => void) => {
                 middleware.destination((current, total) => {
                     callback({
-                        type:"interval",
+                        type: "interval",
                         current,
                         total
                     })
+                    console.log(state.halted)
+
                     return state.halted;
                 })
             },
@@ -191,7 +217,7 @@ class Waifu2xUpscaler implements Upscaler<Waifu2xSchema> {
                 try {
                     const result = await promise;
                     return Ok(result);
-                }catch (e) {
+                } catch (e) {
                     return Err("Error upscaling: " + e)
                 }
             }

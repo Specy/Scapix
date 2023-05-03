@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { FileType } from '$common/types/Files';
+	import type { FileTypes } from '$common/types/Files';
 	import { toResourceUrl } from '$lib/utils';
 	import type { ConversionDiff, ConversionFile } from '$stores/conversionStore';
 	import { createEventDispatcher, onMount } from 'svelte';
@@ -14,14 +14,14 @@
 	let observer: ResizeObserver | undefined;
 	let thumbPosition = 0;
 	let clicking = false;
-	export let next: ConversionFile | undefined;
-	export let previous: ConversionFile | undefined;
+	export let next: ConversionFile<FileTypes> | undefined;
+	export let previous: ConversionFile<FileTypes> | undefined;
 	export let diff: ConversionDiff | undefined;
 	export let showingOriginal = false;
 	const dispatcher = createEventDispatcher<{
 		close: undefined;
-		onNext: ConversionFile;
-		onPrevious: ConversionFile;
+		onNext: ConversionFile<FileTypes>;
+		onPrevious: ConversionFile<FileTypes>;
 	}>();
 	onMount(() => {
 		thumbPosition = calculateMiddle();
@@ -64,7 +64,7 @@
 		style="--thumb-position: {thumbPosition}px;"
 	>
 		<div class="blur-filter" />
-		{#if diff.original.settings.type === FileType.Video}
+		{#if diff.original.settings.type === "video"}
 			<video
 				src={toResourceUrl(showingOriginal ? diff.original.file.path : diff.converted)}
 				class="element"

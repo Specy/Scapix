@@ -2,7 +2,7 @@
 	import { capitalize } from "$lib/utils";
 	import { DenoiseLevel } from "$common/types/Files";
 	import { createEventDispatcher } from "svelte";
-	import Select from "./inputs/Select.svelte";
+	import Select from "../inputs/Select.svelte";
     export let value:DenoiseLevel
     const denoiseLevels = Object.values(DenoiseLevel)
     const dispatcher = createEventDispatcher<{change: DenoiseLevel}>()

@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer as ipc } from "electron";
-import { GlobalSettings, SerializedConversionFile, SerializedSettings, StatusUpdate } from "../../common/types/Files";
-import { AppSchema } from "upscalers/upscalers.interface";
+import { SerializedConversionFile, SerializedSettings, StatusUpdate } from "../../common/types/Files";
+import { AppSchema, GlobalSettings, OptionalUpscaleSettings, SchemaType } from "upscalers/upscalers.interface";
 type EventListener = {
     id: string,
     callback: (...args: any[]) => void

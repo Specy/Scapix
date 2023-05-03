@@ -1,41 +1,49 @@
 import { FunctionMiddleware, PATHS, denoiseLevelToNumber, modelToPath } from "../utils";
-import { ConcreteOptionsOf, Progress, Upscaler, UpscalerResult, UpscalerSchema, defaultUpscalerOptions } from "./upscalers.interface";
+import { defaultUpscalerOptions } from "./default";
+import type { ConcreteOptionsOf, Progress, Upscaler, UpscalerResult, UpscalerSchema } from "./upscalers.interface";
 import { Ok, Err } from "ts-results/result";
 import Waifu2x, { Waifu2xGIFOptions, Waifu2xOptions, Waifu2xVideoOptions } from "waifu2x";
 
 export const esrganSchema = {
     opts: {
         all: {
-            ...defaultUpscalerOptions,
-            model: {
-                type: "list",
-                default: "photo",
-                items: ["photo", "drawing"]
-            }
+            ...defaultUpscalerOptions
         },
         gif: {
             quality: {
                 type: "number",
-                default: 100,
+                default: 0,
+                increment: 1,
+                min: 0,
+                max: 51
             },
             speed: {
                 type: "number",
                 default: 1,
+                increment: 0.1,
+                min: 0.1,
             }
         },
         video: {
             quality: {
                 type: "number",
-                default: 100,
+                default: 0,
+                min: 0,
+                increment: 1,
+                max: 51
             },
             speed: {
                 type: "number",
                 default: 1,
+                increment: 0.1,
+                min: 0.1,
             },
             parallelFrames: {
                 type: "number",
                 default: 1,
                 hidden: true,
+                increment: 1,
+                min: 1,
             }
         },
         image: {},
@@ -43,28 +51,39 @@ export const esrganSchema = {
         webpAnimated: {
             quality: {
                 type: "number",
-                default: 100,
+                default: 0,
+                increment: 1,
+                min: 0,
+                max: 51
             },
             speed: {
                 type: "number",
                 default: 1,
+                increment: 0.1,
+                min: 0.1,
             },
         }
     }
 } satisfies UpscalerSchema
 type EsrganSchema = typeof esrganSchema
 
-class EsrganUpscaler implements Upscaler<EsrganSchema> {
+export class EsrganUpscaler implements Upscaler<EsrganSchema> {
     name = 'esrgan' as const
     schema = esrganSchema
 
+    public getSchema() {
+        return Promise.resolve(this.schema)
+    }
 
+    async dispose(): Promise<void> {
+        Waifu2x.processes.forEach(p => p.kill("SIGINT"));
+        Waifu2x.processes = [];
+    }
     async upscaleImage(from: string, to: string, options: ConcreteOptionsOf<EsrganSchema, "image">): Promise<UpscalerResult> {
         const finalOptions = {
             upscaler: 'real-esrgan',
             scale: options.scale,
             noise: denoiseLevelToNumber(options.denoise),
-            modelDir: modelToPath(options.model),
         } satisfies Waifu2xOptions
         const state = {
             halted: false,
@@ -110,7 +129,6 @@ class EsrganUpscaler implements Upscaler<EsrganSchema> {
             upscaler: 'real-esrgan',
             scale: options.scale,
             noise: denoiseLevelToNumber(options.denoise),
-            modelDir: modelToPath(options.model),
             parallelFrames: options.parallelFrames,
             quality: options.quality,
             speed: options.speed,
@@ -136,7 +154,7 @@ class EsrganUpscaler implements Upscaler<EsrganSchema> {
             onProgress: (callback: (progress: Progress) => void) => {
                 middleware.destination((current, total) => {
                     callback({
-                        type:"interval",
+                        type: "interval",
                         current,
                         total
                     })
@@ -147,7 +165,7 @@ class EsrganUpscaler implements Upscaler<EsrganSchema> {
                 try {
                     const result = await promise;
                     return Ok(result);
-                }catch (e) {
+                } catch (e) {
                     return Err("Error upscaling: " + e)
                 }
             }
@@ -159,7 +177,6 @@ class EsrganUpscaler implements Upscaler<EsrganSchema> {
             upscaler: 'real-esrgan',
             scale: options.scale,
             noise: denoiseLevelToNumber(options.denoise),
-            modelDir: modelToPath(options.model),
             quality: options.quality,
             speed: options.speed,
         } satisfies Waifu2xGIFOptions
@@ -182,7 +199,7 @@ class EsrganUpscaler implements Upscaler<EsrganSchema> {
             onProgress: (callback: (progress: Progress) => void) => {
                 middleware.destination((current, total) => {
                     callback({
-                        type:"interval",
+                        type: "interval",
                         current,
                         total
                     })
@@ -193,7 +210,7 @@ class EsrganUpscaler implements Upscaler<EsrganSchema> {
                 try {
                     const result = await promise;
                     return Ok(result);
-                }catch (e) {
+                } catch (e) {
                     return Err("Error upscaling: " + e)
                 }
             }

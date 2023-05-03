@@ -1,14 +1,20 @@
 import { toResourceUrl } from "$lib/utils";
 import { get, writable } from "svelte/store";
-import { FileType, Status, UpscalerName, type StatusUpdate } from "$common/types/Files"
-import type { LocalSettings, SerializedConversionFile, Stats, BaseSettings } from "$common/types/Files"
+import { type FileTypes, Status, type StatusUpdate } from "$common/types/Files"
+import type { SerializedConversionFile, Stats, AppUpscaleSettings, UpscalerName, AppSchema, ConcreteOptionsOf, OptionalUpscaleSettings } from "$common/types/Files"
+import { schemaStore } from "./schemaStore";
 
 export type ConversionDiff = {
-    original: ConversionFile
+    original: ConversionFile<FileTypes>
     converted: string
 }
 
-export class ConversionFile {
+
+
+
+
+
+export class ConversionFile<F extends FileTypes> {
     id: string
     file: File
     finalName: string
@@ -21,23 +27,24 @@ export class ConversionFile {
         height: 0,
     }
     private obj: string | null = null
-
-    settings: LocalSettings = {
-        type: FileType.Unknown,
-        upscaler: UpscalerName.Waifu2x,
-    }
-
-    constructor(file: File, settings?: LocalSettings, stats?: Stats) {
+    settings: OptionalUpscaleSettings
+    constructor(file: File,type: FileTypes,  stats?: Stats) {
         this.file = file
         this.id = `${Math.random().toString(36).substring(2, 9)}-${file.name}`
         this.stats = stats ?? this.stats
         this.finalName = file.name
-        this.settings = settings ?? this.settings
+        this.settings = {
+            upscaler: undefined,
+            opts: {
+                type,
+                values: {}
+            }
+        }
     }
 
-    static async getFileStats(file: File, type: FileType): Promise<Stats> {
+    static async getFileStats(file: File, type: FileTypes): Promise<Stats> {
         return new Promise((res, rej) => {
-            if ([FileType.Gif, FileType.Webp, FileType.Image].includes(type)) {
+            if (["gif", "webp", "image"].includes(type)) {
                 const img = new Image()
                 img.src = toResourceUrl(file.path)
                 img.onload = () => {
@@ -48,7 +55,7 @@ export class ConversionFile {
                     }
                     res(stats)
                 }
-            } else if (type === FileType.Video) {
+            } else if (type === "video") {
                 const video = document.createElement("video")
                 video.src = toResourceUrl(file.path)
                 video.addEventListener("loadedmetadata", () => {
@@ -69,16 +76,14 @@ export class ConversionFile {
         })
 
     }
-    static async from(file: File): Promise<ConversionFile> {
+    static async from(file: File): Promise<ConversionFile<FileTypes>> {
         const type = await getFileType(file)
+        if (!type) throw new Error("Unsupported file type")
         const stats = await ConversionFile.getFileStats(file, type)
-        const baseSettings: LocalSettings = {
-            type
-        }
-        return new ConversionFile(file, baseSettings, stats)
+        return new ConversionFile(file, type, stats)
     }
-    getType(): FileType {
-        return this.settings.type
+    getType(): F {
+        return this.settings.opts.type as F
     }
     serialize(): SerializedConversionFile {
         return {
@@ -88,6 +93,7 @@ export class ConversionFile {
             settings: this.settings,
             stats: this.stats,
             path: this.file.path,
+            type: this.getType()
         }
     }
     disposeObjectUrl() {
@@ -98,18 +104,18 @@ export class ConversionFile {
 
 }
 
-async function getFileType(file: File): Promise<FileType> {
+async function getFileType(file: File): Promise<FileTypes | null> {
     const [type, subtype] = file.type.split("/")
     if (type === "image") {
-        if (subtype === "gif") return FileType.Gif
+        if (subtype === "gif") return "gif"
         if (subtype === "webp") {
             const buffer = await file.arrayBuffer()
-            return isAnimatedWebp(buffer) ? FileType.WebpAnimated : FileType.Webp
+            return isAnimatedWebp(buffer) ? "webpAnimated" : "webp"
         }
-        return FileType.Image
+        return "image"
     }
-    if (type === "video") return FileType.Video
-    return FileType.Unknown
+    if (type === "video") return "video"
+    return null
 }
 //https://developers.google.com/speed/webp/docs/riff_container#extended_file_format
 function isAnimatedWebp(buffer: ArrayBuffer) { //not the most accurate way to check, but it works
@@ -119,7 +125,7 @@ function isAnimatedWebp(buffer: ArrayBuffer) { //not the most accurate way to ch
 
 
 interface ConversionStore {
-    files: ConversionFile[]
+    files: ConversionFile<FileTypes>[]
 }
 
 function createConversionsStore() {
@@ -135,14 +141,14 @@ function createConversionsStore() {
             return state
         })
     }
-    function remove(idOrFile: string | ConversionFile) {
+    function remove(idOrFile: string | ConversionFile<FileTypes>) {
         update(state => {
             const id = typeof idOrFile === "string" ? idOrFile : idOrFile.id
             state.files = state.files.filter(file => file.id !== id)
             return state
         })
     }
-    function updateStatus(idOrFile: string | ConversionFile, statusUpdate: StatusUpdate) {
+    function updateStatus(idOrFile: string | ConversionFile<FileTypes>, statusUpdate: StatusUpdate) {
         update(state => {
             const id = typeof idOrFile === "string" ? idOrFile : idOrFile.id
             const file = state.files.find(file => file.id === id)
@@ -151,7 +157,7 @@ function createConversionsStore() {
             return state
         })
     }
-    function getNextValid(idOrFile: string | ConversionFile, direction: "next" | "previous" = "next") {
+    function getNextValid(idOrFile: string | ConversionFile<FileTypes>, direction: "next" | "previous" = "next") {
         const id = typeof idOrFile === "string" ? idOrFile : idOrFile.id
         const currentIndex = current.files.findIndex(file => file.id === id)
         if (currentIndex === -1) return undefined

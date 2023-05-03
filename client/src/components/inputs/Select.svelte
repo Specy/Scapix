@@ -4,11 +4,11 @@
     import FaChevronDown from 'svelte-icons/fa/FaChevronDown.svelte'
 </script>
 
-<div class="wrapper">
+<div class="wrapper" {style}>
     <select 
         on:change
         bind:value
-        {style}
+        
     >
         <slot />
     </select>

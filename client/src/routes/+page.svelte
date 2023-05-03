@@ -1,30 +1,23 @@
-<script context="module" lang="ts">
-	import { writable } from 'svelte/store';
-	export const globals = writable<GlobalSettings>({
-		scale: 2,
-		denoise: DenoiseLevel.None,
-		waifu2xModel: 'drawing',
-		upscaler: UpscalerName.Waifu2x
-	});
-</script>
-
 <script lang="ts">
 	import Button from '$cmp/buttons/Button.svelte';
-	import GlobalsSelector from '$cmp/GlobalsSelector.svelte';
 	import DropZone from '$cmp/misc/DropZone.svelte';
 	import { conversionsStore, type ConversionDiff, ConversionFile } from '$stores/conversionStore';
-	import { Status, UpscalerName, type GlobalSettings } from '$common/types/Files';
-	import { DenoiseLevel } from '$common/types/Files';
+	import { Status } from '$common/types/Files';
 	import { fade, slide } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
 	import { onMount } from 'svelte';
 	import { settingsStore } from '$stores/settingsStore';
 	import ResultPreviewer from '$cmp/ResultPreviewer.svelte';
-	import ElementRow from '$cmp/ElementRow.svelte';
 	import FaPlay from 'svelte-icons/fa/FaPlay.svelte';
 	import Icon from '$cmp/layout/Icon.svelte';
 	import FaStop from 'svelte-icons/fa/FaStop.svelte';
 	import InfiniteScroll from 'svelte-infinite-scroll';
+	import { schemaStore } from '$stores/schemaStore';
+	import type { FileTypes } from '$common/types/Files';
+	import SettingsRenderer from '$cmp/Settings/SettingsRenderer.svelte';
+	import Select from '$cmp/inputs/Select.svelte';
+	import { capitalize } from '$lib/utils';
+	import ElementRow from '$cmp/ElementRow.svelte';
 	let floatingResult: ConversionDiff | undefined;
 	let isProcessing = false;
 	let showingOriginal = false;
@@ -36,8 +29,8 @@
 			page = Math.max(Math.ceil($conversionsStore.files.length / perPage), 1);
 		}
 	}
-	function setFloatingResult(result: ConversionFile | undefined) {
-		if(!result) return
+	function setFloatingResult(result: ConversionFile<FileTypes> | undefined) {
+		if (!result) return;
 		if (result.status.status === Status.Done) {
 			floatingResult = {
 				original: result,
@@ -103,7 +96,32 @@
 	</DropZone>
 
 	<div class="globals">
-		<GlobalsSelector bind:globals={$globals} />
+		{#if $schemaStore.currentGlobalSchema}
+			<div class="column" style="gap: 0.5rem; margin-bottom: 0.5rem; flex: 1">
+				Upscaler
+				<Select
+					on:change={(e) => {
+						schemaStore.setCurrentUpscaler(e.target.value);
+					}}
+					value={$schemaStore.currentUpscaler}
+				>
+					{#each Object.keys($schemaStore.schema) as name}
+						<option value={name}>{capitalize(name)}</option>
+					{/each}
+				</Select>
+				<SettingsRenderer
+					hideReset
+					schema={$schemaStore.currentGlobalSchema}
+					inputStyle="flex: 1"
+					options={$schemaStore.currentGlobalSettings}
+					on:change={(e) => {
+						const { key, value } = e.detail;
+						schemaStore.setGlobalSettingsValue($schemaStore.currentUpscaler, key, value);
+					}}
+				/>
+			</div>
+		{/if}
+
 		<Button
 			style="width:100%; margin-top: 0.4rem"
 			cssVar="tertiary"
@@ -122,7 +140,7 @@
 				} else {
 					window.api.executeFiles(
 						$conversionsStore.files.map((el) => el.serialize()),
-						$globals,
+						schemaStore.getSerializedGlobalSettings(),
 						settingsStore.serialize()
 					);
 				}
@@ -146,19 +164,22 @@
 			<div class="no-elements" in:fade={{ duration: 100, delay: 200 }}>
 				No files selected, go add some!
 			</div>
+		{:else if $schemaStore.schema}
+			{#each $conversionsStore.files.slice(0, perPage * page) as el (el.id)}
+				<div animate:flip={{ duration: 200 }} in:slide|local out:fade|local>
+					<ElementRow
+						element={el}
+						on:delete={() => conversionsStore.remove(el)}
+						on:showResult={(data) => {
+							floatingResult = data.detail;
+						}}
+					/>
+				</div>
+			{/each}
+		{:else}
+			Loading models...
 		{/if}
-		{#each $conversionsStore.files.slice(0, perPage * page) as el (el.id)}
-			<div animate:flip={{ duration: 200 }} in:slide|local out:fade|local>
-				<ElementRow
-					element={el}
-					globals={$globals}
-					on:delete={() => conversionsStore.remove(el)}
-					on:showResult={(data) => {
-						floatingResult = data.detail;
-					}}
-				/>
-			</div>
-		{/each}
+
 		<InfiniteScroll threshold={perPage} on:loadMore={() => page++} />
 	</div>
 </div>

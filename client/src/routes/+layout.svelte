@@ -11,7 +11,7 @@
 	import FaDonate from 'svelte-icons/fa/FaDonate.svelte'
 	import FaHome from 'svelte-icons/fa/FaHome.svelte'
 	import FaInfo from 'svelte-icons/fa/FaInfo.svelte'
-
+	import type { FileTypes } from '$common/types/Files';
 	import SideMenuOption from '$cmp/layout/SideMenuOption.svelte';
 	import { onMount } from 'svelte';
 	import { Status } from '$common/types/Files';
@@ -49,7 +49,7 @@
 			window.api.removeOnProcessStatusChange(idStatusChange)
 		}
 	})
-	function calculateProgress(files: ConversionFile[]){
+	function calculateProgress(files: ConversionFile<FileTypes>[]){
 		let toConvert = 0
 		let finished = 0
 		for(const file of files){

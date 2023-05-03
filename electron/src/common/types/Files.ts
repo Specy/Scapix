@@ -1,23 +1,16 @@
-import type { AppSchema, ConcreteOptionsOf, FileTypes, UpscalerSchema, AppUpscaleSettings } from "upscalers/upscalers.interface"
+import type { AppSchema, AppUpscaleSettings, SchemaType, ConcreteOptionsOf, ConcreteSchema, UpscalerName, FileTypes, UpscaleSettings, OptionalUpscaleSettings } from "upscalers/upscalers.interface"
 
-export {
+export type {
     AppSchema,
-    AppUpscaleSettings
+    AppUpscaleSettings,
+    SchemaType, 
+    UpscaleSettings,
+    ConcreteOptionsOf,
+    ConcreteSchema,
+    FileTypes,
+    UpscalerName,
+    OptionalUpscaleSettings
 }
-export enum FileType {
-    Image = "image",
-    Video = "video",
-    Gif = "gif",
-    Webp = "webp",
-    WebpAnimated = "webp-animated",
-    Unknown = "unknown"
-}
-
-export enum UpscalerName {
-    Waifu2x = "waifu2x",
-    RealESRGAN = "real-esrgan",
-}
-
 export enum Status {
     Idle = "idle",
     Waiting = "waiting",
@@ -47,19 +40,6 @@ export enum DenoiseLevel {
     High = "high",
 }
 
-export type GlobalSettings = {
-    scale: number
-    denoise: DenoiseLevel
-    waifu2xModel: "drawing" | "photo" | string
-    upscaler: UpscalerName
-}
-
-export type BaseSettings = {
-    scale?: number
-    denoise?: DenoiseLevel
-    upscaler?: UpscalerName
-    waifu2xModel?: "drawing" | "photo" | string
-}
 
 export type SerializedSettings = {
     maxConcurrentOperations: number
@@ -68,27 +48,6 @@ export type SerializedSettings = {
     saveInDatedFolder: boolean
     appendUpscaleSettingsToFileName: boolean
 }
-export type LocalSettings = BaseSettings & ({
-    type: FileType.Gif
-    quality?: number
-    speed?: number
-    cumulative?: boolean
-    transparency?: boolean
-} | {
-    type: FileType.Image | FileType.Webp
-} | {
-    type: FileType.Video
-    quality?: number
-    speed?: number
-} | {
-    type: FileType.WebpAnimated
-    quality?: number
-    speed?: number
-} | {
-    type: FileType.Unknown
-})
-
-
 
 
 export type Stats = {
@@ -101,7 +60,8 @@ export interface SerializedConversionFile {
     id: string
     finalName: string
     status: StatusUpdate
-    settings: LocalSettings
+    settings: OptionalUpscaleSettings
+    type: FileTypes
     stats: Stats
     path: string
 }

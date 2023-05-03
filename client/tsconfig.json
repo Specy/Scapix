@@ -21,8 +21,14 @@
 			"$utils/*": ["src/utils/*"],
 			"$common": ["../electron/src/common/"],
 			"$common/*": ["../electron/src/common/*"],
-		}
+		},
+		"types": [
+			"../"
+		]
 	},
+	"references": [{
+		"path": "../"
+	}],
 	"exclude": ["node_modules"],
 	// Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
 	//
