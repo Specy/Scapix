@@ -2487,11 +2487,6 @@
     "strip-ansi" "^6.0.0"
     "wcwidth" "^1.0.1"
 
-"oxide.ts@^1.1.0":
-  "integrity" "sha512-+MkqFRQVHEe/x4/cJ6KuYz2m2VpnoBi7aKLbttGYTxmpNZalQ2RbKH2HxyfsTqXJhjh9DYxulPWfQV/hWMmzCg=="
-  "resolved" "https://registry.npmjs.org/oxide.ts/-/oxide.ts-1.1.0.tgz"
-  "version" "1.1.0"
-
 "p-cancelable@^2.0.0":
   "integrity" "sha512-BZOr3nRQHOntUjTrH8+Lh54smKHoHyur8We1V8DSMVrl5A2malOOwuJRnKRDjSnkoeBh4at6BwEnb5I7Jl31wg=="
   "resolved" "https://registry.npmjs.org/p-cancelable/-/p-cancelable-2.1.1.tgz"

@@ -67,7 +67,7 @@
 		{#if ['image', 'gif', 'webp', 'webpAnimated'].includes(type)}
 			<div
 				class="el-background-image"
-				style={`background-image: url(${path}`}
+				style={`background-image: url("${path}")`}
 				class:noAnimate={type === 'gif' || type === 'webpAnimated'}
 			/>
 		{:else if type === 'video'}

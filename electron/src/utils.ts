@@ -98,3 +98,25 @@ export class FunctionMiddleware<T extends unknown[], R> {
         this._destination = callback
     }
 }
+
+export type Result<T, E> = {
+    ok: true
+    value: T
+} | {
+    ok: false
+    error: E
+    trace?: string
+}
+export function Ok<T>(value: T): Result<T, never> {
+    return {
+        ok: true,
+        value
+    }
+}
+export function Err<E>(error: E, trace?: string): Result<never, E>{
+    return {
+        ok: false,
+        error,
+        trace
+    }
+}

@@ -1,7 +1,6 @@
-import { FunctionMiddleware, PATHS, denoiseLevelToNumber, modelToPath } from "../utils";
+import { Err, FunctionMiddleware, Ok, PATHS, denoiseLevelToNumber, modelToPath } from "../utils";
 import { defaultUpscalerOptions } from "./default";
 import type { ConcreteOptionsOf, Progress, Upscaler, UpscalerResult, UpscalerSchema } from "./upscalers.interface";
-import { Ok, Err } from "oxide.ts";
 import Waifu2x, { Waifu2xGIFOptions, Waifu2xOptions, Waifu2xVideoOptions } from "waifu2x";
 
 export const esrganSchema = {

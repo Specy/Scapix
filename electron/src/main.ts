@@ -6,7 +6,6 @@ import { DenoiseLevel, SerializedConversionFile, SerializedSettings, Status } fr
 import Waifu2x from "waifu2x";
 import fs from "fs/promises"
 import serve from "electron-serve";
-import { Waifu2xOptions } from "waifu2x";
 import { request } from "undici";
 import semver from "semver";
 import log from "electron-log";
@@ -164,7 +163,9 @@ function setUpIpc(win: BrowserWindow) {
         shell.openExternal(url);
     })
     ipc.handle("get-upscalers-schema", async () => {
-        return (await upscalerHandler.getSchemas()).unwrap() as AppSchema
+        const data = await upscalerHandler.getSchemas()
+        if(!data.ok) throw new Error(data.error)
+        return data.value;
     })
     ipc.handle("halt-one-execution", (e, idOrFile: string | SerializedConversionFile) => {
         const id = typeof idOrFile === "string" ? idOrFile : idOrFile.id;
@@ -202,16 +203,27 @@ function setUpIpc(win: BrowserWindow) {
                 if (!pendingFiles.get(file.id)) return; //stop if file was cancelled
                 win.webContents.send("file-status-change", file, { status: Status.Converting })
                 try {
-                    const options = upscalerHandler.mergeSettings(globals, file.settings, settings).unwrap()
-                    console.log(`Upscaling file: "${file.path}" with options:`, options)
+                    const options = upscalerHandler.mergeSettings(globals, file.settings, settings)
+                    if(!options.ok){
+                        console.error(options.error)
+                        win.webContents.send("file-status-change", file, { status: Status.Error, error: options.error })
+                        return 
+                    }
                     const initialPath = path.join(out, file.finalName)
-                    const resultPath = finalizePath(initialPath, options, settings)
-                    const result = await upscalerHandler.upscale(options.upscaler, file.type, initialPath, resultPath, options).unwrap()
+                    const resultPath = finalizePath(initialPath, options.value, settings)
+                    console.log(`Upscaling ${resultPath} with options:`, options.value, file)
+                    const result = upscalerHandler.upscale(options.value.upscaler, file.type, file.path, resultPath, options.value)
+                    if(!result.ok){
+                        console.error(result.error)
+                        win.webContents.send("file-status-change", file, { status: Status.Error, error: result.error })
+                        return 
+                    }
+                    const resultValue = await result.value
                     pendingFiles.set(file.id, {
                         file,
-                        result
+                        result: resultValue
                     });
-                    result.onProgress((progress) => {
+                    resultValue.onProgress((progress) => {
                         if (!pendingFiles.get(file.id)) return console.log("file was cancelled", file)
                         if (progress.type === "progress") {
                             win.webContents.send("file-status-change", file, {
@@ -226,10 +238,16 @@ function setUpIpc(win: BrowserWindow) {
                             })
                         }
                     })
-                    const finalPath = (await result.result()).unwrap()
-                    console.log(`Finished upscale of: "${file.path}"`)
+                    const finalPath = await resultValue.result()
                     if (!pendingFiles.get(file.id)) return console.warn(`File "${file.path}" was cancelled`)
-                    win.webContents.send("file-status-change", file, { status: Status.Done, resultPath: finalPath })
+                    if(finalPath.ok){
+                        console.log(`Finished upscale of: "${initialPath}"`)
+                        win.webContents.send("file-status-change", file, { status: Status.Done, resultPath: finalPath.value })
+                    }else{
+                        console.log(`Error while upscaling: "${initialPath}"`)
+                        console.error(finalPath.error)
+                        win.webContents.send("file-status-change", file, { status: Status.Error, error: finalPath.error })
+                    }
                     pendingFiles.delete(file.id);
                 } catch (e) {
                     win.webContents.send("file-status-change", file, { status: Status.Error, error: e })

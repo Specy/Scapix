@@ -1,7 +1,7 @@
 import { Waifu2xUpscaler } from "./waifu2x"
-import { Ok, Result, Err } from "oxide.ts"
 import { EsrganUpscaler } from "./esrgan"
-import { SerializedSettings } from "common/types/Files"
+import { SerializedSettings } from "../common/types/Files"
+import { Err, Ok, Result } from "../utils"
 
 
 export const UPSCALERS = {
@@ -32,8 +32,8 @@ class UpscalerHandler {
 
     mergeSettings(global: GlobalSettings, settings: OptionalUpscaleSettings, generalSettings: SerializedSettings): Result<ConcreteOptionsOf<AppSchema[UpscalerName], FileTypes> & { upscaler: UpscalerName }, string> {
         const upscalerResult = this.getUpscaler((settings.upscaler ?? global.upscaler) as UpscalerName)
-        if (!upscalerResult.isOk()) return Err(upscalerResult.unwrapErr())
-        const upscaler = upscalerResult.unwrap()
+        if (!upscalerResult.ok) return upscalerResult
+        const upscaler = upscalerResult.value
         const schema = upscaler.schema
         const schemaType = {
             ...schema.opts.all,
@@ -92,32 +92,32 @@ class UpscalerHandler {
     }
     upscaleVideo<T extends UpscalerName>(name: T, from: string, to: string, options: ConcreteOptionsOf<AppSchema[T], "video">): Result<Promise<UpscalerResult>, string> {
         const upscalerResult = this.getUpscaler(name)
-        if (!upscalerResult.isOk()) return Err(upscalerResult.unwrapErr())
-        const upscaler = upscalerResult.unwrap()
+        if (!upscalerResult.ok) return upscalerResult
+        const upscaler = upscalerResult.value
         return Ok(upscaler.upscaleVideo(from, to, options))
     }
     upscaleImage<T extends UpscalerName>(name: T, from: string, to: string, options: ConcreteOptionsOf<AppSchema[T], "image">): Result<Promise<UpscalerResult>, string> {
         const upscalerResult = this.getUpscaler(name)
-        if (!upscalerResult.isOk()) return Err(upscalerResult.unwrapErr())
-        const upscaler = upscalerResult.unwrap()
+        if (!upscalerResult.ok) return upscalerResult
+        const upscaler = upscalerResult.value
         return Ok(upscaler.upscaleImage(from, to, options))
     }
     upscaleGif<T extends UpscalerName>(name: T, from: string, to: string, options: ConcreteOptionsOf<AppSchema[T], "gif">): Result<Promise<UpscalerResult>, string> {
         const upscalerResult = this.getUpscaler(name)
-        if (!upscalerResult.isOk()) return Err(upscalerResult.unwrapErr())
-        const upscaler = upscalerResult.unwrap()
+        if (!upscalerResult.ok) return upscalerResult
+        const upscaler = upscalerResult.value
         return Ok(upscaler.upscaleGif(from, to, options))
     }
     upscaleWebp<T extends UpscalerName>(name: T, from: string, to: string, options: ConcreteOptionsOf<AppSchema[T], "webp">): Result<Promise<UpscalerResult>, string> {
         const upscalerResult = this.getUpscaler(name)
-        if (!upscalerResult.isOk()) return Err(upscalerResult.unwrapErr())
-        const upscaler = upscalerResult.unwrap()
+        if (!upscalerResult.ok) return upscalerResult
+        const upscaler = upscalerResult.value
         return Ok(upscaler.upscaleWebp(from, to, options))
     }
     upscaleWebpAnimated<T extends UpscalerName>(name: T, from: string, to: string, options: ConcreteOptionsOf<AppSchema[T], "webpAnimated">): Result<Promise<UpscalerResult>, string> {
         const upscalerResult = this.getUpscaler(name)
-        if (!upscalerResult.isOk()) return Err(upscalerResult.unwrapErr())
-        const upscaler = upscalerResult.unwrap()
+        if (!upscalerResult.ok) return upscalerResult
+        const upscaler = upscalerResult.value
         return Ok(upscaler.upscaleWebpAnimated(from, to, options))
     }
 }

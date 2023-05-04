@@ -40,7 +40,6 @@
     "electron-log": "^4.4.8",
     "electron-serve": "^1.1.0",
     "electron-squirrel-startup": "^1.0.0",
-    "oxide.ts": "^1.1.0",
     "semver": "^7.5.0",
     "undici": "^5.22.0",
     "waifu2x": "^1.1.7"

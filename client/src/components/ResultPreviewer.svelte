@@ -41,7 +41,6 @@
 		});
 		observer.observe(wrapper);
 	}
-	$:console.log(diff?.original.settings)
 </script>
 
 <svelte:window
