@@ -2,11 +2,13 @@ import { Waifu2xUpscaler } from "./waifu2x"
 import { EsrganUpscaler } from "./esrgan"
 import { SerializedSettings } from "../common/types/Files"
 import { Err, Ok, Result } from "../utils"
+import { Esrgan4XUpscaler } from "./esrgan4x"
 
 
 export const UPSCALERS = {
     waifu2x: new Waifu2xUpscaler(),
-    esrgan: new EsrganUpscaler()
+    esrgan: new EsrganUpscaler(),
+    esrgan4x: new Esrgan4XUpscaler()
 } as const
 
 
@@ -16,8 +18,9 @@ class UpscalerHandler {
     private upscalers: Map<UpscalerName, Upscaler<any>> = new Map()
 
     constructor() {
-        this.upscalers.set("waifu2x", new Waifu2xUpscaler())
-        this.upscalers.set("esrgan", new EsrganUpscaler())
+        for (const [name, upscaler] of Object.entries(UPSCALERS)) {
+            this.upscalers.set(name as UpscalerName, upscaler)
+        }
     }
 
 
@@ -42,6 +45,7 @@ class UpscalerHandler {
         const merged = {
             ...settings.opts.values,
             scale: settings.opts.values.scale ?? global.scale,
+            // @ts-ignore
             denoise: settings.opts.values.denoise ?? global.denoise,
             upscaler: upscaler.name
         }

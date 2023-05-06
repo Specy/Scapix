@@ -2,14 +2,15 @@ import { Err, FunctionMiddleware, Ok, PATHS, denoiseLevelToNumber, modelToPath }
 import type { ConcreteOptionsOf, Progress, Upscaler, UpscalerResult, UpscalerSchema } from "./upscalers.interface";
 import Waifu2x, { Waifu2xGIFOptions, Waifu2xOptions, Waifu2xVideoOptions } from "waifu2x";
 
-export const esrganSchema = {
+export const esrgan4xSchema = {
     opts: {
         all: {
             scale: {
                 type: "number",
-                default: 2,
+                default: 4,
                 increment: 0.1,
                 min: 1,
+                hidden: true,
             }
         },
         gif: {
@@ -82,11 +83,11 @@ export const esrganSchema = {
         }
     }
 } satisfies UpscalerSchema
-type EsrganSchema = typeof esrganSchema
+type Esrgan4xSchema = typeof esrgan4xSchema
 
-export class EsrganUpscaler implements Upscaler<EsrganSchema> {
-    name = 'esrgan' as const
-    schema = esrganSchema
+export class Esrgan4XUpscaler implements Upscaler<Esrgan4xSchema> {
+    name = 'esrgan4x' as const
+    schema = esrgan4xSchema
 
     public getSchema() {
         return Promise.resolve(this.schema)
@@ -96,7 +97,7 @@ export class EsrganUpscaler implements Upscaler<EsrganSchema> {
         Waifu2x.processes.forEach(p => p.kill("SIGINT"));
         Waifu2x.processes = [];
     }
-    async upscaleImage(from: string, to: string, options: ConcreteOptionsOf<EsrganSchema, "image">): Promise<UpscalerResult> {
+    async upscaleImage(from: string, to: string, options: ConcreteOptionsOf<Esrgan4xSchema, "image">): Promise<UpscalerResult> {
         const finalOptions = {
             upscaler: 'real-esrgan',
             scale: options.scale,
@@ -140,7 +141,7 @@ export class EsrganUpscaler implements Upscaler<EsrganSchema> {
 
         } satisfies UpscalerResult
     }
-    async upscaleVideo(from: string, to: string, options: ConcreteOptionsOf<EsrganSchema, "video">): Promise<UpscalerResult> {
+    async upscaleVideo(from: string, to: string, options: ConcreteOptionsOf<Esrgan4xSchema, "video">): Promise<UpscalerResult> {
         const finalOptions = {
             upscaler: 'real-esrgan',
             scale: options.scale,
@@ -187,7 +188,7 @@ export class EsrganUpscaler implements Upscaler<EsrganSchema> {
         } satisfies UpscalerResult
 
     }
-    async upscaleGif(from: string, to: string, options: ConcreteOptionsOf<EsrganSchema, "gif">): Promise<UpscalerResult> {
+    async upscaleGif(from: string, to: string, options: ConcreteOptionsOf<Esrgan4xSchema, "gif">): Promise<UpscalerResult> {
         const finalOptions = {
             upscaler: 'real-esrgan',
             scale: options.scale,
@@ -232,10 +233,10 @@ export class EsrganUpscaler implements Upscaler<EsrganSchema> {
         } satisfies UpscalerResult
 
     }
-    async upscaleWebp(from: string, to: string, options: ConcreteOptionsOf<EsrganSchema, "webp">): Promise<UpscalerResult> {
+    async upscaleWebp(from: string, to: string, options: ConcreteOptionsOf<Esrgan4xSchema, "webp">): Promise<UpscalerResult> {
         return this.upscaleImage(from, to, options)
     }
-    async upscaleWebpAnimated(from: string, to: string, options: ConcreteOptionsOf<EsrganSchema, "webpAnimated">): Promise<UpscalerResult> {
+    async upscaleWebpAnimated(from: string, to: string, options: ConcreteOptionsOf<Esrgan4xSchema, "webpAnimated">): Promise<UpscalerResult> {
         return this.upscaleGif(from, to, options)
     }
 }

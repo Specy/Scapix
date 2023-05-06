@@ -112,7 +112,7 @@
 				<SettingsRenderer
 					hideReset
 					schema={$schemaStore.currentGlobalSchema}
-					inputStyle="flex: 1"
+					inputStyle="width:100%"
 					options={$schemaStore.currentGlobalSettings}
 					on:change={(e) => {
 						const { key, value } = e.detail;
@@ -241,5 +241,6 @@
 		background-color: var(--secondary);
 		border-radius: 0.6rem;
 		padding: 0.8rem;
+		width: 13rem;
 	}
 </style>

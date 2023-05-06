@@ -203,6 +203,7 @@ export class Waifu2xUpscaler implements Upscaler<Waifu2xSchema> {
             parallelFrames: options.parallelFrames,
             quality: options.quality,
             speed: options.speed,
+            noResume: true,
         } satisfies Waifu2xGIFOptions
         const state = {
             halted: false,

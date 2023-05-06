@@ -40,4 +40,10 @@
 	.title {
 		min-width: 12rem;
 	}
+
+	@media (max-width: 850px) {
+		.title {
+			min-width: unset;
+		}
+	}
 </style>

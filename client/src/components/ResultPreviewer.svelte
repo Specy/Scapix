@@ -26,9 +26,9 @@
 	onMount(() => {
 		thumbPosition = calculateMiddle();
 	});
-	function calculateMiddle() {
+	function calculateMiddle(domRect?: DOMRect) {
 		if (typeof window === 'undefined') return 0;
-		return (window.innerWidth - (rect?.left ?? 0)) / 2;
+		return (window.innerWidth - (domRect?.left ?? 62)) / 2;
 	}
 	$: if (!diff) {
 		showingOriginal = false;
