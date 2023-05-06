@@ -1,8 +1,15 @@
-import { Err, FunctionMiddleware, Ok, PATHS, denoiseLevelToNumber, modelToPath } from "../utils";
+import { Err, FunctionMiddleware, Ok, PATHS, } from "../utils";
 import type { ConcreteOptionsOf, Progress, Upscaler, UpscalerResult, UpscalerSchema } from "./upscalers.interface";
 import Waifu2x, { Waifu2xGIFOptions, Waifu2xOptions, Waifu2xVideoOptions } from "waifu2x";
 
 export const esrgan4xSchema = {
+    defaults: {
+        gif: { scale: 4 },
+        video: { scale: 4 },
+        image: { scale: 4 },
+        webp: { scale: 4 },
+        webpAnimated: { scale: 4 },
+    },
     opts: {
         all: {
             scale: {
@@ -100,7 +107,7 @@ export class Esrgan4XUpscaler implements Upscaler<Esrgan4xSchema> {
     async upscaleImage(from: string, to: string, options: ConcreteOptionsOf<Esrgan4xSchema, "image">): Promise<UpscalerResult> {
         const finalOptions = {
             upscaler: 'real-esrgan',
-            scale: options.scale,
+            scale: 4,
         } satisfies Waifu2xOptions
         const state = {
             halted: false,
@@ -144,7 +151,7 @@ export class Esrgan4XUpscaler implements Upscaler<Esrgan4xSchema> {
     async upscaleVideo(from: string, to: string, options: ConcreteOptionsOf<Esrgan4xSchema, "video">): Promise<UpscalerResult> {
         const finalOptions = {
             upscaler: 'real-esrgan',
-            scale: options.scale,
+            scale: 4,
             parallelFrames: options.parallelFrames,
             quality: options.quality,
             speed: options.speed,
@@ -191,7 +198,7 @@ export class Esrgan4XUpscaler implements Upscaler<Esrgan4xSchema> {
     async upscaleGif(from: string, to: string, options: ConcreteOptionsOf<Esrgan4xSchema, "gif">): Promise<UpscalerResult> {
         const finalOptions = {
             upscaler: 'real-esrgan',
-            scale: options.scale,
+            scale: 4,
             quality: options.quality,
             speed: options.speed,
             noResume: true,

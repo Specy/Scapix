@@ -1,12 +1,23 @@
 import type { Upscaler, UpscalerSchema, ConcreteOptionsOf, UpscalerResult, Progress } from "./upscalers.interface";
 import Waifu2x, { Waifu2xGIFOptions, Waifu2xOptions, Waifu2xVideoOptions } from "waifu2x";
-import { Err, FunctionMiddleware, Ok, PATHS, denoiseLevelToNumber, modelToPath } from "../utils";
-import { defaultUpscalerOptions } from "./default";
+import { Err, FunctionMiddleware, Ok, PATHS, denoiseLevelToNumber } from "../utils";
 import fs from "fs/promises"
+import path from "path"
+import { DenoiseLevel } from "../common/types/Files";
 export const waifu2xSchema = {
     opts: {
         all: {
-            ...defaultUpscalerOptions,
+            scale: {
+                type: "number",
+                default: 2,
+                increment: 0.1,
+                min: 1,
+            },
+            denoise: {
+                type: "list",
+                default: DenoiseLevel.None,
+                items: Object.values(DenoiseLevel)
+            },
             model: {
                 type: "list",
                 default: "drawing",
@@ -104,7 +115,7 @@ export class Waifu2xUpscaler implements Upscaler<Waifu2xSchema> {
             upscaler: "waifu2x",
             scale: options.scale,
             noise: denoiseLevelToNumber(options.denoise),
-            modelDir: options.model !== "drawing" ? modelToPath(options.model) : undefined,
+            modelDir: options.model !== "drawing" ? waifu2xModelToPath(options.model) : undefined,
         } satisfies Waifu2xOptions
         const state = {
             halted: false,
@@ -149,7 +160,7 @@ export class Waifu2xUpscaler implements Upscaler<Waifu2xSchema> {
             upscaler: "waifu2x",
             scale: options.scale,
             noise: denoiseLevelToNumber(options.denoise),
-            modelDir: options.model !== "drawing" ? modelToPath(options.model) : undefined,
+            modelDir: options.model !== "drawing" ? waifu2xModelToPath(options.model) : undefined,
             parallelFrames: options.parallelFrames,
             quality: options.quality,
             speed: options.speed,
@@ -199,7 +210,7 @@ export class Waifu2xUpscaler implements Upscaler<Waifu2xSchema> {
             upscaler: "waifu2x",
             scale: options.scale,
             noise: denoiseLevelToNumber(options.denoise),
-            modelDir: options.model !== "drawing" ? modelToPath(options.model) : undefined,
+            modelDir: options.model !== "drawing" ? waifu2xModelToPath(options.model) : undefined,
             parallelFrames: options.parallelFrames,
             quality: options.quality,
             speed: options.speed,
@@ -250,4 +261,7 @@ export class Waifu2xUpscaler implements Upscaler<Waifu2xSchema> {
         return this.upscaleGif(from, to, options)
     }
 
+}
+export function waifu2xModelToPath(model: string) {
+    return path.join(PATHS.waifu2xModels, model);
 }

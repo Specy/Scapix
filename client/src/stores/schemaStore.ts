@@ -81,14 +81,21 @@ function createSchemaStore() {
             }
         }
     }
-
+    function getDefaultOfType<T extends UpscalerName, F extends FileTypes>(upscaler: T, type: F): Record<string, string | number | boolean> | null{
+        const value = get(schemaStore)
+        if (!value.schema) return null;
+        const defaults = value.schema[upscaler].defaults
+        if(!defaults) return null
+        return defaults[type] ?? {}
+    }
     return {
         subscribe,
         setSchema,
         getDefaultOf,
         setCurrentUpscaler,
         setGlobalSettingsValue,
-        getSerializedGlobalSettings
+        getSerializedGlobalSettings,
+        getDefaultOfType
     }
 }
 

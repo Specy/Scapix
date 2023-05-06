@@ -40,11 +40,7 @@
 	}
 
 	onMount(() => {
-		async function syncModels() {
-			const models = await window.api.getWaifuModels();
-			settingsStore.setModels(models);
-		}
-		syncModels();
+
 		function onKeyDown(e: KeyboardEvent) {
 			const code = e.code;
 			if (code === 'Escape') {

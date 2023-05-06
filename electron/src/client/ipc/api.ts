@@ -94,9 +94,7 @@ const api = {
     gotoExternal: (url: string) => {
         return ipc.send("goto-external", url)
     },
-    getWaifuModels: async () => {
-        return ipc.invoke("get-waifu-models") as Promise<string[]>
-    },
+
     executeFiles: async (files: SerializedConversionFile[], globals: GlobalSettings, settings: SerializedSettings) => {
         return ipc.invoke("execute-files", files, globals, settings)
     },

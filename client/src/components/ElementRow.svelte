@@ -213,14 +213,16 @@
 				<ElementSettingsRow
 					isDefault={element.settings.upscaler === undefined}
 					on:reset={() => {
-						element.settings.upscaler = undefined;
+						element.setUpscaler(undefined)
+						element = element;
 					}}
 					title="Upscaler"
 				>
 					<Select
 						style="width: 8rem"
 						on:change={(e) => {
-							element.settings.upscaler = e.target.value;
+							element.setUpscaler(e.target.value);
+							element = element;
 						}}
 						value={element.settings.upscaler ?? $schemaStore.currentUpscaler}
 					>

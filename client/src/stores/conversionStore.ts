@@ -1,17 +1,13 @@
 import { toResourceUrl } from "$lib/utils";
 import { get, writable } from "svelte/store";
 import { type FileTypes, Status, type StatusUpdate } from "$common/types/Files"
-import type { SerializedConversionFile, Stats, AppUpscaleSettings, UpscalerName, AppSchema, ConcreteOptionsOf, OptionalUpscaleSettings } from "$common/types/Files"
+import type { SerializedConversionFile, Stats, UpscalerName, OptionalUpscaleSettings } from "$common/types/Files"
 import { schemaStore } from "./schemaStore";
 
 export type ConversionDiff = {
     original: ConversionFile<FileTypes>
     converted: string
 }
-
-
-
-
 
 
 export class ConversionFile<F extends FileTypes> {
@@ -28,7 +24,7 @@ export class ConversionFile<F extends FileTypes> {
     }
     private obj: string | null = null
     settings: OptionalUpscaleSettings
-    constructor(file: File,type: FileTypes,  stats?: Stats) {
+    constructor(file: File,type: FileTypes, stats?: Stats, defaultSettingsValues?: OptionalUpscaleSettings['opts']['values']) {
         this.file = file
         this.id = `${Math.random().toString(36).substring(2, 9)}-${file.name}`
         this.stats = stats ?? this.stats
@@ -37,7 +33,7 @@ export class ConversionFile<F extends FileTypes> {
             upscaler: undefined,
             opts: {
                 type,
-                values: {}
+                values: defaultSettingsValues ?? {}
             }
         }
     }
@@ -81,6 +77,13 @@ export class ConversionFile<F extends FileTypes> {
         if (!type) throw new Error("Unsupported file type")
         const stats = await ConversionFile.getFileStats(file, type)
         return new ConversionFile(file, type, stats)
+    }
+    setUpscaler(upscaler: UpscalerName | undefined) {   
+        this.settings.upscaler = upscaler
+        if(!upscaler) return
+        const defaults = schemaStore.getDefaultOfType(upscaler, this.getType())
+        if (!defaults) return
+        this.settings.opts.values = defaults
     }
     getType(): F {
         return this.settings.opts.type as F

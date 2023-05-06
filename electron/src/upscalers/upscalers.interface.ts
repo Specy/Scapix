@@ -41,15 +41,20 @@ class UpscalerHandler {
         const schemaType = {
             ...schema.opts.all,
             ...schema.opts[settings.opts.type]
-        }
+        } as Record<string, SchemaType>
         const merged = {
             ...settings.opts.values,
-            scale: settings.opts.values.scale ?? global.scale,
-            // @ts-ignore
-            denoise: settings.opts.values.denoise ?? global.denoise,
             upscaler: upscaler.name
+        } as ConcreteOptionsOf<AppSchema[UpscalerName], FileTypes> & { upscaler: UpscalerName }
+        if (schemaType['scale'] !== undefined) {
+            // @ts-ignore
+            merged['scale'] = settings.opts.values.scale ?? generalSettings.scale ?? schemaType.scale.default
         }
-        // @ts-ignore
+
+        if (schemaType['denoise'] !== undefined) {
+            // @ts-ignore
+            merged['denoise'] = settings.opts.values.denoise ?? generalSettings.denoise ?? schemaType.denoise.default
+        }
         if (schemaType['parallelFrames'] !== undefined) {
             // @ts-ignore
             merged['parallelFrames'] = generalSettings.maxConcurrentFrames
@@ -62,7 +67,7 @@ class UpscalerHandler {
             }
         }
 
-        return Ok(merged)
+        return Ok(merged) 
     }
     getUpscaler<T extends UpscalerName>(name: T): Result<Upscaler<AppSchema[T]>, string> {
         const upscaler = this.upscalers.get(name)
@@ -170,6 +175,8 @@ export type Progress = {
     type: "progress"
     progress: number
 }
+
+
 type UpscalerSchemaOptions = {
     image: Record<string, SchemaType>
     video: Record<string, SchemaType>
@@ -178,13 +185,21 @@ type UpscalerSchemaOptions = {
     webpAnimated: Record<string, SchemaType>
     all: Record<string, SchemaType>
 }
-
+type UpscalersDefaults = {
+    image: Record<string, string | number>
+    video: Record<string, string | number>
+    gif: Record<string, string | number>
+    webp: Record<string, string | number>
+    webpAnimated: Record<string, string | number>
+}
 export type UpscalerSchema = {
+    defaults?: UpscalersDefaults
     opts: UpscalerSchemaOptions
 }
 
 export type UpscalerName = keyof typeof UPSCALERS
 type MergedSchema<T extends UpscalerSchema> = {
+    defaults?: T extends UpscalersDefaults ? T['defaults'] : undefined
     opts: {
         [K in keyof T['opts']]: T['opts'][K] & T['opts']["all"]
     }

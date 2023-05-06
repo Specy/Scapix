@@ -102,10 +102,6 @@ function denoiseLevelToNumber(level: DenoiseLevel) {
 }
 
 
-function modelToPath(model: string) {
-    return path.join(PATHS.models, model);
-}
-
 type PendingUpscale = {
     file: SerializedConversionFile;
     result?: UpscalerResult
@@ -139,11 +135,7 @@ function setUpIpc(win: BrowserWindow) {
         }
         return null;
     })
-    ipc.handle("get-waifu-models", async () => {
-        const models = await fs.readdir(PATHS.models)
-        models.unshift("drawing")
-        return models;
-    })
+
     ipc.handle("ask-directory", async () => {
         const result = await dialog.showOpenDialog(win, {
             properties: ["openDirectory"]
@@ -269,14 +261,14 @@ type PathOptions = {
     saveInDatedFolder: boolean
     appendUpscaleSettingsToFileName: boolean
 }
-function finalizePath(base: string, upscaleSettings: { scale: number, upscaler: string, denoise?: string }, opts: PathOptions) {
+function finalizePath(base: string, upscaleSettings: { scale?: number, upscaler: string, denoise?: string }, opts: PathOptions) {
     //finalizes the path to the output file
     //Ex: "C:\Users\user\Downloads\image.png" -> "C:\Users\user\Downloads\{folder}\image.{options}.png"
     base = path.resolve(base)
     const { saveInDatedFolder, appendUpscaleSettingsToFileName } = opts;
     const date = new Date();
     const dateStr = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-    const suffix = `${upscaleSettings.upscaler}-${upscaleSettings.scale}x_${upscaleSettings.denoise || ''}`;
+    const suffix = `${upscaleSettings.upscaler}-${upscaleSettings.scale || ''}x_${upscaleSettings.denoise || ''}`;
     const ext = path.extname(base);
     const name = path.basename(base, ext);
     const dir = path.dirname(base);
