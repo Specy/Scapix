@@ -58,3 +58,9 @@ export function delay(ms:number){
     return new Promise(resolve => setTimeout(resolve, ms))
 }
 
+export function getFileFormat(fileName: string){
+    return (/(\.\w*)$/.exec(fileName) || [''])[0].replace('.', '')
+}
+export function removeFileFormat(fileName: string){
+    return fileName.replace(/(\.\w*)$/, '')
+}

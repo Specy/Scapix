@@ -16,7 +16,7 @@
 	import type { FileTypes } from '$common/types/Files';
 	import SettingsRenderer from '$cmp/Settings/SettingsRenderer.svelte';
 	import Select from '$cmp/inputs/Select.svelte';
-	import { capitalize } from '$lib/utils';
+	import { capitalize, getFileFormat, removeFileFormat } from '$lib/utils';
 	import ElementRow from '$cmp/ElementRow.svelte';
 	let floatingResult: ConversionDiff | undefined;
 	let isProcessing = false;
@@ -63,6 +63,7 @@
 			window.removeEventListener('keydown', onKeyDown);
 		};
 	});
+
 </script>
 
 <div class="page">
@@ -161,13 +162,21 @@
 				No files selected, go add some!
 			</div>
 		{:else if $schemaStore.schema}
-			{#each $conversionsStore.files.slice(0, perPage * page) as el (el.id)}
+			{#each $conversionsStore.files.slice(0, perPage * page) as el, i (el.id)}
 				<div animate:flip={{ duration: 200 }} in:slide|local out:fade|local>
 					<ElementRow
 						element={el}
 						on:delete={() => conversionsStore.remove(el)}
 						on:showResult={(data) => {
 							floatingResult = data.detail;
+						}}
+						on:formatChange={(e) => {
+							const nameWithoutFormat = removeFileFormat(el.finalName);
+							el.finalName = `${nameWithoutFormat}.${e.detail}`;
+						}}
+						on:nameChange={(e) => {
+							const format = getFileFormat(el.finalName);
+							el.finalName = `${e.detail}.${format}`;		
 						}}
 					/>
 				</div>

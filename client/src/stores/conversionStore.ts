@@ -176,6 +176,7 @@ function createConversionsStore() {
         remove,
         updateStatus,
         getNextValid,
+        set
     }
 }
 

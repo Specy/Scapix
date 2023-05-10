@@ -61,6 +61,7 @@ export const PATHS = {
     electronDist: path.join(ROOT_PATH, "/electron/dist"),
     electronClient: path.join(ROOT_PATH, "/electron/dist/client"),
     electronStatic: path.join(ROOT_PATH, "/electron/static"),
+    models: path.join(ROOT_PATH, "/models"),
     waifu2xModels: path.join(ROOT_PATH, "/models/waifu2x"),
     ffmpeg: ffmpeg.path
 }

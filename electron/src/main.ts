@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain as ipc, protocol, dialog, shell } from "ele
 import url from "url";
 import path from "path";
 import { AsyncSemaphore, PATHS, ROOT_PATH } from "./utils";
-import { DenoiseLevel, SerializedConversionFile, SerializedSettings, Status } from "./common/types/Files";
+import { DenoiseLevel, SerializedConversionFile, SerializedSettings, SpecialPathName, Status } from "./common/types/Files";
 import Waifu2x from "waifu2x";
 import fs from "fs/promises"
 import serve from "electron-serve";
@@ -11,7 +11,6 @@ import semver from "semver";
 import log from "electron-log";
 import { AppSchema, GlobalSettings, OptionalUpscaleSettings, SchemaType, UpscalerResult, upscalerHandler } from "./upscalers/upscalers.interface";
 const isDev = !app.isPackaged
-
 
 try {
     log.transports.file.resolvePath = () => path.join(ROOT_PATH, 'logs/main.log');
@@ -158,6 +157,17 @@ function setUpIpc(win: BrowserWindow) {
         const data = await upscalerHandler.getSchemas()
         if(!data.ok) throw new Error(data.error)
         return data.value;
+    })
+    ipc.handle("get-special-path", async (e, specialPath: SpecialPathName) => {
+        switch (specialPath){
+            case "default-results": {
+                const result = path.join(app.getPath("documents"), "Scapix", "results")
+                await fs.mkdir(result, {recursive: true })
+                return result;
+            }
+            case "models-folder": return PATHS.models
+        }
+        return ""
     })
     ipc.handle("halt-one-execution", (e, idOrFile: string | SerializedConversionFile) => {
         const id = typeof idOrFile === "string" ? idOrFile : idOrFile.id;

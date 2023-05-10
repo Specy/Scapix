@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer as ipc } from "electron";
-import { SerializedConversionFile, SerializedSettings, StatusUpdate } from "../../common/types/Files";
+import { SerializedConversionFile, SerializedSettings, SpecialPathName, StatusUpdate } from "../../common/types/Files";
 import { AppSchema, GlobalSettings, OptionalUpscaleSettings, SchemaType } from "upscalers/upscalers.interface";
 type EventListener = {
     id: string,
@@ -58,9 +58,9 @@ const controls = {
     addOnLog: (callback: (type: "error" | "log" | "warn", message: string, timeout?: number) => void) => {
         const id = EventListeners.generateId()
         const listener = {
-            id, 
+            id,
             callback: (e: any, data: any) => {
-                const {type, message, timeout} = data
+                const { type, message, timeout } = data
                 callback(type, message, timeout)
             }
         }
@@ -76,7 +76,7 @@ const controls = {
         const listener = eventListeners.removeListener("maximize-change", id);
         if (!listener) return;
         ipc.removeListener("maximize-change", listener.callback);
-    }
+    },
 }
 export type Controls = typeof controls;
 contextBridge.exposeInMainWorld("controls", controls)
@@ -126,6 +126,9 @@ const api = {
         const listener = eventListeners.removeListener("file-status-change", id);
         if (!listener) return;
         ipc.removeListener("file-status-change", listener.callback);
+    },
+    getPathOf: async (specialPath: SpecialPathName): Promise<string> => {
+        return ipc.invoke("get-special-path", specialPath)
     }
 }
 

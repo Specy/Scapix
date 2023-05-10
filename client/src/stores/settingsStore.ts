@@ -32,13 +32,13 @@ function createValue<T>(name: string, value: T) {
 const baseValues: SettingValues = {
     maxConcurrentOperations: createValue("Max concurrent operations", 4),
     maxConcurrentFrames: createValue("Max concurrent frames", 4),
-    outputDirectory: createValue("Output directory", "./results/"),
+    outputDirectory: createValue("Output directory", ""),
     saveInDatedFolder: createValue("Save in folders with dates", true),
     appendUpscaleSettingsToFileName: createValue("Append upscale settings to the file name", true)
 }
 
 const debouncer = createDebouncer(1000)
-const CURRENT_VERSION = "1.0.4"
+const CURRENT_VERSION = "1.0.7"
 function createSettingsStore() {
     const { subscribe, update, set } = writable<SettingValues>(baseValues)
     let current = baseValues
@@ -58,11 +58,15 @@ function createSettingsStore() {
             localStorage.setItem("scapix_settings", JSON.stringify(toStore))
         })
     }
-    function fetch() {
+    async function fetch() {
         try {
             const stored = JSON.parse(localStorage.getItem("scapix_settings") ?? "null") as Settings
-            if (!stored) return store()
-            if (stored?.meta?.version !== CURRENT_VERSION) return store()
+            if(!stored || stored?.meta?.version !== CURRENT_VERSION){
+                const settings = {...current}
+                settings.outputDirectory.value = await window.api.getPathOf("default-results")
+                store()
+                return
+            }
             set(stored.values)
         } catch (e) {
             console.error(e)

@@ -6,7 +6,7 @@
 	import FaStop from 'svelte-icons/fa/FaStop.svelte';
 	import FaEdit from 'svelte-icons/fa/FaEdit.svelte';
 	import prettyBytes from 'pretty-bytes';
-	import { capitalize, clamp, toResourceUrl } from '$lib/utils';
+	import { capitalize, clamp, getFileFormat, removeFileFormat, toResourceUrl } from '$lib/utils';
 	import Icon from './layout/Icon.svelte';
 	import FaCog from 'svelte-icons/fa/FaCog.svelte';
 	import { createEventDispatcher } from 'svelte';
@@ -23,27 +23,24 @@
 	import ElementSettingsRow from './Settings/ElementSettingsRow.svelte';
 
 	export let element: ConversionFile<FileTypes>;
-	let type = element.getType();
-	let path = toResourceUrl(element.file.path);
-	let scaleFactor = 2;
+
 	let videoRef: HTMLVideoElement;
 	let settingsOpen = false;
-	let fileFormat = (/[^./\\]*$/.exec(element.finalName) || [''])[0];
+	$: fileFormat = getFileFormat(element.finalName);
+	$: fileName = removeFileFormat(element.finalName);
+	$: type = element.getType();
+	$: path = toResourceUrl(element.file.path);
+	$: status = element.status.status;
+	$: scaleFactor = element.settings.opts.values.scale ?? $schemaStore.currentGlobalSettings!.scale ?? 2;
 	const dispatcher = createEventDispatcher<{
 		delete: undefined;
 		showResult: ConversionDiff;
+		nameChange: string;
+		formatChange: string;
 	}>();
-	$: {
-		type = element.getType();
-		path = toResourceUrl(element.file.path);
-	}
 
-	let status = element.status.status;
 	let upscaler = element.settings.upscaler ?? $schemaStore.currentUpscaler;
 	let schema = createDerivedSchemaStore(upscaler, type);
-	$: fileFormat = (/[^./\\]*$/.exec(element.finalName) || [''])[0];
-	$: status = element.status.status;
-	$: scaleFactor = element.settings.opts.values.scale ?? $schemaStore.currentGlobalSettings!.scale;
 	$: {
 		if (element.settings.upscaler !== upscaler) {
 			let newUpscaler = element.settings.upscaler ?? $schemaStore.currentUpscaler;
@@ -52,7 +49,11 @@
 		}
 	}
 	function onNameChange(e: Event) {
-		element.finalName = (e.target as HTMLDivElement).innerText;
+		dispatcher('nameChange', (e.target as HTMLDivElement).innerText);
+	}
+	$: {
+		fileFormat = getFileFormat(element.finalName);
+		fileName = removeFileFormat(element.finalName);
 	}
 </script>
 
@@ -90,7 +91,7 @@
 					on:input={onNameChange}
 					class="content-editable-name"
 				>
-					{element.finalName.replace(/.[^./\\]*$/, '')}
+					{fileName}
 				</div>
 				{#if ['image', 'webp'].includes(type)}
 					<FormatPicker
@@ -98,7 +99,7 @@
 						force
 						value={fileFormat}
 						on:change={(e) => {
-							element.finalName = element.finalName.replace(/[^./\\]*$/, e.detail);
+							dispatcher('formatChange', e.detail);
 						}}
 					/>
 				{:else}
@@ -178,6 +179,7 @@
 					if (status === Status.Converting) {
 						window.api.haltOne(element.serialize());
 					} else {
+						console.log('executing', element.serialize());
 						window.api.executeFiles(
 							[element.serialize()],
 							schemaStore.getSerializedGlobalSettings(),
@@ -213,7 +215,7 @@
 				<ElementSettingsRow
 					isDefault={element.settings.upscaler === undefined}
 					on:reset={() => {
-						element.setUpscaler(undefined)
+						element.setUpscaler(undefined);
 						element = element;
 					}}
 					title="Upscaler"

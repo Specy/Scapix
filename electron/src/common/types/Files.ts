@@ -11,6 +11,9 @@ export type {
     UpscalerName,
     OptionalUpscaleSettings
 }
+
+export type SpecialPathName = "default-results" | "models-folder" 
+
 export enum Status {
     Idle = "idle",
     Waiting = "waiting",
