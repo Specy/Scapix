@@ -34,6 +34,7 @@ class UpscalerHandler {
     }
 
     mergeSettings(global: GlobalSettings, settings: OptionalUpscaleSettings, generalSettings: SerializedSettings): Result<ConcreteOptionsOf<AppSchema[UpscalerName], FileTypes> & { upscaler: UpscalerName }, string> {
+        //TODO refactor this mess
         const upscalerResult = this.getUpscaler((settings.upscaler ?? global.upscaler) as UpscalerName)
         if (!upscalerResult.ok) return upscalerResult
         const upscaler = upscalerResult.value
@@ -46,19 +47,21 @@ class UpscalerHandler {
             ...settings.opts.values,
             upscaler: upscaler.name
         } as ConcreteOptionsOf<AppSchema[UpscalerName], FileTypes> & { upscaler: UpscalerName }
+
+        //TODO do i even need those?
         if (schemaType['scale'] !== undefined) {
             // @ts-ignore
-            merged['scale'] = settings.opts.values.scale ?? generalSettings.scale ?? schemaType.scale.default
+            merged['scale'] = settings.opts.values.scale ?? global.scale ?? schemaType.scale.default
         }
-
         if (schemaType['denoise'] !== undefined) {
             // @ts-ignore
-            merged['denoise'] = settings.opts.values.denoise ?? generalSettings.denoise ?? schemaType.denoise.default
+            merged['denoise'] = settings.opts.values.denoise ?? global.denoise ?? schemaType.denoise.default
         }
         if (schemaType['parallelFrames'] !== undefined) {
             // @ts-ignore
             merged['parallelFrames'] = generalSettings.maxConcurrentFrames
         }
+        
         for (const [key, value] of Object.entries(global)) {
             // @ts-ignore
             if (schemaType[key] && merged[key] === undefined) {
@@ -66,7 +69,6 @@ class UpscalerHandler {
                 merged[key] = value
             }
         }
-
         return Ok(merged) 
     }
     getUpscaler<T extends UpscalerName>(name: T): Result<Upscaler<AppSchema[T]>, string> {

@@ -1,6 +1,6 @@
 {
   "name": "scapix",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "An app to upscale images and videos using waifu2x and real-esrgan",
   "main": "electron/dist/main.js",
   "build": {
